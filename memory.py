@@ -31,7 +31,6 @@ def save_memory(username: str, fact: str):
             metadatas=[{"username": username.lower()}],
             ids=[doc_id]
         )
-        print(f"\033[90m  [Memory] Saved fact for {username}: {fact.strip()}\033[0m")
     except Exception as e:
         print(f"\033[91m  [Memory Error] Failed to save fact: {e}\033[0m")
 

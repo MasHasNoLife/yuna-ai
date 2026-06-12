@@ -101,9 +101,7 @@ def build_video_message(description):
 # ── Streaming response ────────────────────────────────────────────────────────
 
 async def stream_response(client, messages):
-    """Stream Yuna's reply and return the full response string."""
-    print(f"\n{CYAN}Yuna:{RESET} ", end="", flush=True)
-
+    print(f"\n{YELLOW}Yuna:{RESET} ", end="", flush=True)
     response = ""
 
     try:
@@ -119,7 +117,7 @@ async def stream_response(client, messages):
         )
 
         async for chunk in stream:
-            text = chunk["message"]["content"]
+            text = chunk["message"].get("content", "")
             response += text
             print(text, end="", flush=True)
 
@@ -312,9 +310,11 @@ async def chat_loop(tts_enabled=False, studio_enabled=False):
         # 1. Spawn memory extraction in the background so it doesn't slow down the chat
         asyncio.create_task(extract_and_save_memory(current_username, user_input, client))
         
-        # 2. Retrieve past memories based on what the user just said
-        personal_mem = await asyncio.to_thread(memory.search_memory, current_username, user_input)
-        global_mem = await asyncio.to_thread(memory.search_memory, "global", user_input)
+        # 2. Retrieve past memories concurrently to cut database latency in half
+        personal_mem, global_mem = await asyncio.gather(
+            asyncio.to_thread(memory.search_memory, current_username, user_input),
+            asyncio.to_thread(memory.search_memory, "global", user_input)
+        )
         
         full_user_input = user_input
         context_block = ""
