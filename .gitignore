@@ -1,0 +1,26 @@
+# Virtual Environments
+venv/
+yuna/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# AI Models and Audio Outputs
+*.pth
+*.safetensors
+*.wav
+tts_outputs/
+voice/
+
+# Yuna specific folders
+responses/
+videos/
+
+# OS Files
+.DS_Store
+vts_token.txt
+
+# Personal AI Memory and Lore
+yuna_prompt.py
+yuna_memory/

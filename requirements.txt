@@ -1,0 +1,6 @@
+ollama
+opencv-python
+faster-whisper
+kokoro
+soundfile
+pyvts
