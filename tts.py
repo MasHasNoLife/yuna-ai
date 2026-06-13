@@ -73,59 +73,77 @@ async def synthesize(text, response_num=0, voice='af_heart', play=True):
         print(f"{RED}  [TTS ERROR] Kokoro not installed.{RESET}")
         return None
 
-    # Extract the first tag to trigger VTube Studio
-    match = TAG_PATTERN.search(text)
-    if match:
-        tag = (match.group(1) or match.group(2)).lower()
-        # Trigger the expression asynchronously so it doesn't block audio generation
-        asyncio.create_task(vts_link.trigger_expression(tag))
-
-    clean_text = parse_tags(text)
-
-    if not clean_text.strip():
+    # Parse all tags and split the text into segments
+    segments = []
+    last_idx = 0
+    current_tag = None
+    
+    for match in TAG_PATTERN.finditer(text):
+        segment_text = text[last_idx:match.start()].strip()
+        if segment_text:
+            segments.append((current_tag, segment_text))
+            
+        current_tag = (match.group(1) or match.group(2)).lower()
+        last_idx = match.end()
+        
+    segment_text = text[last_idx:].strip()
+    if segment_text:
+        segments.append((current_tag, segment_text))
+        
+    if not segments:
         return None
 
     if _pipeline is None:
         print(f"{GRAY}  [TTS] Initializing Kokoro Pipeline (this only happens once)...{RESET}", flush=True)
-        # Choose 'a' for American English, 'b' for British
         _pipeline = KPipeline(lang_code='a')
 
     os.makedirs(RESPONSE_DIR, exist_ok=True)
-    output_path = os.path.join(RESPONSE_DIR, f"response_{response_num:04d}.wav")
+    
+    # 1. Pre-generate audio for ALL segments so there are no pauses during playback
+    audio_segments = []
+    for idx, (tag, seg_text) in enumerate(segments):
+        current_speed = 1.0
+        if tag in ["sad", "tired", "bored", "thinking", "confused", "concerned"]:
+            current_speed = 0.85
+        elif tag in ["angry", "scoff", "hmph", "tease", "smug", "annoyed"]:
+            current_speed = 1.05
+        elif tag in ["happy", "laugh", "giggle", "impressed", "surprised", "flustered", "embarrassed", "denial", "competitive"]:
+            current_speed = 1.15
+        elif tag in ["panic", "shock", "gasp", "excited"]:
+            current_speed = 1.25
 
-    print(f"{GRAY}  [TTS] Synthesizing ({len(clean_text)} chars) with voice '{voice}'...{RESET}", flush=True)
+        print(f"{GRAY}  [TTS] Synthesizing [{tag if tag else 'none'}] at {current_speed}x speed...{RESET}", flush=True)
 
-    try:
-        # Run Kokoro generation in a background thread so it doesn't block WebSockets!
-        def _run_generator():
-            gen = _pipeline(clean_text, voice=voice, speed=1.0, split_pattern=r'\n+')
-            return list(gen)
+        try:
+            def _run_generator(t=seg_text, s=current_speed):
+                gen = _pipeline(t, voice=voice, speed=s, split_pattern=r'\n+')
+                return list(gen)
+                
+            chunks = await asyncio.to_thread(_run_generator)
             
-        chunks = await asyncio.to_thread(_run_generator)
-        
-        # Accumulate audio data
-        all_audio = []
-        sample_rate = 24000
-        
-        for i, (gs, ps, audio) in enumerate(chunks):
-            all_audio.extend(audio)
+            all_audio = []
+            for _, _, audio in chunks:
+                all_audio.extend(audio)
+                
+            if all_audio:
+                out_path = os.path.join(RESPONSE_DIR, f"response_{response_num:04d}_{idx}.wav")
+                sf.write(out_path, all_audio, 24000)
+                audio_segments.append((tag, out_path))
+        except Exception as e:
+            print(f"{RED}  [TTS ERROR] {e}{RESET}")
+
+    # 2. Seamlessly play the audio segments and swap expressions mid-sentence!
+    for tag, out_path in audio_segments:
+        if tag:
+            asyncio.create_task(vts_link.trigger_expression(tag))
             
-        if not all_audio:
-            print(f"{RED}  [TTS ERROR] No audio generated.{RESET}")
-            return None
+        if play:
+            await play_audio(out_path)
             
-        # Save output
-        sf.write(output_path, all_audio, sample_rate)
-        print(f"{GRAY}  [TTS] Saved: {output_path}{RESET}")
+        if tag:
+            asyncio.create_task(vts_link.trigger_expression(tag))
 
-    except Exception as e:
-        print(f"{RED}  [TTS ERROR] {e}{RESET}")
-        return None
-
-    if play:
-        await play_audio(output_path)
-
-    return output_path
+    return audio_segments[-1][1] if audio_segments else None
 
 # ── Audio playback ──────────────────────────────────────────────────────────
 
