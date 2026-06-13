@@ -10,7 +10,7 @@ from vision import summarize_video
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-MODEL        = "llama3.1"
+MODEL        = "gemma2:9b"
 MAX_HISTORY  = 12       # Max messages kept (not counting system prompt)
 TEMPERATURE  = 0.8
 TOP_P        = 0.9

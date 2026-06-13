@@ -45,7 +45,7 @@ GREEN = "\033[92m"
 
 # ── Tag parsing ─────────────────────────────────────────────────────────────
 
-TAG_PATTERN = re.compile(r"(?:\[(.*?)\]|\*(.*?)\*)\s*")
+TAG_PATTERN = re.compile(r"\[(.*?)\]\s*")
 
 def parse_tags(text):
     """
@@ -73,6 +73,15 @@ async def synthesize(text, response_num=0, voice='af_heart', play=True):
         print(f"{RED}  [TTS ERROR] Kokoro not installed.{RESET}")
         return None
 
+    # Pronunciation dictionary to prevent TTS from spelling out expressive sounds!
+    text = re.sub(r'\b[Hh]mph\b', 'humph', text)
+    text = re.sub(r'\b[Pp]fft\b', 'puf', text)
+    text = re.sub(r'\b[Tt]ch\b', 'tsk', text)
+
+    # Convert asterisk emphasis to single quotes.
+    # (ALL CAPS makes Kokoro spell it out like an acronym. Quotes usually give it a slight inflection!)
+    text = re.sub(r'\*(.*?)\*', r"'\1'", text)
+
     # Parse all tags and split the text into segments
     segments = []
     last_idx = 0
@@ -83,7 +92,7 @@ async def synthesize(text, response_num=0, voice='af_heart', play=True):
         if segment_text:
             segments.append((current_tag, segment_text))
             
-        current_tag = (match.group(1) or match.group(2)).lower()
+        current_tag = match.group(1).lower()
         last_idx = match.end()
         
     segment_text = text[last_idx:].strip()
@@ -135,13 +144,15 @@ async def synthesize(text, response_num=0, voice='af_heart', play=True):
     # 2. Seamlessly play the audio segments and swap expressions mid-sentence!
     for tag, out_path in audio_segments:
         if tag:
-            asyncio.create_task(vts_link.trigger_expression(tag))
+            asyncio.create_task(vts_link.trigger_expression(tag, turn_off=False))
             
         if play:
             await play_audio(out_path)
             
-        if tag:
-            asyncio.create_task(vts_link.trigger_expression(tag))
+    # Hold the final emotion for 2 seconds after she stops talking so it doesn't just instantly vanish
+    if play:
+        await asyncio.sleep(2.0)
+        asyncio.create_task(vts_link.trigger_expression(None, turn_off=True))
 
     return audio_segments[-1][1] if audio_segments else None
 
