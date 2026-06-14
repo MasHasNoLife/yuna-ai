@@ -24,3 +24,9 @@ vts_token.txt
 # Personal AI Memory and Lore
 yuna_prompt.py
 yuna_memory/
+
+# Additional Media and Engine files
+video_descriptors/
+texts/
+assets/
+fish-speech-int4-patch/
