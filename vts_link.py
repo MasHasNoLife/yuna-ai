@@ -4,6 +4,8 @@ import pyvts
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
+DISABLE_EXPRESSIONS = True  # Master switch to disable all VTS API interactions
+
 plugin_info = {
     "plugin_name": "Yuna AI Controller",
     "developer": "Yuna Project",
@@ -18,6 +20,7 @@ TAG_TO_HOTKEY = {
     "embarrassed": "810f894e9bd5475299e2a0333b07696d",
     "shy": "810f894e9bd5475299e2a0333b07696d",
     "denial": "810f894e9bd5475299e2a0333b07696d",
+    "tease": "810f894e9bd5475299e2a0333b07696d",
     
     # Angry (生气.exp3.json)
     "angry": "324d02ce8d734c1ab810d9a13a124590",
@@ -29,7 +32,6 @@ TAG_TO_HOTKEY = {
     "scoff": "0edafccc7efe41df8902903f70610753",
     "annoyed": "0edafccc7efe41df8902903f70610753",
     "smug": "0edafccc7efe41df8902903f70610753",
-    "tease": "0edafccc7efe41df8902903f70610753",
     "smirks": "0edafccc7efe41df8902903f70610753",
     "pfft": "0edafccc7efe41df8902903f70610753",
     "teasingly": "0edafccc7efe41df8902903f70610753",
@@ -198,12 +200,12 @@ class VTSLink:
         
         custom_mapping = {
             "flustered": "Yuna_Blush", "embarrassed": "Yuna_Blush", "shy": "Yuna_Blush", "denial": "Yuna_Blush",
-            "laughing awkwardly": "Yuna_Blush", "blushing slightly": "Yuna_Blush", "blush": "Yuna_Blush", "blushing": "Yuna_Blush",
+            "laughing awkwardly": "Yuna_Blush", "blushing slightly": "Yuna_Blush", "blush": "Yuna_Blush", "blushing": "Yuna_Blush", "tease": "Yuna_Blush",
             "angry": "Yuna_Angry", "hmph": "Yuna_Angry", "mad": "Yuna_Angry", "competitive": "Yuna_Angry",
             "frustrated": "Yuna_Angry", "pouting": "Yuna_Angry", "pouts": "Yuna_Angry",
             "sad": "Yuna_Tears", "crying": "Yuna_Tears", "concerned": "Yuna_Tears", "tears": "Yuna_Tears", "worried": "Yuna_Tears",
             "surprised": "Yuna_Surprise", "shock": "Yuna_Surprise", "gasp": "Yuna_Surprise", "panic": "Yuna_Surprise", "shocked": "Yuna_Surprise",
-            "scoff": "Yuna_Darkness", "annoyed": "Yuna_Darkness", "smug": "Yuna_Darkness", "tease": "Yuna_Darkness", 
+            "scoff": "Yuna_Darkness", "annoyed": "Yuna_Darkness", "smug": "Yuna_Darkness", 
             "smirks": "Yuna_Darkness", "pfft": "Yuna_Darkness", "teasingly": "Yuna_Darkness", "rolling eyes": "Yuna_Darkness",
             
             # The new eye expression mappings!
@@ -285,6 +287,10 @@ _vts_instance = None
 
 async def init_vts():
     """Initialize connection to VTube Studio"""
+    if DISABLE_EXPRESSIONS:
+        print("\033[90m[VTS] Expressions are disabled in config. Bypassing API connection.\033[0m")
+        return True
+        
     global _vts_instance
     _vts_instance = VTSLink()
     success = await _vts_instance.connect()
@@ -294,5 +300,8 @@ async def init_vts():
 
 async def trigger_expression(tag, turn_off=False):
     """Trigger a hotkey or animate a parameter based on a parsed text tag"""
+    if DISABLE_EXPRESSIONS:
+        return
+        
     if _vts_instance:
         await _vts_instance.trigger_tag(tag, turn_off=turn_off)

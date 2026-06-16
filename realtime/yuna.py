@@ -1,16 +1,19 @@
 import argparse
 import asyncio
 import os
+import sys
+import re
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 import ollama
 import tts
 import vts_link
 import memory
 from yuna_prompt import SYSTEM_PROMPT
-from vision import summarize_video
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-MODEL        = "gemma2:9b"
+MODEL        = "gemma2:27b"
 MAX_HISTORY  = 12       # Max messages kept (not counting system prompt)
 TEMPERATURE  = 0.8
 TOP_P        = 0.9
@@ -47,8 +50,6 @@ def trim_history(messages):
 
 HELP_TEXT = f"""
 {CYAN}Commands:{RESET}
-  {YELLOW}/react{RESET}   — Give a video file path for Yuna to watch and react to.
-  {YELLOW}/video{RESET}   — Manually paste a video description for Yuna to react to.
   {YELLOW}/reset{RESET}   — Clear conversation history and start fresh.
   {YELLOW}/help{RESET}    — Show this message.
   {YELLOW}exit{RESET}     — Quit.
@@ -57,46 +58,6 @@ HELP_TEXT = f"""
 def print_help():
     print(HELP_TEXT)
 
-# ── Video input ───────────────────────────────────────────────────────────────
-
-def collect_video_input():
-    """
-    Let the user paste a multi-line video description.
-    Two consecutive blank lines (or a single /done) signals end of input.
-    """
-    print(f"\n{GRAY}Paste your video description or transcript below.")
-    print(f"Press Enter twice when done.{RESET}\n")
-
-    lines = []
-    blank_streak = 0
-
-    while True:
-        try:
-            line = input()
-        except EOFError:
-            break
-
-        if line.strip().lower() in ("/done", "/end"):
-            break
-
-        if line.strip() == "":
-            blank_streak += 1
-            if blank_streak >= 2:
-                break
-            lines.append(line)
-        else:
-            blank_streak = 0
-            lines.append(line)
-
-    content = "\n".join(lines).strip()
-    return content
-
-def build_video_message(description):
-    """Wrap video content so Yuna knows it's a video she's watching."""
-    return (
-        "[VIDEO CONTENT — React to this as if you are watching it live]\n\n"
-        + description
-    )
 
 # ── Streaming response ────────────────────────────────────────────────────────
 
@@ -118,6 +79,8 @@ async def stream_response(client, messages):
 
         async for chunk in stream:
             text = chunk["message"].get("content", "")
+            # Clean up the LLM's jagged line breaks on the fly
+            text = text.replace("\n", " ")
             response += text
             print(text, end="", flush=True)
 
@@ -246,64 +209,6 @@ async def chat_loop(tts_enabled=False, studio_enabled=False):
             print(f"{GRAY}[History cleared]{RESET}\n")
             continue
 
-        if user_input.lower() == "/react":
-            video_path = input(f"{GRAY}Video path: {RESET}").strip()
-
-            if not video_path:
-                print(f"{GRAY}[No path entered]{RESET}\n")
-                continue
-
-            if not os.path.isfile(video_path):
-                print(f"{RED}[ERROR] File not found: {video_path}{RESET}\n")
-                continue
-
-            try:
-                print(f"{GRAY}[Processing video...]{RESET}")
-                description = await summarize_video(video_path)
-                print(f"\n{GRAY}── Generated description ──{RESET}")
-                print(f"{GRAY}{description}{RESET}")
-                print(f"{GRAY}───────────────────────────{RESET}\n")
-            except Exception as e:
-                print(f"{RED}[ERROR] Vision pipeline failed: {e}{RESET}\n")
-                continue
-
-            video_message = build_video_message(description)
-            messages.append({"role": "user", "content": video_message})
-            messages = trim_history(messages)
-
-            response = await stream_response(client, messages)
-            if response:
-                messages.append({"role": "assistant", "content": response})
-                if tts_enabled:
-                    await tts.synthesize(response, response_num=response_num)
-                    response_num += 1
-            else:
-                messages.pop()
-
-            continue
-
-        if user_input.lower() == "/video":
-            description = collect_video_input()
-
-            if not description:
-                print(f"{GRAY}[No video content entered]{RESET}\n")
-                continue
-
-            # Inject video content as a user message
-            video_message = build_video_message(description)
-            messages.append({"role": "user", "content": video_message})
-            messages = trim_history(messages)
-
-            response = await stream_response(client, messages)
-            if response:
-                messages.append({"role": "assistant", "content": response})
-                if tts_enabled:
-                    await tts.synthesize(response, response_num=response_num)
-                    response_num += 1
-            else:
-                messages.pop()  # remove user message that got no reply
-
-            continue
 
         # ── Normal chat ───────────────────────────────────────────────────────
 

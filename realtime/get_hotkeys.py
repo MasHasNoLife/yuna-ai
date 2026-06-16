@@ -14,6 +14,10 @@ async def main():
     try:
         await vts.connect()
         await vts.read_token()
+        if not vts.authentic_token:
+            print("Requesting authorization... Please click 'Allow' inside VTube Studio!")
+            await vts.request_authenticate_token()
+            await vts.write_token()
         await vts.request_authenticate()
     except Exception as e:
         print(f"Could not connect! Make sure VTube Studio is running and 'Start API' is ON. Error: {e}")

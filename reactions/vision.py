@@ -29,8 +29,8 @@ from faster_whisper import WhisperModel
 
 VISION_MODEL   = "llava:13b"
 WHISPER_SIZE   = "medium"
-MAX_FRAMES     = 12          # Max frames to send to the vision model
-FRAME_INTERVAL = 1           # Seconds between captured frames
+MAX_FRAMES     = 30          # Max frames to send to the vision model (up to 60s of video)
+FRAME_INTERVAL = 2           # Seconds between captured frames
 JPEG_QUALITY   = 85          # Compression quality for extracted frames
 
 # ── ANSI colors (match yuna.py) ──────────────────────────────────────────────
@@ -142,21 +142,36 @@ def transcribe_audio(video_path):
 
 # ── Frame description (vision model) ─────────────────────────────────────────
 
-VISION_PROMPT = (
+VISION_PROMPT_TEMPLATE = (
     "Describe the primary action or subject in this frame in one concise, objective sentence. "
     "Specifically highlight if the image contains: a cute animal, a physical fail or accident, an impressive stunt, weird/cringe behavior, or readable text. "
+    "{audio_context}"
+    "{previous_context}"
     "Ignore all background details, scenery, lighting, clothing, and static talking heads. "
     "If the frame is just a normal conversation or lacks clear dynamic action, output exactly: 'Nothing notable.'"
 )
 
-async def describe_frame(client, frame_b64):
-    """Send a single frame to the vision model and get a description."""
+async def describe_frame(client, frame_b64, audio_context_text="", previous_context_text=""):
+    """Send a single frame to the vision model and get a description, injecting audio context if available."""
+    
+    if audio_context_text:
+        audio_injection = f"\\n\\n[AUDIO CONTEXT]: The following audio was spoken exactly at the moment this frame was taken: '{audio_context_text}'. Use this context to identify who is speaking or what is happening.\\n\\n"
+    else:
+        audio_injection = ""
+        
+    if previous_context_text:
+        previous_injection = f"\\n\\n[PREVIOUS FRAME CONTEXT]: '{previous_context_text}'.\\nIf the same subjects/scene appear in this new frame, refer to them consistently (e.g., 'the same man'). If it is a completely new scene, describe it normally.\\n\\n"
+    else:
+        previous_injection = ""
+        
+    prompt = VISION_PROMPT_TEMPLATE.replace("{audio_context}", audio_injection).replace("{previous_context}", previous_injection)
+    
     response = await client.chat(
         model=VISION_MODEL,
         messages=[
             {
                 "role": "user",
-                "content": VISION_PROMPT,
+                "content": prompt,
                 "images": [frame_b64],
             }
         ],
@@ -194,15 +209,26 @@ async def summarize_video(video_path):
     print(f"{GRAY}  Describing frames with {VISION_MODEL}...{RESET}")
     client = ollama.AsyncClient()
     descriptions = []
+    previous_desc = ""
 
     for i, (frame, ts) in enumerate(zip(frames, timestamps)):
-        desc = await describe_frame(client, frame)
+        # Find audio context within +/- 1 second of this frame
+        relevant_audio = []
+        if audio_segments:
+            for seg_start, text in audio_segments:
+                if abs(seg_start - ts) <= 1.5:
+                    relevant_audio.append(text)
+        
+        audio_context = " ".join(relevant_audio)
+        
+        desc = await describe_frame(client, frame, audio_context_text=audio_context, previous_context_text=previous_desc)
         print(f"{GRAY}    Frame {i + 1}/{len(frames)} done{RESET}")
 
         # Skip boring frames
         if "nothing notable" in desc.lower():
             continue
 
+        previous_desc = desc
         descriptions.append((ts, f"[{int(ts)}s] {desc}"))
 
     # ── 4. Build interleaved timeline ─────────────────────────────────────
