@@ -9,17 +9,26 @@ ollama_ef = embedding_functions.OllamaEmbeddingFunction(
     model_name="nomic-embed-text",
 )
 
-# Initialize the persistent ChromaDB client
-MEMORY_DIR = os.path.join(os.path.dirname(__file__), "yuna_memory")
-chroma_client = chromadb.PersistentClient(path=MEMORY_DIR)
+# Keep a cache of collections to avoid re-initializing
+_collections = {}
 
-# Get or create the collection for user facts
-collection = chroma_client.get_or_create_collection(
-    name="user_facts",
-    embedding_function=ollama_ef
-)
+def get_collection(db_name="yuna_memory"):
+    if db_name in _collections:
+        return _collections[db_name]
+        
+    memory_dir = os.path.join(os.path.dirname(__file__), db_name)
+    chroma_client = chromadb.PersistentClient(path=memory_dir)
+    collection = chroma_client.get_or_create_collection(
+        name="user_facts",
+        embedding_function=ollama_ef
+    )
+    _collections[db_name] = collection
+    return collection
 
-def save_memory(username: str, fact: str):
+# Default collection for yuna.py to maintain backward compatibility
+default_collection = get_collection()
+
+def save_memory(username: str, fact: str, collection=default_collection):
     """Save a new fact about the user into the vector database with a username tag."""
     if not fact or not fact.strip():
         return
@@ -34,7 +43,7 @@ def save_memory(username: str, fact: str):
     except Exception as e:
         print(f"\033[91m  [Memory Error] Failed to save fact: {e}\033[0m")
 
-def search_memory(username: str, query: str, n_results=3) -> list:
+def search_memory(username: str, query: str, n_results=3, collection=default_collection) -> list:
     """Search for relevant past facts based on the current context, strictly filtering by username."""
     if not query or not query.strip():
         return []

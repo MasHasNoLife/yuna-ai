@@ -142,19 +142,17 @@ async def synthesize(text, response_num=0, voice='af_heart', play=True):
             print(f"{RED}  [TTS ERROR] {e}{RESET}")
 
     # 2. Seamlessly play the audio segments and swap expressions mid-sentence!
-    for tag, out_path in audio_segments:
-        if tag:
-            asyncio.create_task(vts_link.trigger_expression(tag, turn_off=False))
-            
-        if play:
+    if play:
+        for tag, out_path in audio_segments:
+            if tag:
+                asyncio.create_task(vts_link.trigger_expression(tag, turn_off=False))
             await play_audio(out_path)
             
-    # Hold the final emotion for 2 seconds after she stops talking so it doesn't just instantly vanish
-    if play:
+        # Hold the final emotion for 2 seconds after she stops talking so it doesn't just instantly vanish
         await asyncio.sleep(2.0)
         asyncio.create_task(vts_link.trigger_expression(None, turn_off=True))
 
-    return audio_segments[-1][1] if audio_segments else None
+    return audio_segments
 
 # ── Audio playback ──────────────────────────────────────────────────────────
 

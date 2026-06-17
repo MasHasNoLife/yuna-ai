@@ -30,3 +30,9 @@ video_descriptors/
 texts/
 assets/
 fish-speech-int4-patch/
+
+# Environment Variables
+.env
+
+# Discord Bot Memory
+yuna_discord_memory/
