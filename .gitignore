@@ -36,3 +36,9 @@ fish-speech-int4-patch/
 
 # Discord Bot Memory
 yuna_discord_memory/
+brain_data/
+discord/discord_memory/
+test.gif
+test.jpg
+test_extract.py
+test_vision.py

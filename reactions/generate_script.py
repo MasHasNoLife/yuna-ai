@@ -7,7 +7,7 @@ import ollama
 # Add root directory to python path to import shared modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from yuna_prompt import SYSTEM_PROMPT
+from yuna_prompt import SYSTEM_PROMPT, VIDEO_REACTION_PROMPT
 import memory
 
 # Directories
@@ -45,21 +45,19 @@ async def main():
         asyncio.to_thread(memory.search_memory, "global", "video reaction context")
     )
 
-    context_block = ""
-    if personal_mem:
-        context_block += f"- You previously remembered this about the user ({username}): '{personal_mem}'\n"
-    if global_mem:
-        context_block += f"- You know this general fact: '{global_mem}'\n"
-        
-    if context_block:
-        context_prompt = f"[SYSTEM CONTEXT:\n{context_block}Use this naturally if it applies to the video.]\n\n"
-    else:
-        context_prompt = ""
+    context_prompt = ""
+    if personal_mem or global_mem:
+        context_parts = []
+        if personal_mem:
+            context_parts.append(f"About {username}: {personal_mem}")
+        if global_mem:
+            context_parts.append(f"General: {global_mem}")
+        context = " | ".join(context_parts)
+        context_prompt = f"(You vaguely recall: {context})\n\n"
 
-    prompt = f"{context_prompt}React to this video:\n\n{timeline_text}\n\n"
-    prompt += "CRITICAL INSTRUCTION: DO NOT output any timestamps (like [4s], [8s]) in your response! You are speaking out loud as a VTuber, so generating timestamps will break the immersion. Just write your natural dialogue reacting to the overarching events!"
+    prompt = f"{context_prompt}React to this video:\n\n{timeline_text}"
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": SYSTEM_PROMPT + "\n\n" + VIDEO_REACTION_PROMPT},
         {"role": "user", "content": prompt}
     ]
 

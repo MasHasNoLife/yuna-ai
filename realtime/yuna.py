@@ -9,12 +9,12 @@ import ollama
 import tts
 import vts_link
 import memory
-from yuna_prompt import SYSTEM_PROMPT
+from yuna_prompt import SYSTEM_PROMPT, STREAM_PROMPT
 
 # ── Config ────────────────────────────────────────────────────────────────────
 
-MODEL        = "gemma2:27b"
-MAX_HISTORY  = 12       # Max messages kept (not counting system prompt)
+MODEL        = "qwen2.5:14b"
+MAX_HISTORY  = 30       # Max messages kept (not counting system prompt)
 TEMPERATURE  = 0.8
 TOP_P        = 0.9
 REPEAT_PEN   = 1.15
@@ -32,9 +32,12 @@ def label(text, color):
 
 # ── History helpers ───────────────────────────────────────────────────────────
 
+# Store the active system prompt (base or base+stream)
+_active_prompt = SYSTEM_PROMPT
+
 def make_history():
     """Return a fresh message list with just the system prompt."""
-    return [{"role": "system", "content": SYSTEM_PROMPT}]
+    return [{"role": "system", "content": _active_prompt}]
 
 def trim_history(messages):
     """Keep system prompt + last MAX_HISTORY messages, trimming in pairs."""
@@ -79,8 +82,8 @@ async def stream_response(client, messages):
 
         async for chunk in stream:
             text = chunk["message"].get("content", "")
-            # Clean up the LLM's jagged line breaks on the fly
-            text = text.replace("\n", " ")
+            # Clean up the LLM's jagged line breaks and completely strip asterisks
+            text = text.replace("\n", " ").replace("*", "")
             response += text
             print(text, end="", flush=True)
 
@@ -92,40 +95,39 @@ async def stream_response(client, messages):
 
     return response
 
-async def extract_and_save_memory(username, user_input, client):
+async def extract_and_save_memory(username: str, recent_context: str, recalled_facts: str, user_input: str, client):
     prompt = f"""You are a STRICT memory extractor. Your ONLY job is to extract permanent, long-term facts.
 CRITICAL RULES:
 1. NEVER extract conversational intents (e.g., "User is asking...", "User is searching...").
 2. If the user asks a question, reply NONE.
 3. If the user states an action (e.g., "I am looking for someone"), reply NONE.
-4. If there is a fact about the user, prefix it with [PERSONAL] {username}.
-5. If there is a fact about someone else, prefix it with [GLOBAL].
+4. If there is ANY fact about a person or the world, prefix it with [FACT].
+5. PRONOUN RESOLUTION:
+   - "I", "me", "my", "mine" ALWAYS refers to {username} (the user speaking).
+   - "You", "your", "yours" ALWAYS refers to YUNA (the AI receiving the message).
+   - "He", "she", "they" refers to third parties mentioned in the Recent Chat Context.
+6. ONLY use [FORGET] if the user EXPLICITLY commands you to forget something (e.g. "forget that"). Do NOT use it to correct facts.
+7. IF the user organically corrects a past fact (found in Known Database Facts), use [UPDATE] followed by the old fact, a " -> ", and the new fact. Example: [UPDATE] Mas likes red -> Mas likes blue.
 
 Example 1:
-Message: "who am i"
-Response: NONE
+Message: "my favorite color is neon green"
+Response: [FACT] {username} loves the color neon green.
 
 Example 2:
-Message: "i am searching for someone named james"
-Response: NONE
+Message: "actually my favorite color isn't neon green, it's red"
+Response: [UPDATE] {username} loves the color neon green -> {username} loves the color red.
 
 Example 3:
-Message: "i am mas can't u see"
-Response: NONE
+Message: "your nickname is tuna"
+Response: [FACT] Yuna's nickname is tuna.
 
-Example 4:
-Message: "tell me what you know"
-Response: NONE
+Known Database Facts:
+{recalled_facts if recalled_facts else "None"}
 
-Example 5:
-Message: "my favorite color is neon green"
-Response: [PERSONAL] {username} loves the color neon green.
+Recent Chat Context:
+{recent_context}
 
-Example 6:
-Message: "Ironmouse is a vtuber"
-Response: [GLOBAL] Ironmouse is a vtuber.
-
-Message: "{user_input}"
+New Message to Extract: "{user_input}"
 Response:"""
     try:
         response = await client.chat(model=MODEL, messages=[{'role': 'user', 'content': prompt}])
@@ -134,28 +136,67 @@ Response:"""
             lines = content.split('\n')
             for line in lines:
                 clean_line = line.strip(" -*•")
-                if clean_line.startswith("[PERSONAL]"):
-                    fact = clean_line.replace("[PERSONAL]", "").strip()
+                if clean_line.startswith("[FACT]"):
+                    fact = clean_line.replace("[FACT]", "").strip()
                     if fact:
-                        await asyncio.to_thread(memory.save_memory, username, fact)
-                elif clean_line.startswith("[GLOBAL]"):
-                    fact = clean_line.replace("[GLOBAL]", "").strip()
-                    if fact:
+                        print(f"\033[92m[MEMORY EXTRACTED]\033[0m {fact}")
                         await asyncio.to_thread(memory.save_memory, "global", fact)
+                elif clean_line.startswith("[UPDATE]"):
+                    parts = clean_line.replace("[UPDATE]", "").split("->")
+                    if len(parts) == 2:
+                        old_fact = parts[0].strip()
+                        new_fact = parts[1].strip()
+                        if old_fact and new_fact:
+                            print(f"\033[94m[MEMORY UPDATED]\033[0m {old_fact} -> {new_fact}")
+                            await asyncio.to_thread(memory.delete_memory, "global", old_fact)
+                            await asyncio.to_thread(memory.save_memory, "global", new_fact)
+                elif clean_line.startswith("[FORGET]"):
+                    fact = clean_line.replace("[FORGET]", "").strip()
+                    if fact:
+                        await asyncio.to_thread(memory.delete_memory, "global", fact)
     except Exception as e:
         pass
 
-async def chat_loop(tts_enabled=False, studio_enabled=False):
+async def chat_loop(tts_enabled=False, studio_enabled=False, test_mode=False, stream_enabled=False):
+    global _active_prompt
+    
+    if stream_enabled:
+        _active_prompt = SYSTEM_PROMPT + "\n\n" + STREAM_PROMPT
+    else:
+        _active_prompt = SYSTEM_PROMPT
+
     print(f"\n{CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
     print(f"{CYAN}  Yuna — AI VTuber  {RESET}")
     print(f"{CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━{RESET}")
 
     if tts_enabled:
         print(f"{GRAY}[TTS Enabled]{RESET}")
+    if stream_enabled:
+        print(f"{GRAY}[Stream Mode]{RESET}")
 
     if studio_enabled:
-        # Initialize VTube Studio connection
         await vts_link.init_vts()
+
+    # ── Test mode: run canned emotions and exit ──────────────────────────
+    if test_mode:
+        print(f"{YELLOW}[TEST MODE] Running VTS emotion sequence...{RESET}")
+        test_text = (
+            "[happy] I am so excited to test this new system! "
+            "[laugh] Ha, this is amazing, I can't stop bouncing! "
+            "[sad] But what if something breaks again... "
+            "[angry] That would be so frustrating! "
+            "[smug] Nah, my developer is way too smart for that. "
+            "[surprised] Wait, did it actually work?! "
+            "[thinking] Hmm, let me think about what else to test... "
+            "[flustered] Oh no, everyone is watching me test this! "
+            "[excited] This is the best day ever!"
+        )
+        if tts_enabled:
+            await tts.synthesize(test_text, response_num=0)
+        print(f"{YELLOW}[TEST MODE] Sequence complete. Exiting.{RESET}")
+        if studio_enabled and vts_link._instance:
+            await vts_link._instance.close()
+        return
 
     client = ollama.AsyncClient()
     response_num = 0
@@ -212,26 +253,33 @@ async def chat_loop(tts_enabled=False, studio_enabled=False):
 
         # ── Normal chat ───────────────────────────────────────────────────────
 
-        # 1. Spawn memory extraction in the background so it doesn't slow down the chat
-        asyncio.create_task(extract_and_save_memory(current_username, user_input, client))
+        # 2. Retrieve past global memories
+        global_mem = await asyncio.to_thread(memory.search_memory, "global", user_input)
         
-        # 2. Retrieve past memories concurrently to cut database latency in half
-        personal_mem, global_mem = await asyncio.gather(
-            asyncio.to_thread(memory.search_memory, current_username, user_input),
-            asyncio.to_thread(memory.search_memory, "global", user_input)
-        )
+        # 1. Spawn memory extraction only if the message is substantial enough to contain facts
+        if len(user_input.split()) >= 4:
+            context_lines = []
+            for msg in messages[-3:]:
+                if msg['role'] == 'system':
+                    continue
+                role_name = "Yuna" if msg['role'] == 'assistant' else "User"
+                context_lines.append(f"{role_name}: {msg['content']}")
+            
+            recent_context = "\n".join(context_lines)
+
+            asyncio.create_task(extract_and_save_memory(current_username, recent_context, global_mem, user_input, client))
         
-        full_user_input = user_input
-        context_block = ""
-        
-        if personal_mem:
-            context_block += f"- You previously remembered this about the user: '{personal_mem}'\n"
+        # 3. Build the user message, injecting memories only if relevant
         if global_mem:
-            context_block += f"- You know this general fact: '{global_mem}'\n"
-        if context_block:
-            full_user_input = f"[SYSTEM CONTEXT:\n{context_block}Use this naturally if it applies.]\n\n[{current_username}]: {user_input}"
+            context = f"General: {global_mem}"
+            print(f"{GRAY}  [Recalled Memory] {context}{RESET}")
+            full_user_input = f"(You vaguely recall: {context})\n\n[{current_username}]: {user_input}"
         else:
             full_user_input = f"[{current_username}]: {user_input}"
+
+        # Injecting formatting rules into the user prompt prevents 'attention drift' 
+        # and guarantees compliance with the 1-sentence tag format.
+        full_user_input += "\n\n[SYSTEM REMINDER: You are Yuna, a female ai waifu. The VERY FIRST WORD of your response MUST be a [tag]. You may use multiple tags throughout. NEVER write asterisks. Keep your response to 1-2 sentences.]"
 
         messages.append({"role": "user", "content": full_user_input})
         messages = trim_history(messages)
@@ -239,9 +287,20 @@ async def chat_loop(tts_enabled=False, studio_enabled=False):
         response = await stream_response(client, messages)
         if response:
             messages.append({"role": "assistant", "content": response})
+
+            # Trigger first emotion tag before TTS starts
+            if studio_enabled:
+                first_tag = re.search(r'\[(.*?)\]', response)
+                if first_tag:
+                    await vts_link.trigger_expression(first_tag.group(1))
+
             if tts_enabled:
                 await tts.synthesize(response, response_num=response_num)
                 response_num += 1
+
+                # Reset to neutral after speech ends
+                if studio_enabled:
+                    await vts_link.trigger_expression(None, turn_off=True)
         else:
             messages.pop()  # remove user message that got no reply
 
@@ -251,7 +310,14 @@ async def chat_loop(tts_enabled=False, studio_enabled=False):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--tts", action="store_true", help="Enable text-to-speech")
-    parser.add_argument("--studio", action="store_true", help="Enable VTube Studio connection")
+    parser.add_argument("--studio", action="store_true", help="Enable VTube Studio integration")
+    parser.add_argument("--test", action="store_true", help="Run VTS test sequence then exit")
+    parser.add_argument("--stream", action="store_true", help="Enable streaming mode")
     args = parser.parse_args()
-    
-    asyncio.run(chat_loop(tts_enabled=args.tts, studio_enabled=args.studio))
+
+    asyncio.run(chat_loop(
+        tts_enabled=args.tts,
+        studio_enabled=args.studio,
+        test_mode=args.test,
+        stream_enabled=args.stream
+    ))

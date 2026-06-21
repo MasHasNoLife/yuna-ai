@@ -16,6 +16,7 @@ import argparse
 import asyncio
 import os
 import re
+import numpy as np
 import soundfile as sf
 import torch
 
@@ -157,13 +158,42 @@ async def synthesize(text, response_num=0, voice='af_heart', play=True):
 # ── Audio playback ──────────────────────────────────────────────────────────
 
 async def play_audio(path):
-    """Play a .wav file using ffplay (blocks until done, no video window)."""
+    """Play a .wav file using ffplay while feeding RMS volume to vts_link for lip-sync."""
     try:
+        # Read the audio data for volume extraction
+        audio_data, sample_rate = sf.read(path, dtype='float32')
+        if audio_data.ndim > 1:
+            audio_data = audio_data.mean(axis=1)  # Convert stereo to mono
+
+        # Start ffplay
         proc = await asyncio.create_subprocess_exec(
             "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", path,
             stdout=asyncio.subprocess.DEVNULL,
             stderr=asyncio.subprocess.DEVNULL,
         )
+
+        # Feed volume data to vts_link synced to wall-clock time
+        import time as _time
+        chunk_duration = 0.033  # ~30fps, matches physics loop
+        chunk_size = int(sample_rate * chunk_duration)
+        total_chunks = len(audio_data) // chunk_size
+        start_time = _time.monotonic()
+
+        for i in range(total_chunks):
+            chunk = audio_data[i * chunk_size : (i + 1) * chunk_size]
+            rms = float(np.sqrt(np.mean(chunk ** 2)))
+            # Normalize: typical speech RMS is 0.01-0.15, scale to 0..1
+            normalized = min(1.0, rms * 8.0)
+            vts_link.set_audio_level(normalized)
+
+            # Sleep until the next chunk's wall-clock time (prevents drift)
+            target_time = start_time + (i + 1) * chunk_duration
+            sleep_for = target_time - _time.monotonic()
+            if sleep_for > 0:
+                await asyncio.sleep(sleep_for)
+
+        # Reset volume after playback
+        vts_link.set_audio_level(0.0)
         await proc.wait()
     except FileNotFoundError:
         print(f"{RED}  [TTS] ffplay not found — audio saved but not played{RESET}")
