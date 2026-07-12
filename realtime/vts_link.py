@@ -97,10 +97,11 @@ for bp in EMOTION_BLUEPRINTS.values():
 
 
 class VTSLink:
-    def __init__(self):
+    def __init__(self, lip_sync_only=False):
         self.vts = pyvts.vts(plugin_info=plugin_info)
         self.connected = False
         self.physics_task = None
+        self.lip_sync_only = lip_sync_only
 
         # Emotion state — we lerp current toward target each frame
         self.target_emotions = {}   # tag -> {param: value}
@@ -201,6 +202,15 @@ class VTSLink:
 
             # ── 1. Audio smoothing ────────────────────────────────────────
             self._mouth_smooth = self._mouth_smooth * 0.5 + self.audio_level * 0.5
+            
+            if self.lip_sync_only:
+                final = {
+                    "MouthOpen": min(1.0, self._mouth_smooth * 1.5),
+                }
+                await self._inject(final)
+                await asyncio.sleep(dt)
+                continue
+
             self._body_smooth  = self._body_smooth  * 0.8 + self.audio_level * 0.2
 
             # ── 2. Procedural head sway ───────────────────────────────────
@@ -364,13 +374,13 @@ class VTSLink:
 
 _instance: VTSLink | None = None
 
-async def init_vts():
+async def init_vts(lip_sync_only=False):
     """Connect to VTube Studio and start the physics engine."""
     global _instance
-    _instance = VTSLink()
+    _instance = VTSLink(lip_sync_only=lip_sync_only)
     ok = await _instance.connect()
     if ok:
-        print("\033[92m[VTS] Successfully connected to VTube Studio!\033[0m")
+        print(f"\033[92m[VTS] Successfully connected to VTube Studio! (Lip Sync Only: {lip_sync_only})\033[0m")
     return ok
 
 async def trigger_expression(tag, turn_off=False):

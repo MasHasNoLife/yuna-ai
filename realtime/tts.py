@@ -165,9 +165,9 @@ async def play_audio(path):
         if audio_data.ndim > 1:
             audio_data = audio_data.mean(axis=1)  # Convert stereo to mono
 
-        # Start ffplay
+        # Start ffplay with 0.3s of padding at the end to prevent ALSA buffer cutoff on exit
         proc = await asyncio.create_subprocess_exec(
-            "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", path,
+            "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", "-af", "apad=pad_dur=0.3", path,
             stdout=asyncio.subprocess.DEVNULL,
             stderr=asyncio.subprocess.DEVNULL,
         )

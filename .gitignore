@@ -1,5 +1,6 @@
 # Virtual Environments
 venv/
+.venv/
 yuna/
 
 # Python Cache
@@ -16,6 +17,12 @@ voice/
 # Yuna specific folders
 responses/
 videos/
+reactions/voicetts/
+reactions/reference_videos/
+reactions/reactions_scripts/
+
+# Logs
+*.log
 
 # OS Files
 .DS_Store

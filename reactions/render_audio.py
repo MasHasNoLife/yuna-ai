@@ -23,6 +23,8 @@ YUNA_AUDIO_PATH = os.path.join(ROOT_DIR, "voice_reference", "furina.wav")
 
 YUNA_TRANSCRIPT = "Good evening. *sigh* Mademoiselle Crabalett has been muttering about getting in shape lately and even said that she wanted to drag me along with her. Hmph, I'm already eating much healthier than last month. I work very hard to maintain my figure. Hey, you can tell, can't you!?" # furina english va
 
+#YUNA_TRANSCRIPT = "I think that itadori guy is.. Well, I think he's kind of weird... I think I heard him say... Certain things a few times, creepy things?"
+
 #YUNA_TRANSCRIPT = "I strongly advise you not to stand in the Fatui's way. Otherwise, the next time we meet. I might just have to drop all this meaningless etiquette." # sandrone.wav genshin's en va 
 
 def initialize_yuna_voice():

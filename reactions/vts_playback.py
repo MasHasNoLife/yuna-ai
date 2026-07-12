@@ -3,24 +3,27 @@ import os
 import asyncio
 import re
 from pathlib import Path
+import soundfile as sf
+import numpy as np
 
 # Add root directory to python path to import shared modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-import vts_link
 
 INPUT_SCRIPTS = os.path.join(os.path.dirname(__file__), "reactions_scripts")
 INPUT_AUDIO = os.path.join(os.path.dirname(__file__), "voicetts")
 
 async def play_audio_linux(file_path):
-    """Play audio on Linux and block until finished."""
+    """Play a .wav file with padded silence to prevent audio cutoff on auto-exit."""
     try:
+        # Start ffplay with 0.3s of padding at the end to prevent ALSA buffer cutoff on exit
         proc = await asyncio.create_subprocess_exec(
-            'aplay', '-q', file_path,
+            "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet", "-af", "apad=pad_dur=0.3", file_path,
             stdout=asyncio.subprocess.DEVNULL,
-            stderr=asyncio.subprocess.DEVNULL
+            stderr=asyncio.subprocess.DEVNULL,
         )
         await proc.wait()
+    except FileNotFoundError:
+        print(f"[ERROR] ffplay not found. Please install ffmpeg.")
     except Exception as e:
         print(f"[ERROR] Audio playback failed: {e}")
 
@@ -81,33 +84,19 @@ async def main():
     if len(wav_files) != len(dialogue_lines):
         print(f"[WARNING] Number of wav files ({len(wav_files)}) does not match number of dialogue lines ({len(dialogue_lines)}). Playback may be out of sync.")
 
-    print(f"\n[VTS] Initializing connection to VTuber Studio...")
-    connected = await vts_link.init_vts()
-    if not connected:
-        print("[ERROR] Failed to connect to VTube Studio. Exiting.")
-        sys.exit(1)
-
-    print(f"\n[PLAYBACK] Starting automated choreography...\n")
+    print(f"\n[PLAYBACK] Starting automated playback...\n")
     
     for i, wav_file in enumerate(wav_files):
         if i < len(dialogue_lines):
             line = dialogue_lines[i]
-            # Extract tags like [laugh]
-            tags = re.findall(r'\[(.*?)\]', line)
             
             # Print the line
             print(f"> {line}")
-            
-            # Fire hotkeys if tags exist
-            for tag in tags:
-                await vts_link.trigger_expression(tag)
                 
             # Play Audio
             audio_path = os.path.join(run_dir, wav_file)
             await play_audio_linux(audio_path)
             
-            # Reset expression
-            await vts_link.trigger_expression("neutral", turn_off=True)
             await asyncio.sleep(1.0) # 1 second pause between lines
         else:
             # We have more audio than lines? Just play it

@@ -1,6 +1,26 @@
+# Core
 ollama
-opencv-python
-faster-whisper
+chromadb
+numpy
+httpx
+
+# Realtime pipeline (TTS + avatar)
 kokoro
 soundfile
+torch
 pyvts
+
+# Reactions pipeline (vision + transcription)
+opencv-python
+faster-whisper
+
+# Discord bot
+discord.py
+python-dotenv
+aiohttp
+emoji
+Pillow
+
+# Dashboard
+fastapi
+uvicorn
