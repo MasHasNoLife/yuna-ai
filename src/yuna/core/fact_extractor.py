@@ -106,11 +106,13 @@ async def extract_and_apply(
     store,
     partition: str,
     allow_forget: bool = True,
+    on_op=None,
 ) -> list[MemoryOp]:
     """Run the extractor model and apply the resulting ops to `store`
     (a yuna.core.memory.MemoryStore) under `partition`.
 
     Designed to run as a background task; errors are logged, never raised.
+    `on_op(op)` is called after each applied operation (live UI feeds).
     """
     import asyncio
 
@@ -120,6 +122,7 @@ async def extract_and_apply(
         prompt = build_prompt(username, user_input, recent_context, recalled_facts)
         response = await llm.chat(client, model, [{"role": "user", "content": prompt}])
         ops = parse_operations(response)
+        applied: list[MemoryOp] = []
         for op in ops:
             if op.kind == "fact":
                 log.info("[memory] + %s", op.fact)
@@ -129,12 +132,18 @@ async def extract_and_apply(
                 await asyncio.to_thread(store.delete, partition, op.fact)
                 await asyncio.to_thread(store.save, partition, op.new_fact)
             elif op.kind == "forget":
-                if allow_forget:
-                    log.info("[memory] - %s", op.fact)
-                    await asyncio.to_thread(store.delete, partition, op.fact)
-                else:
+                if not allow_forget:
                     log.warning("[memory] forget rejected for partition %s", partition)
-        return ops
+                    continue
+                log.info("[memory] - %s", op.fact)
+                await asyncio.to_thread(store.delete, partition, op.fact)
+            applied.append(op)
+            if on_op is not None:
+                try:
+                    on_op(op)
+                except Exception:
+                    log.exception("on_op callback failed")
+        return applied
     except Exception:
         log.exception("Memory extraction failed")
         return []

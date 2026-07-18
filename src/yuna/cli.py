@@ -45,12 +45,17 @@ def main(argv: list[str] | None = None) -> int:
     p_rt.add_argument("topic", help="topic or scenario to react to")
 
     sub.add_parser("discord", help="run the Discord bot")
-    sub.add_parser("dashboard", help="run the web control center")
+    sub.add_parser("web", help="run the web interface (chat + memory + monitoring)")
+    sub.add_parser("dashboard", help="alias for 'web'")
     sub.add_parser("doctor", help="check every dependency and service")
 
     args = parser.parse_args(argv)
     cfg = get_config()
     setup_logging(args.verbose, log_dir=cfg.paths.logs)
+
+    from dotenv import load_dotenv
+
+    load_dotenv(cfg.paths.root / ".env")
 
     if args.command == "chat":
         from yuna.realtime.chat import chat_loop
@@ -96,10 +101,10 @@ def main(argv: list[str] | None = None) -> int:
         run_bot()
         return 0
 
-    if args.command == "dashboard":
-        from yuna.dashboard.server import run as run_dashboard
+    if args.command in ("web", "dashboard"):
+        from yuna.web.server import run as run_web
 
-        run_dashboard()
+        run_web()
         return 0
 
     if args.command == "doctor":

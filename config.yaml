@@ -3,12 +3,17 @@
 # Secrets (DISCORD_TOKEN, YUNA_DASHBOARD_TOKEN) belong in .env, never here.
 
 models:
-  chat: qwen2.5:14b            # realtime chat + discord + memory extraction
+  chat: qwen2.5:14b            # local chat model (Ollama)
+  extractor: qwen2.5:14b       # background memory extraction — always local
   script: gemma2:27b           # offline reaction scriptwriting
   vision_frames: llava:13b     # video frame analysis
   vision_discord: minicpm-v    # discord image understanding
   embedding: nomic-embed-text  # ChromaDB memory embeddings
-  whisper_size: medium         # faster-whisper model size
+  whisper_size: medium         # faster-whisper model size (reactions pipeline)
+
+llm:
+  backend: google              # ollama (primary, local) | google (API, needs GOOGLE_API_KEY)
+  google_model: gemma-4-26b-a4b-it   # or gemma-4-31b-it (dense, stronger, slower)
 
 endpoints:
   ollama_url: http://localhost:11434
@@ -30,9 +35,18 @@ memory:
   n_results: 2
 
 tts:
+  backend: kokoro              # kokoro (local) | fish_cloud (API — flip once you top up
+                               # API credit at fish.audio/app/developers) | fish_local (INT4)
   kokoro_voice: af_heart       # realtime voice (Kokoro)
-  fish_voice: furina           # studio voice id from voice_reference/voices.json
-  fish_model: s2-pro
+  fish_voice: furina           # voice id from voice_reference/voices.json
+  fish_model: s2-pro           # local INT4 server model
+  fish_cloud_model: s1         # cloud API model
+  fish_cloud_reference_id: ""  # optional fish.audio voice id (skips inline upload)
+
+stt:
+  model: small                 # push-to-talk whisper size
+  device: cpu                  # cpu keeps VRAM free for the LLM
+  compute_type: int8
 
 vision:
   max_frames: 30               # frames sent to the vision model per video

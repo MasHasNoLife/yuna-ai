@@ -31,11 +31,21 @@ def find_project_root(start: Path | None = None) -> Path:
 @dataclass
 class ModelsConfig:
     chat: str = "qwen2.5:14b"
+    extractor: str = "qwen2.5:14b"  # background memory extraction (always local/Ollama)
     script: str = "gemma2:27b"
     vision_frames: str = "llava:13b"
     vision_discord: str = "minicpm-v"
     embedding: str = "nomic-embed-text"
     whisper_size: str = "medium"
+
+
+@dataclass
+class LLMConfig:
+    """Chat LLM backend. 'ollama' is the primary (local) path; 'google' is the
+    secondary API path (needs GOOGLE_API_KEY in .env)."""
+
+    backend: str = "ollama"
+    google_model: str = "gemma-4-26b-a4b-it"  # or gemma-4-31b-it (dense, slower)
 
 
 @dataclass
@@ -65,9 +75,22 @@ class MemoryConfig:
 
 @dataclass
 class TTSConfig:
+    backend: str = "kokoro"  # kokoro (local) | fish_cloud (API) | fish_local (INT4 server)
     kokoro_voice: str = "af_heart"
-    fish_voice: str = "furina"
-    fish_model: str = "s2-pro"
+    fish_voice: str = "furina"  # voice id from voice_reference/voices.json
+    fish_model: str = "s2-pro"  # local INT4 server model
+    fish_cloud_model: str = "s1"  # cloud API model header
+    fish_cloud_reference_id: str = ""  # optional fish.audio voice id (skips inline upload)
+
+
+@dataclass
+class STTConfig:
+    """Speech-to-text for the web UI's push-to-talk. CPU by default so it
+    never competes with the LLM for VRAM."""
+
+    model: str = "small"
+    device: str = "cpu"
+    compute_type: str = "int8"
 
 
 @dataclass
@@ -163,10 +186,12 @@ class PathsConfig:
 @dataclass
 class Config:
     models: ModelsConfig = field(default_factory=ModelsConfig)
+    llm: LLMConfig = field(default_factory=LLMConfig)
     endpoints: EndpointsConfig = field(default_factory=EndpointsConfig)
     sampling: SamplingConfig = field(default_factory=SamplingConfig)
     memory: MemoryConfig = field(default_factory=MemoryConfig)
     tts: TTSConfig = field(default_factory=TTSConfig)
+    stt: STTConfig = field(default_factory=STTConfig)
     vision: VisionConfig = field(default_factory=VisionConfig)
     dashboard: DashboardConfig = field(default_factory=DashboardConfig)
     paths: PathsConfig = field(default_factory=PathsConfig)
@@ -174,10 +199,12 @@ class Config:
 
 _SECTIONS = {
     "models": ModelsConfig,
+    "llm": LLMConfig,
     "endpoints": EndpointsConfig,
     "sampling": SamplingConfig,
     "memory": MemoryConfig,
     "tts": TTSConfig,
+    "stt": STTConfig,
     "vision": VisionConfig,
     "dashboard": DashboardConfig,
     "paths": PathsConfig,

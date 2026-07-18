@@ -1,5 +1,35 @@
 # Changelog
 
+## v0.2.0 — 2026-07
+
+The web interface release: everything comes together in the browser.
+
+### Added
+- `yuna web` — a single-page web app with streaming WebSocket chat, emotion
+  chips, recalled-memory footnotes, real-time PCM voice playback with a
+  waveform visualizer, and push-to-talk voice input (faster-whisper on CPU)
+- Pluggable LLM backends (`core/llm_backends.py`): local Ollama (primary) and
+  the Google AI API (secondary), switchable live from the UI; Gemma "thought"
+  parts are routed to the monitoring feed, never spoken
+- Pluggable TTS backends (`tts/`): Kokoro local, Fish Audio cloud (streaming),
+  and the local INT4 Fish Speech server
+- `ChatSession` (`core/chat_session.py`) — one conversation engine shared by
+  the web UI and CLI: history, memory recall, background FACT/UPDATE/FORGET
+  extraction, typed streaming events
+- Monitoring (`core/metrics.py`): per-turn TTFT, tok/s, time-to-first-audio,
+  recall latency, and memory-op counts — surfaced in the terminal, in
+  `data/logs/events.jsonl`, and in the web UI's System tab (which also shows
+  `yuna doctor` health checks as JSON via `/api/health`)
+- Live memory panel: extraction feed + browse/filter/add/delete on the vector
+  store; persona editor (plain text) absorbed from the old dashboard
+
+### Changed
+- The old read-only dashboard is replaced by the web interface
+  (`yuna dashboard` remains as an alias for `yuna web`)
+- Research plan pivoted from INT4 TTS quantization to agentic RAG memory with
+  small local models (see RESEARCH_PLAN.md)
+- `.env` is now loaded by the CLI for every command
+
 ## v0.1.0 — 2026-07
 
 First versioned release: full restructure into an installable package.

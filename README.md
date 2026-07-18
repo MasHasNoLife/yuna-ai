@@ -55,7 +55,7 @@ flowchart TB
         BOT["bot.py"] --> DVIS["vision.py<br/>minicpm-v"]
     end
 
-    DASH["yuna dashboard<br/>FastAPI control center"]
+    DASH["yuna web<br/>chat + memory + monitoring"]
 
     YUNA <--> OLL
     YUNA <--> MEM
@@ -112,9 +112,17 @@ Yuna as a server member: mention her and she replies in character, with per-chan
 - Two-tier memory: facts from the owner go to the **global** partition ("always true"); facts from other users go to **personal** partitions ("subjective, may be fake"), and the prompt instructs the model to side with global facts on conflict.
 - Can deliberately leave people on read (`[IGNORE]` protocol) instead of being compulsively chatty.
 
-### 4. Web control center — `yuna dashboard`
+### 4. Web interface — `yuna web`
 
-A FastAPI + vanilla JS dashboard for operating Yuna's brain: browse/search/add/delete vector memories by user partition, and edit the persona from the browser. Binds to localhost; set `YUNA_DASHBOARD_TOKEN` for bearer-token auth.
+A FastAPI + vanilla JS single-page app that brings the whole system together in the browser:
+
+- **Streaming chat** over WebSocket with live emotion chips, recalled-memory footnotes, and push-to-talk voice input (faster-whisper on CPU, so it never competes with the LLM for VRAM).
+- **Real-time voice replies** — TTS audio streams to the browser as raw PCM frames and plays through the Web Audio API with a live waveform visualizer.
+- **Pluggable backends, switchable live:** LLM local (Ollama) or API (Google AI, with Gemma "thought" parts filtered into the monitoring feed instead of Yuna's mouth); voice local (Kokoro), API (Fish Audio cloud), or the local INT4 Fish Speech server.
+- **Memory panel** — a live feed of FACT/UPDATE/FORGET operations as background extraction happens, plus browse/filter/add/delete over the vector store.
+- **System tab** — per-turn metrics (TTFT, tok/s, time-to-first-audio, recall latency), session counters, `yuna doctor` health checks, and the model's hidden reasoning for the last turn. The same metrics also go to the terminal and `data/logs/events.jsonl`.
+
+Binds to localhost; set `YUNA_DASHBOARD_TOKEN` for token auth. (`yuna dashboard` is an alias.)
 
 ### Custom Fish Speech INT4 fork (`fish-speech-int4-patch/`, vendored)
 
@@ -175,11 +183,12 @@ On the first `--studio` run, click **Allow** in the VTube Studio API popup; the 
 
 ```
 src/yuna/
-  core/        config, logging, LLM client, memory store, fact extractor, persona
+  core/        config, logging, LLM backends, chat engine, memory store, fact extractor, metrics, persona
   realtime/    chat loop, Kokoro TTS, VTS animation engine, emotion blueprints
   reactions/   4-stage video reaction pipeline (+ VRAM orchestration)
   discord_bot/ Discord presence with vision and tiered memory
-  dashboard/   FastAPI control center
+  tts/         pluggable TTS backends (Kokoro local, Fish cloud, Fish INT4 local)
+  web/         web interface: websocket chat server, STT, static frontend
   cli.py       the `yuna` command
   doctor.py    preflight diagnostics
 tests/         unit tests for the pure logic (run without GPU/services)
@@ -190,7 +199,7 @@ scripts/       Fish Speech launchers, VTS diagnostics
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). Next up: voice input (mic → VAD → whisper), streaming sentence-level TTS, live chat ingestion, and the research benchmarks in [RESEARCH_PLAN.md](RESEARCH_PLAN.md).
+See [ROADMAP.md](ROADMAP.md). Next up: the agentic-memory research benchmarks in [RESEARCH_PLAN.md](RESEARCH_PLAN.md), streaming sentence-level TTS, and live chat ingestion.
 
 ## Acknowledgements
 

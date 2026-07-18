@@ -156,7 +156,8 @@ def _check_files() -> list[Check]:
     return checks
 
 
-def run() -> int:
+def collect() -> list[Check]:
+    """Run every check and return the results (used by CLI and /api/health)."""
     cfg = get_config()
     checks: list[Check] = []
 
@@ -175,6 +176,12 @@ def run() -> int:
     checks.append(_check_fish())
     checks.append(_check_cuda())
     checks.extend(_check_files())
+    return checks
+
+
+def run() -> int:
+    cfg = get_config()
+    checks = collect()
 
     print(f"\nYuna doctor — {cfg.paths.root}\n")
     width = max(len(c.name) for c in checks) + 2

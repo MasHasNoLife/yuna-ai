@@ -1,113 +1,119 @@
-# Research Paper Plan — INT4 Expressive TTS on Consumer GPUs
+# Research Paper Plan — Agentic RAG Memory for Small Local LLMs
 
 Target: arXiv preprint by **mid-October 2026**, conference/workshop submission after,
 citable in fall 2027 Masters applications (EM LCT, Sweden, Finland, Saarland, DTU).
+
+This replaces the earlier INT4-TTS plan (kept in git history). The memory angle fits
+the **generative-AI / NLP Masters programmes** being applied to far better than a
+speech-efficiency paper, and the system under test is already running in this repo.
 
 ---
 
 ## 1. The paper
 
-**Working title:** *"4-bit Voice Cloning: NF4 Quantization of Expressive TTS for
-Consumer GPUs"*
+**Working title:** *"Remember Cheaply: Agentic Long-Term Memory for Conversational
+Agents with Small Local LLMs"*
 
 **Research questions:**
 
-- **RQ1 (quality):** How much does NF4 4-bit quantization degrade intelligibility,
-  speaker similarity, and perceived quality of a voice-cloning TTS model
-  (Fish Speech S2-pro) versus FP16 and 8-bit baselines?
-- **RQ2 (efficiency):** What are the gains in VRAM footprint, real-time factor
-  (RTF), and time-to-first-audio?
-- **RQ3 (system):** Does the quantized model enable a full local conversational
-  agent (LLM + TTS + avatar) to run interactively within 12 GB — and what
-  orchestration does that require? *(short case-study section, not the core)*
+- **RQ1 (extraction quality):** How well can small local models (3B–14B) perform
+  agentic memory management — deciding what to store, update, and forget
+  (FACT/UPDATE/FORGET) — compared to large API models, measured on long
+  multi-session dialogues?
+- **RQ2 (end-to-end benefit):** How much does RAG-based memory improve a small
+  chat model's long-horizon consistency and factual recall versus (a) no memory,
+  (b) naive full-history stuffing, and (c) plain semantic retrieval over raw
+  dialogue turns (no extraction)?
+- **RQ3 (cost):** What are the latency/VRAM costs, and does asynchronous
+  background extraction keep the interactive experience real-time on a single
+  consumer GPU (12 GB)?
 
 **Contributions:**
-1. An open-source NF4 quantization patch for Fish Speech with export/reload of
-   quantized checkpoints (already built — `fish-speech-int4-patch/`).
-2. A systematic quality/efficiency evaluation across quantization levels on a
-   single RTX 3060, with a reproducible benchmark harness.
-3. A case study: VRAM orchestration for a fully local multimodal agent (Yuna).
+1. A reproducible benchmark of the **FACT/UPDATE/FORGET agentic memory protocol**
+   across small open models (e.g. qwen2.5 3B/7B/14B, llama3.1 8B, gemma family)
+   with a large API model as ceiling.
+2. An **ablation of the memory pipeline**: extraction vs. raw-turn RAG vs. full
+   history vs. no memory, on public long-conversation benchmarks.
+3. An open-source **live system** (Yuna, this repo): async extraction that never
+   blocks the reply, ChromaDB recall, and per-turn instrumentation (recall ms,
+   TTFT, memory-op counts) already built into the web interface.
 
-**Why this angle wins:** the quantization work already exists and produces *hard
-numbers* (no user-study logistics required for the core claims), it fits speech
-venues that accept solo empirical work, and "local/private AI on consumer
-hardware" is a currently fashionable framing.
+**Why this angle wins:** memory/personalization for LLM agents is an active,
+citable research conversation (MemGPT, Mem0, generative agents); the "small local
+models" constraint is a genuine gap (most memory papers assume GPT-4-class
+extractors); and the working system + metrics pipeline already exists here, so the
+engineering lift is mostly evaluation, not construction.
 
 ---
 
 ## 2. Experimental design
 
-**Conditions (the independent variable):**
+**Benchmarks (the test material):**
 
-| Condition | Notes |
+| Dataset | What it gives |
 |---|---|
-| FP16 / BF16 | baseline — measure whether it even fits alongside an LLM in 12 GB |
-| INT8 (bitsandbytes LLM.int8) | mid-point — needs a flag added to the server |
-| NF4 (bnb4) | the contribution — already implemented |
-| NF4 + double quantization | optional extra point on the curve |
+| **LoCoMo** (Maharana et al. 2024) | very long multi-session conversations + QA pairs — the standard long-term-memory eval |
+| **MSC** (Multi-Session Chat, Xu et al. 2022) | multi-session persona consistency |
+| Yuna live logs (small, appendix) | ecological validity: real usage traces from the web UI's `events.jsonl` |
+
+**Conditions (the independent variables):**
+
+- *Memory strategy:* none · full-history · raw-turn RAG · agentic FACT/UPDATE/FORGET (ours)
+- *Extractor model:* qwen2.5-3B → 14B ladder + one large API model (ceiling)
+- *Chat model held fixed* (one small local model) so differences are attributable
+  to memory, not the responder.
 
 **Metrics (the dependent variables):**
 
 | Axis | Metric | Tool |
 |---|---|---|
-| Intelligibility | WER / CER via ASR round-trip | Whisper large-v3 as judge (extend existing `tools/correlate_with_whisper.py`) |
-| Speaker fidelity | speaker-embedding cosine similarity (reference vs. output) | ECAPA-TDNN (speechbrain) or Resemblyzer |
-| Perceived quality | UTMOS automatic MOS prediction | `speechmos` / UTMOS22 |
-| Perceived quality (optional) | small human MOS study, N≥15 | Discord community, simple A/B web page |
-| Speed | RTF, time-to-first-audio (p50/p95) | extend existing `tools/rtf_benchmark.py` |
-| Memory | peak + steady-state VRAM | pynvml sampling thread |
+| Recall QA | answer accuracy / F1 on LoCoMo QA (LLM-as-judge with fixed rubric + spot-check) | eval script |
+| Extraction quality | precision/recall of stored facts vs. gold annotations; contradiction rate after UPDATE/FORGET | manual gold set on a LoCoMo subset (~200 ops) |
+| Consistency | persona-consistency score on MSC | LLM-as-judge, dual-judge agreement reported |
+| Cost | extraction latency, recall latency, TTFT impact, peak VRAM | already emitted by `yuna.core.metrics` |
 
-**Test material:**
-- ~100 fixed sentences: Harvard sentences + a set of emotion-tagged sentences from
-  the Yuna corpus (tests the expressive/tag-driven angle).
-- 3 runs per condition with fixed seeds; report mean ± std.
-- English + Spanish (the fork already has Spanish autodetection — free second
-  language axis and it uses existing `fish_corr_es.json` infrastructure).
+3 seeds where sampling is involved; report mean ± std. Judge prompts, seeds, and
+raw outputs all published.
 
-**Voices — ETHICS, non-negotiable:**
-- ❌ The current `voice_reference/` clips (game/anime voice actors) must NOT be
-  used in anything published.
-- ✅ Use: (a) your own recorded voice (10–30 s clean reference), and
-  (b) 3–5 speakers from VCTK or LibriTTS (open licenses, standard in TTS papers).
-- The paper needs an ethics statement covering voice-cloning misuse; using
-  consented/open voices is what makes it writable.
+**Ethics/logistics notes:**
+- Public benchmark data only for headline claims — no user-study approval needed.
+- Live-log appendix uses the author's own conversations (self-consent, stated).
+- LLM-as-judge bias addressed with two judge models + human spot-check of 10%.
 
 ---
 
-## 3. Engineering work (in this repo / the fork)
+## 3. Engineering work (in this repo)
 
-Ordered; items 1–4 are the critical path.
+Ordered; items 1–4 are the critical path. Most infrastructure already exists:
+`fact_extractor.py` (protocol + parser, unit-tested), `memory.py` (ChromaDB),
+`llm_backends.py` (local + API), `metrics.py` (per-turn JSONL).
 
-1. **Benchmark harness** — one config-driven script: spins up the server in each
-   quantization mode, runs the full sentence set, collects all metrics into JSON,
-   generates the tables/plots for the paper. No manual steps.
-2. **Instrumentation** — time-to-first-audio and RTF per request, VRAM sampler
-   (pynvml), latency percentiles. Add to the fork's server.
-3. **INT8 condition** — add a `--bnb8` path next to the existing `--bnb4` so the
-   comparison isn't just FP16-vs-NF4.
-4. **Metric runners** — WER round-trip (extend `correlate_with_whisper.py`),
-   speaker-similarity script, UTMOS script.
-5. **Reproducibility** — pinned `requirements.txt` for the eval environment,
-   fixed seeds, a `REPRODUCE.md`, ideally a Dockerfile.
-6. **Repo hygiene** — fix IMPROVEMENTS.md P0 items (reviewers and professors will
-   open the repo), add CI badge.
-7. **Upstream PR** — open the NF4 patch as a PR to `fishaudio/fish-speech`.
-   Independent CV value even if it stalls in review.
+1. **Benchmark harness** (`bench/`): replay LoCoMo/MSC sessions through
+   ChatSession headlessly, per condition, dumping per-turn JSON. Config-driven,
+   no manual steps.
+2. **Condition switches**: memory strategy flag (none / full-history / raw-RAG /
+   agentic) and extractor-model flag — thin additions to existing config.
+3. **Eval scripts**: QA scoring (LLM-as-judge + exact-match where possible),
+   fact precision/recall against the gold subset, plots/tables generation.
+4. **Gold annotation**: hand-label FACT/UPDATE/FORGET decisions for ~200
+   operations on a LoCoMo subset (2–3 evenings of work, do early).
+5. **Reproducibility**: pinned eval requirements, seeds, `REPRODUCE.md`,
+   published raw results.
+6. **Repo hygiene**: keep CI green; the repo *is* the artifact reviewers open.
 
 ---
 
 ## 4. Related work to read (for §2 of the paper)
 
-- **Quantization:** LLM.int8, GPTQ, AWQ, QLoRA/NF4 (Dettmers et al.), SmoothQuant.
-- **Efficient/on-device TTS:** Kokoro-82M notes, VITS variants, distillation work,
-  any published Fish Speech / codec-LM TTS papers (grounds the architecture).
-- **Quantized speech models:** existing work on quantizing Whisper/codec models —
-  establishes what's known and what your gap is (quantizing *voice-cloning
-  autoregressive TTS* end-to-end on consumer HW).
-- **Embodied conversational agents:** IVA/SIGDIAL systems papers, for the case
-  study section.
+- **Agent memory systems:** MemGPT (Packer et al.), Mem0, Generative Agents
+  (Park et al.), Reflexion, LongMem, RecurrentGPT.
+- **Benchmarks:** LoCoMo, MSC, MemoryBank, PerLTQA — pick two, justify.
+- **RAG foundations:** RAG (Lewis et al.), Self-RAG, retrieval for dialogue
+  (BlenderBot 2/3 memory).
+- **Small-model capability:** work on task gaps between small open models and
+  frontier APIs (grounds the "can a 7B do this job?" framing).
 
-~15 papers, skim-read in week 2–3. Zotero or a `references.bib` from day one.
+~15–18 papers, skim-read in weeks 1–3. `references.bib` from day one.
 
 ---
 
@@ -115,42 +121,39 @@ Ordered; items 1–4 are the critical path.
 
 | When (2026) | Milestone |
 |---|---|
-| Jul 16 – Jul 31 | Harness + instrumentation built; INT8 flag; consented voices recorded; sentence set frozen |
-| Aug 1 – Aug 15 | Pilot run end-to-end (1 seed, all conditions); related-work reading; **supervisor outreach emails go out** |
-| Aug 16 – Sep 15 | Full experiment matrix (3 seeds × 4 conditions × 2 languages); draft intro/method |
-| Sep | **ICASSP 2027 deadline (~mid-Sep — verify!)** — submit if results are in; it's the best-fit venue (speech + efficiency, 4-page format) |
-| Sep 16 – Oct 10 | Full draft; optional human MOS; supervisor feedback round |
-| Mid–late Oct | **arXiv preprint live** — this is the hard deadline; it gets cited in every SOP |
-| Nov–Dec | Workshop submissions (NeurIPS/ICML workshops on efficient ML — verify calls); applications season starts |
-| Feb–Mar 2027 | **Interspeech 2027** submission as the second/backup venue — acceptance news (~June) can still be forwarded to universities before enrollment |
+| Jul 18 – Jul 31 | Harness skeleton + condition flags; download LoCoMo/MSC; start related-work notes |
+| Aug 1 – Aug 15 | Gold annotation done; pilot run (1 seed, all conditions, LoCoMo subset); **supervisor outreach emails go out** |
+| Aug 16 – Sep 15 | Full matrix (all strategies × extractor ladder × seeds); draft intro/method |
+| Sep 16 – Oct 10 | Full draft; second benchmark (MSC); feedback round |
+| Mid–late Oct | **arXiv preprint live** — hard deadline; it gets cited in every SOP |
+| Oct–Dec | Workshop submissions: NeurIPS/ICLR workshops on agents & memory, EMNLP/NAACL findings-track or workshops (verify calls when announced) |
+| Jan–Feb 2027 | **SIGDIAL 2027** and/or ACL workshop cycle as full-paper venues — dialogue systems is the natural home |
 
-Fallback logic: even if every peer-reviewed venue rejects, the arXiv preprint +
-public benchmark repo + upstream PR is the portfolio. Peer review acceptance is
-upside, not the foundation.
+Fallback logic unchanged: arXiv preprint + public benchmark repo is the
+portfolio; peer-review acceptance is upside, not the foundation.
 
 ---
 
 ## 6. Supervisor / co-author outreach (do not skip)
 
 The paper's biggest application value is converting into a **recommendation
-letter from an academic**. In parallel with week 3–4:
+letter from an academic**. In parallel with weeks 3–4:
 
-- Shortlist 5–10 targets: speech/NLP faculty at local universities + authors of
-  the efficient-TTS papers you cite + LCT-consortium-adjacent researchers
-  (Saarland, Groningen — strategic overlap with your applications).
-- Email = 5 sentences + repo link + benchmark report PDF. Ask for feedback and
-  mention openness to collaboration/supervision. Attach nothing bigger than 1 page.
-- Best case: co-author + letter. Good case: feedback + letter. Even silence
-  costs nothing.
+- Shortlist 5–10 targets: dialogue/NLP faculty + authors of the memory papers
+  cited + LCT-consortium-adjacent researchers (Saarland, Groningen — strategic
+  overlap with the applications).
+- Email = 5 sentences + repo link + 1-page benchmark report PDF. Ask for
+  feedback, mention openness to collaboration/supervision.
+- Best case: co-author + letter. Good case: feedback + letter. Silence costs
+  nothing.
 
 ---
 
 ## 7. Definition of done
 
-- [ ] Benchmark harness runs all conditions unattended and outputs paper-ready tables
-- [ ] Results: quality (WER, speaker-sim, UTMOS) and efficiency (RTF, TTFA, VRAM) across FP16/INT8/NF4, EN+ES, 3 seeds
-- [ ] Consented voices only; ethics statement written
-- [ ] 4–5 page paper (ICASSP/Interspeech format) + arXiv preprint live
-- [ ] Upstream PR opened to fishaudio/fish-speech
+- [ ] Harness replays LoCoMo/MSC through all memory conditions unattended, outputs paper-ready tables
+- [ ] Results: QA accuracy, fact precision/recall, consistency, and cost across 4 strategies × extractor ladder
+- [ ] Gold-annotated extraction subset published with the repo
+- [ ] 4–8 page paper + arXiv preprint live by late October 2026
 - [ ] At least one academic has read it and agreed to write a letter
-- [ ] Repo: P0 fixes done, REPRODUCE.md, CI green
+- [ ] Repo: CI green, REPRODUCE.md, raw results published

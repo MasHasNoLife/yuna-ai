@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "yuna-ai"
-version = "0.1.0"
+version = "0.2.0"
 description = "A fully local AI VTuber pipeline: realtime voiced chat, video reactions, Discord presence, and a web control center on a single consumer GPU."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -32,6 +32,9 @@ dependencies = [
     "Pillow",
     "fastapi",
     "uvicorn",
+    "websockets",
+    "python-multipart",
+    "ormsgpack",
 ]
 
 [project.optional-dependencies]
@@ -44,7 +47,7 @@ yuna = "yuna.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"yuna.dashboard" = ["static/*"]
+"yuna.web" = ["static/*"]
 
 [tool.ruff]
 line-length = 100

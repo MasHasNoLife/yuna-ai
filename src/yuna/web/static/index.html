@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yuna</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="topbar">
+      <div class="brand">✦ <b>YUNA</b> <span id="conn-status" class="pill off">connecting…</span></div>
+      <div class="controls">
+        <label>LLM
+          <select id="llm-select">
+            <option value="ollama">local · ollama</option>
+            <option value="google">api · google</option>
+          </select>
+        </label>
+        <label>Voice
+          <select id="tts-select">
+            <option value="kokoro">local · kokoro</option>
+            <option value="fish_cloud">api · fish cloud</option>
+            <option value="fish_local">local · fish int4</option>
+          </select>
+        </label>
+        <label class="toggle"><input type="checkbox" id="speak-toggle" checked> speak</label>
+        <span id="latency-badge" class="pill dim" title="TTFT · tokens/s · time-to-first-audio">—</span>
+      </div>
+    </header>
+
+    <div class="main">
+      <!-- Chat -->
+      <section class="chat-panel">
+        <div id="chat-log" class="chat-log">
+          <div class="sys-note">Yuna is ready. Say hi — she remembers things you tell her.</div>
+        </div>
+        <div class="composer">
+          <button id="mic-btn" title="Hold to talk (push-to-talk)">🎤</button>
+          <textarea id="chat-input" rows="1" placeholder="Talk to Yuna…"></textarea>
+          <button id="send-btn">Send</button>
+        </div>
+        <canvas id="visualizer" width="600" height="26"></canvas>
+      </section>
+
+      <!-- Side panel -->
+      <aside class="side-panel">
+        <nav class="tabs">
+          <button class="tab active" data-tab="memory">Memory</button>
+          <button class="tab" data-tab="persona">Persona</button>
+          <button class="tab" data-tab="system">System</button>
+        </nav>
+
+        <div id="tab-memory" class="tab-body active">
+          <div class="mem-feed-title">Live extraction feed</div>
+          <div id="memory-feed" class="memory-feed"><div class="sys-note">No memory activity yet.</div></div>
+          <div class="mem-browser-title">
+            Stored facts
+            <button id="mem-refresh" class="mini">↻</button>
+            <button id="mem-add" class="mini">＋</button>
+          </div>
+          <input type="text" id="mem-search" placeholder="filter facts…">
+          <div id="memory-list" class="memory-list"></div>
+        </div>
+
+        <div id="tab-persona" class="tab-body">
+          <label>File
+            <select id="persona-select">
+              <option value="system">system</option>
+              <option value="stream">stream</option>
+              <option value="video_reaction">video_reaction</option>
+              <option value="text_reaction">text_reaction</option>
+              <option value="discord_system">discord_system</option>
+            </select>
+          </label>
+          <textarea id="persona-editor" spellcheck="false"></textarea>
+          <button id="persona-save">Save</button>
+          <span id="persona-status" class="dim"></span>
+        </div>
+
+        <div id="tab-system" class="tab-body">
+          <div class="sys-section">Session <span id="sys-uptime" class="dim"></span></div>
+          <div id="sys-counters" class="counters"></div>
+          <div class="sys-section">Recent turns</div>
+          <div id="turns-table" class="turns-table"></div>
+          <div class="sys-section">Health <button id="health-refresh" class="mini">↻</button></div>
+          <div id="health-list" class="health-list"></div>
+          <div class="sys-section">Model thoughts (last turn)</div>
+          <pre id="thoughts-log" class="thoughts"></pre>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
