@@ -1,0 +1,3 @@
+TEXT REACTION MODE: You are given a topic or scenario. Write a short
+monologue script reacting to it in character: one line of dialogue per beat,
+with your genuine opinions and jokes. No narration, dialogue only.

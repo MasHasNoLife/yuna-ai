@@ -1,51 +1,44 @@
-# Virtual Environments
-venv/
+# Virtual environments
 .venv/
-yuna/
+venv/
+/yuna/
 
-# Python Cache
+# Python
 __pycache__/
 *.pyc
+*.egg-info/
+build/
+dist/
 
-# AI Models and Audio Outputs
+# Private persona and memory (the repo ships the machinery, not the character)
+persona/
+data/
+yuna_prompt.py
+
+# Voice references (personal audio) and their transcripts
+voice_reference/*.wav
+voice_reference/voices.json
+
+# Model weights and audio outputs
 *.pth
 *.safetensors
 *.wav
 tts_outputs/
 voice/
-
-# Yuna specific folders
 responses/
 videos/
-reactions/voicetts/
-reactions/reference_videos/
-reactions/reactions_scripts/
+
+# Vendored TTS fork (its own repository)
+fish-speech-int4-patch/
+
+# Media assets
+assets/
+
+# Secrets
+.env
 
 # Logs
 *.log
 
-# OS Files
+# OS files
 .DS_Store
-vts_token.txt
-
-# Personal AI Memory and Lore
-yuna_prompt.py
-yuna_memory/
-
-# Additional Media and Engine files
-video_descriptors/
-texts/
-assets/
-fish-speech-int4-patch/
-
-# Environment Variables
-.env
-
-# Discord Bot Memory
-yuna_discord_memory/
-brain_data/
-discord/discord_memory/
-test.gif
-test.jpg
-test_extract.py
-test_vision.py

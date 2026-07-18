@@ -1,0 +1,50 @@
+# Yuna AI configuration. Every value here is optional — anything omitted
+# falls back to the defaults in src/yuna/core/config.py.
+# Secrets (DISCORD_TOKEN, YUNA_DASHBOARD_TOKEN) belong in .env, never here.
+
+models:
+  chat: qwen2.5:14b            # realtime chat + discord + memory extraction
+  script: gemma2:27b           # offline reaction scriptwriting
+  vision_frames: llava:13b     # video frame analysis
+  vision_discord: minicpm-v    # discord image understanding
+  embedding: nomic-embed-text  # ChromaDB memory embeddings
+  whisper_size: medium         # faster-whisper model size
+
+endpoints:
+  ollama_url: http://localhost:11434
+  fish_url: http://127.0.0.1:8880/v1
+  vts_host: localhost
+  vts_port: 8001
+
+sampling:
+  temperature: 0.8
+  top_p: 0.9
+  repeat_penalty: 1.15
+  max_history: 30              # realtime chat window (messages)
+  discord_max_history: 40      # discord per-channel window (messages)
+
+memory:
+  recall_threshold: 0.35       # lower = stricter relevance for recalled facts
+  dedup_threshold: 0.05        # near-duplicate cutoff on insert
+  delete_threshold: 0.6        # max distance for delete-by-query
+  n_results: 2
+
+tts:
+  kokoro_voice: af_heart       # realtime voice (Kokoro)
+  fish_voice: furina           # studio voice id from voice_reference/voices.json
+  fish_model: s2-pro
+
+vision:
+  max_frames: 30               # frames sent to the vision model per video
+  frame_interval: 2            # seconds between sampled frames
+  jpeg_quality: 85
+
+dashboard:
+  host: 127.0.0.1              # keep localhost unless you add YUNA_DASHBOARD_TOKEN
+  port: 8000
+
+paths:
+  data_dir: data               # memory DBs, outputs, tokens, logs
+  persona_dir: persona         # your private persona (gitignored)
+  persona_example_dir: persona.example
+  voice_reference_dir: voice_reference

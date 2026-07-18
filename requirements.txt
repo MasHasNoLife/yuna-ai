@@ -1,26 +1,4 @@
-# Core
-ollama
-chromadb
-numpy
-httpx
-
-# Realtime pipeline (TTS + avatar)
-kokoro
-soundfile
-torch
-pyvts
-
-# Reactions pipeline (vision + transcription)
-opencv-python
-faster-whisper
-
-# Discord bot
-discord.py
-python-dotenv
-aiohttp
-emoji
-Pillow
-
-# Dashboard
-fastapi
-uvicorn
+# Dependencies are declared in pyproject.toml — install the package instead:
+#   pip install -e .        (runtime)
+#   pip install -e ".[dev]" (development: + pytest, ruff)
+-e .

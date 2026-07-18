@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "yuna-ai"
+version = "0.1.0"
+description = "A fully local AI VTuber pipeline: realtime voiced chat, video reactions, Discord presence, and a web control center on a single consumer GPU."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "MasHasNoLife" }]
+keywords = ["vtuber", "llm", "tts", "ollama", "vtube-studio", "local-ai"]
+
+dependencies = [
+    "ollama",
+    "chromadb",
+    "numpy",
+    "httpx",
+    "pyyaml",
+    "rich",
+    "kokoro",
+    "soundfile",
+    "torch",
+    "pyvts",
+    "opencv-python",
+    "faster-whisper",
+    "discord.py",
+    "python-dotenv",
+    "aiohttp",
+    "emoji",
+    "Pillow",
+    "fastapi",
+    "uvicorn",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+yuna = "yuna.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"yuna.dashboard" = ["static/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = [
+    "E501", # long lines in prompts are fine
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

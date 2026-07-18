@@ -1,0 +1,7 @@
+{
+  "_comment": "Copy to voices.json. Each key is a voice id usable as tts.fish_voice in config.yaml. 'file' is a wav in this directory (10-30s, clean speech); 'transcript' is exactly what is said in it. Only use voices you have the right to clone (your own recordings or openly licensed corpora such as VCTK/LibriTTS).",
+  "myvoice": {
+    "file": "myvoice.wav",
+    "transcript": "The exact words spoken in the reference recording go here."
+  }
+}
