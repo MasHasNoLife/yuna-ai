@@ -9,6 +9,16 @@ transport layer (websocket) forwards to the client:
 Out-of-band events (memory ops from background extraction, which usually
 finish after the reply) land on `self.events`, an asyncio.Queue drained by
 the transport.
+
+Memory model per turn:
+  - recall query built from the current + previous user message (pronoun-safe)
+  - Yuna's own self-facts (partition "yuna") injected every turn so she has a
+    stable autobiography instead of improvising one
+  - date/time preamble so she has a sense of when "now" is
+  - extraction runs AFTER the reply (so it can mine Yuna's reply for [SELF]
+    facts, and never delays time-to-first-token on a shared local model)
+  - on disconnect/reset the session is summarized into a "session" memory,
+    and the latest summary is injected at the start of the next session
 """
 
 from __future__ import annotations
@@ -17,12 +27,13 @@ import asyncio
 import re
 import time
 from collections.abc import AsyncIterator
+from datetime import datetime
 
 from yuna.core import fact_extractor, llm_backends
 from yuna.core.config import get_config
 from yuna.core.history import make_history, trim_history
 from yuna.core.logging import get_logger
-from yuna.core.memory import get_store
+from yuna.core.memory import format_age, get_store
 from yuna.core.metrics import TurnRecord, get_hub
 from yuna.core.persona import load_persona
 
@@ -32,9 +43,43 @@ TAG_RE = re.compile(r"\[(.*?)\]")
 
 FORMAT_REMINDER = (
     "\n\n[SYSTEM REMINDER: You are Yuna. The VERY FIRST WORD of your response "
-    "MUST be a [tag]. You may use multiple tags throughout. NEVER write "
-    "asterisks. Keep your response to 1-2 sentences.]"
+    "MUST be a [tag]. NEVER write asterisks or action narration. Keep it to "
+    "1-3 short sentences, like a real text conversation.]"
 )
+
+MEMORY_PARTITION = "global"  # where chat facts/events/session summaries live
+
+SUMMARY_PROMPT = (
+    "Summarize this conversation between {username} and Yuna in ONE or TWO short "
+    "sentences, third person, focusing on what was discussed or decided — the kind "
+    "of thing Yuna would naturally remember next time. No preamble, just the summary.\n\n"
+    "{transcript}"
+)
+
+
+def build_recall_query(user_input: str, recent_user_inputs: list[str]) -> str:
+    """Embedding query from the current + previous user message, so pronoun-heavy
+    follow-ups ("no, the project I told you about") still hit the right memories."""
+    parts = recent_user_inputs[-1:] + [user_input]
+    return " ".join(p.strip() for p in parts if p.strip())[:400]
+
+
+def time_preamble(now: datetime | None = None) -> str:
+    """A tiny sense of time: '(Saturday night, July 19)'. Injected every turn."""
+    now = now or datetime.now()
+    hour = now.hour
+    if hour < 5:
+        part = "late night"
+    elif hour < 12:
+        part = "morning"
+    elif hour < 17:
+        part = "afternoon"
+    elif hour < 21:
+        part = "evening"
+    else:
+        part = "night"
+    day = now.strftime("%B %d").lstrip("0").replace(" 0", " ")
+    return f"({now.strftime('%A')} {part}, {day})"
 
 
 class ChatSession:
@@ -48,8 +93,11 @@ class ChatSession:
         self.events: asyncio.Queue[dict] = asyncio.Queue()
         self.background: set[asyncio.Task] = set()
         self.hub = get_hub()
-        self.format_reminder = True
+        self.format_reminder = get_config().llm.format_reminder
         self.last_record: TurnRecord | None = None
+        self.recent_user_inputs: list[str] = []  # raw, uninjected — for recall queries
+        self.exchanges: list[tuple[str, str]] = []  # (user, reply) — for summaries
+        self._continuity_loaded = False
         log.info("Session for %s on %s", username, self.backend.label)
 
     # ── Controls ────────────────────────────────────────────────────────────
@@ -61,6 +109,9 @@ class ChatSession:
 
     def reset(self) -> None:
         self.messages = make_history(self.persona.system)
+        self.recent_user_inputs = []
+        self.exchanges = []
+        self._continuity_loaded = False
         self.hub.log_event("session_reset", username=self.username)
         log.info("History cleared")
 
@@ -73,26 +124,75 @@ class ChatSession:
             except asyncio.TimeoutError:
                 log.warning("Background extraction timed out on shutdown")
 
-    # ── Background memory extraction ────────────────────────────────────────
+    # ── Session continuity ──────────────────────────────────────────────────
 
-    def _spawn_extraction(self, user_input: str, recalled: str) -> None:
-        if not fact_extractor.is_worth_extracting(user_input):
+    async def _load_continuity(self) -> None:
+        """Once per session: append the last conversation's summary to the system
+        prompt so Yuna starts with narrative memory, not a cold boot."""
+        self._continuity_loaded = True
+        found = await asyncio.to_thread(self.store.latest_summary, MEMORY_PARTITION)
+        if not found:
             return
-        cfg = get_config()
+        text, ts = found
+        age = format_age(ts) or "recently"
+        self.messages[0]["content"] += (
+            f"\n\n# LAST CONVERSATION\nYour previous conversation with {self.username} "
+            f"({age}): {text}"
+        )
+        log.info("Continuity loaded: last conversation %s", age)
+
+    def _client(self):
         if self.extractor_client is None:
             import ollama
 
-            self.extractor_client = ollama.AsyncClient(host=cfg.endpoints.ollama_url)
+            self.extractor_client = ollama.AsyncClient(host=get_config().endpoints.ollama_url)
+        return self.extractor_client
+
+    async def summarize_session(self) -> None:
+        """Store a 1-2 sentence summary of this session as a 'session' memory.
+        Called by the transport on disconnect/reset. Safe to call repeatedly —
+        it no-ops unless there are at least 2 new exchanges."""
+        if len(self.exchanges) < 2:
+            return
+        transcript = "\n".join(f"{self.username}: {u}\nYuna: {r}" for u, r in self.exchanges[-12:])
+        try:
+            from yuna.core import llm
+
+            summary = await llm.chat(
+                self._client(),
+                get_config().models.extractor,
+                [
+                    {
+                        "role": "user",
+                        "content": SUMMARY_PROMPT.format(
+                            username=self.username, transcript=transcript
+                        ),
+                    }
+                ],
+            )
+            summary = summary.strip().split("\n")[0][:300]
+            if summary:
+                await asyncio.to_thread(self.store.save, MEMORY_PARTITION, summary, "session")
+                self.exchanges = []
+                self.hub.log_event("session_summary", summary=summary, username=self.username)
+                log.info("Session summarized: %s", summary[:80])
+        except Exception:
+            log.exception("Session summary failed")
+
+    # ── Background memory extraction ────────────────────────────────────────
+
+    def _spawn_extraction(self, user_input: str, recalled: str, reply: str) -> None:
+        if not fact_extractor.is_worth_extracting(user_input) and len(reply.split()) < 8:
+            return
+        cfg = get_config()
 
         context_lines = []
-        for msg in self.messages[-3:]:
-            if msg["role"] == "system":
-                continue
-            role_name = "Yuna" if msg["role"] == "assistant" else "User"
-            context_lines.append(f"{role_name}: {msg['content']}")
+        for user, rep in self.exchanges[-2:]:
+            context_lines.append(f"{self.username}: {user}")
+            context_lines.append(f"Yuna: {rep}")
 
         def on_op(op: fact_extractor.MemoryOp) -> None:
-            symbol = {"fact": "+", "update": "~", "forget": "-"}[op.kind]
+            symbol = {"fact": "+", "event": "+", "self": "+", "update": "~", "forget": "-"}[op.kind]
             self.hub.count_op(symbol)
             self.hub.log_event(
                 "memory_op", op=op.kind, fact=op.fact, new_fact=op.new_fact, username=self.username
@@ -103,15 +203,16 @@ class ChatSession:
 
         task = asyncio.create_task(
             fact_extractor.extract_and_apply(
-                self.extractor_client,
+                self._client(),
                 cfg.models.extractor,
                 self.username,
                 user_input,
                 "\n".join(context_lines),
                 recalled,
                 self.store,
-                partition="global",
+                partition=MEMORY_PARTITION,
                 on_op=on_op,
+                assistant_reply=reply,
             )
         )
         self.background.add(task)
@@ -128,32 +229,36 @@ class ChatSession:
 
         yield {"type": "turn_start", "turn": record.turn}
 
-        # 1. Memory recall
+        if not self._continuity_loaded:
+            await self._load_continuity()
+
+        # 1. Memory recall (query includes the previous user message for context)
         t0 = time.monotonic()
-        recalled = await asyncio.to_thread(self.store.search, "global", user_input)
+        query = build_recall_query(user_input, self.recent_user_inputs)
+        recalled, self_facts = await asyncio.gather(
+            asyncio.to_thread(self.store.search, MEMORY_PARTITION, query),
+            asyncio.to_thread(self.store.profile, fact_extractor.SELF_PARTITION, 6),
+        )
         record.recall_ms = (time.monotonic() - t0) * 1000
         facts = [f.strip() for f in recalled.split("|") if f.strip()] if recalled else []
         record.recalled = len(facts)
         if facts:
             yield {"type": "memory_recalled", "facts": facts}
 
-        # 2. Background extraction (doesn't block the reply)
-        self._spawn_extraction(user_input, recalled)
-
-        # 3. Build the turn
-        if recalled:
-            full_input = (
-                f"(You vaguely recall: General: {recalled})\n\n[{self.username}]: {user_input}"
-            )
-        else:
-            full_input = f"[{self.username}]: {user_input}"
+        # 2. Build the turn: time sense + self-knowledge + recalled memories
+        preamble = [time_preamble()]
+        if self_facts:
+            preamble.append(f"(About yourself, you know: {' '.join(self_facts)})")
+        if facts:
+            preamble.append(f"(You remember about {self.username}: {'; '.join(facts)})")
+        full_input = "\n".join(preamble) + f"\n\n[{self.username}]: {user_input}"
         if self.format_reminder:
             full_input += FORMAT_REMINDER
 
         self.messages.append({"role": "user", "content": full_input})
         self.messages = trim_history(self.messages, cfg.sampling.max_history)
 
-        # 4. Stream the reply
+        # 3. Stream the reply
         response = ""
         emitted_tags = 0
         gen_start = time.monotonic()
@@ -196,4 +301,11 @@ class ChatSession:
             record.tok_per_s = round(record.tokens / (gen_end - first_token), 1)
 
         self.messages.append({"role": "assistant", "content": response})
+        self.recent_user_inputs = (self.recent_user_inputs + [user_input])[-3:]
+        self.exchanges.append((user_input, response))
+
+        # 4. Extraction AFTER the reply: mines both sides of the exchange and
+        # never queues ahead of generation on the shared local model.
+        self._spawn_extraction(user_input, recalled, response)
+
         yield {"type": "reply_done", "text": response, "turn": record.turn}

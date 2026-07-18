@@ -32,8 +32,11 @@ def preload() -> bool:
     except ImportError:
         log.error("Kokoro not installed. Run: pip install kokoro soundfile")
         return False
-    log.info("Loading Kokoro pipeline...")
-    _pipeline = KPipeline(lang_code="a")
+    from yuna.core.config import get_config
+
+    device = get_config().tts.kokoro_device
+    log.info("Loading Kokoro pipeline on %s...", device)
+    _pipeline = KPipeline(lang_code="a", device=device)
     return True
 
 

@@ -275,7 +275,8 @@ function renderMemories() {
     .forEach((m) => {
       const div = document.createElement("div");
       div.className = "mem-item";
-      div.innerHTML = `<div><span class="who">${escapeHtml(m.username)}</span><br>${escapeHtml(m.fact)}</div>`;
+      const kind = m.kind && m.kind !== "fact" ? ` · ${escapeHtml(m.kind)}` : "";
+      div.innerHTML = `<div><span class="who">${escapeHtml(m.username)}${kind}</span><br>${escapeHtml(m.fact)}</div>`;
       const del = document.createElement("button");
       del.textContent = "✕";
       del.title = "delete";

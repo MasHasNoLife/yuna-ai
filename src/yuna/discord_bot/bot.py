@@ -78,7 +78,8 @@ class YunaBot(commands.Bot):
             if attachment.filename.lower().endswith(IMAGE_EXTENSIONS):
                 return await attachment.read()
 
-        assert self.http_session is not None
+        if self.http_session is None:
+            self.http_session = aiohttp.ClientSession(headers=HTTP_HEADERS)
         for url in re.findall(r"(https?://[^\s]+)", text):
             try:
                 if "tenor.com/view/" in url:

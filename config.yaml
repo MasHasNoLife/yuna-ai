@@ -3,16 +3,17 @@
 # Secrets (DISCORD_TOKEN, YUNA_DASHBOARD_TOKEN) belong in .env, never here.
 
 models:
-  chat: qwen2.5:14b            # local chat model (Ollama)
-  extractor: qwen2.5:14b       # background memory extraction — always local
+  chat: &gemma2 gemma2:27b
+  extractor: *gemma2           # memory extraction — same model so no eviction
   script: gemma2:27b           # offline reaction scriptwriting
   vision_frames: llava:13b     # video frame analysis
-  vision_discord: minicpm-v    # discord image understanding
+  vision_discord: llava:13b    # discord image understanding
   embedding: nomic-embed-text  # ChromaDB memory embeddings
   whisper_size: medium         # faster-whisper model size (reactions pipeline)
 
 llm:
-  backend: google              # ollama (primary, local) | google (API, needs GOOGLE_API_KEY)
+  backend: ollama              # ollama (primary, local) | google (API, needs GOOGLE_API_KEY)
+  format_reminder: true        # per-turn [tag]/format nudge (set false for RP-tuned models)
   google_model: gemma-4-26b-a4b-it   # or gemma-4-31b-it (dense, stronger, slower)
 
 endpoints:
@@ -29,15 +30,17 @@ sampling:
   discord_max_history: 40      # discord per-channel window (messages)
 
 memory:
-  recall_threshold: 0.35       # lower = stricter relevance for recalled facts
+  recall_threshold: 0.5        # lower = stricter relevance (question-style queries score ~0.4-0.5)
   dedup_threshold: 0.05        # near-duplicate cutoff on insert
-  delete_threshold: 0.6        # max distance for delete-by-query
-  n_results: 2
+  delete_threshold: 0.15       # max distance for delete-by-query — near-exact only, so a
+                               # FORGET of a nonexistent fact can't nuke a related real one
+  n_results: 4                 # memories retrieved per turn (threshold-filtered)
 
 tts:
-  backend: fish_cloud          # kokoro (local) | fish_cloud (API, uses fish_voice below) |
+  backend: kokoro          # kokoro (local) | fish_cloud (API, uses fish_voice below) |
                                # fish_local (INT4). Needs FISH_API_KEY + API credit.
   kokoro_voice: af_heart       # realtime voice (Kokoro)
+  kokoro_device: cpu           # cpu | cuda — cpu keeps Kokoro off the GPU (no VRAM fight with the LLM)
   fish_voice: furina           # voice id from voice_reference/voices.json
   fish_model: s2-pro           # local INT4 server model
   fish_cloud_model: s1         # cloud API model

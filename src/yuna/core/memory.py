@@ -8,6 +8,7 @@ Replaces the old root-level memory.py. Differences:
 
 from __future__ import annotations
 
+import time
 import uuid
 from pathlib import Path
 
@@ -15,6 +16,25 @@ from yuna.core.config import get_config
 from yuna.core.logging import get_logger
 
 log = get_logger("memory")
+
+_DAY = 86400
+
+
+def format_age(ts: float | None, now: float | None = None) -> str:
+    """Human age of a memory: '' (fresh/unknown), 'yesterday', '3 days ago', ..."""
+    if not ts:
+        return ""
+    now = now or time.time()
+    days = int((now - ts) // _DAY)
+    if days <= 0:
+        return "earlier today"
+    if days == 1:
+        return "yesterday"
+    if days < 14:
+        return f"{days} days ago"
+    if days < 60:
+        return f"{days // 7} weeks ago"
+    return f"{days // 30} months ago"
 
 
 class MemoryStore:
@@ -44,8 +64,12 @@ class MemoryStore:
 
     # ── Operations ──────────────────────────────────────────────────────────
 
-    def save(self, username: str, fact: str) -> bool:
-        """Insert a fact unless a near-duplicate already exists in the partition."""
+    def save(self, username: str, fact: str, kind: str = "fact") -> bool:
+        """Insert a fact unless a near-duplicate already exists in the partition.
+
+        kind: 'fact' (durable truth), 'event' (dated happening), 'session'
+        (conversation summary). Everything is timestamped for age-aware recall.
+        """
         if not fact or not fact.strip():
             return False
         fact = fact.strip()
@@ -66,7 +90,7 @@ class MemoryStore:
         try:
             self.collection.add(
                 documents=[fact],
-                metadatas=[{"username": username.lower()}],
+                metadatas=[{"username": username.lower(), "kind": kind, "ts": time.time()}],
                 ids=[str(uuid.uuid4())],
             )
             return True
@@ -75,7 +99,11 @@ class MemoryStore:
             return False
 
     def search(self, username: str, query: str, n_results: int | None = None) -> str:
-        """Relevant facts for `query` joined with ' | ', or '' if none pass the threshold."""
+        """Relevant facts for `query` joined with ' | ', or '' if none pass the threshold.
+
+        Events and session summaries are prefixed with their age — "(3 days ago) ..." —
+        so the model can talk about time like a person instead of an eternal present.
+        """
         if not query or not query.strip():
             return ""
         cfg = get_config().memory
@@ -89,17 +117,61 @@ class MemoryStore:
                 query_texts=[query],
                 n_results=min(n, count),
                 where={"username": username.lower()},
-                include=["documents", "distances"],
+                include=["documents", "distances", "metadatas"],
             )
             docs = (results.get("documents") or [[]])[0]
             dists = (results.get("distances") or [[]])[0]
-            relevant = [
-                doc for doc, dist in zip(docs, dists, strict=False) if dist < cfg.recall_threshold
-            ]
+            metas = (results.get("metadatas") or [[]])[0]
+            relevant = []
+            for doc, dist, meta in zip(docs, dists, metas, strict=False):
+                if dist >= cfg.recall_threshold:
+                    continue
+                meta = meta or {}
+                if meta.get("kind") in ("event", "session"):
+                    age = format_age(meta.get("ts"))
+                    if age:
+                        doc = f"({age}) {doc}"
+                relevant.append(doc)
             return " | ".join(relevant)
         except Exception:
             log.exception("Memory search failed")
             return ""
+
+    def profile(self, username: str, limit: int = 8) -> list[str]:
+        """The newest durable facts in a partition (Yuna's self-knowledge, or a
+        user's core profile). Injected every turn regardless of query relevance."""
+        try:
+            data = self.collection.get(where={"username": username.lower()})
+        except Exception:
+            log.exception("Memory profile fetch failed")
+            return []
+        rows = []
+        for doc, meta in zip(
+            data.get("documents") or [], data.get("metadatas") or [], strict=False
+        ):
+            meta = meta or {}
+            if meta.get("kind", "fact") == "fact":
+                rows.append((meta.get("ts", 0), doc))
+        rows.sort(reverse=True)
+        return [doc for _, doc in rows[:limit]]
+
+    def latest_summary(self, username: str) -> tuple[str, float] | None:
+        """Most recent session summary for a partition: (text, ts) or None."""
+        try:
+            data = self.collection.get(where={"username": username.lower()})
+        except Exception:
+            log.exception("Memory summary fetch failed")
+            return None
+        best: tuple[float, str] | None = None
+        for doc, meta in zip(
+            data.get("documents") or [], data.get("metadatas") or [], strict=False
+        ):
+            meta = meta or {}
+            if meta.get("kind") == "session":
+                ts = meta.get("ts", 0)
+                if best is None or ts > best[0]:
+                    best = (ts, doc)
+        return (best[1], best[0]) if best else None
 
     def delete(self, username: str, query: str) -> bool:
         """Delete the single closest memory to `query` if it's close enough."""
@@ -132,11 +204,14 @@ class MemoryStore:
         data = self.collection.get()
         out = []
         for i, doc_id in enumerate(data.get("ids") or []):
+            meta = data["metadatas"][i] or {}
             out.append(
                 {
                     "id": doc_id,
                     "fact": data["documents"][i],
-                    "username": (data["metadatas"][i] or {}).get("username", "global"),
+                    "username": meta.get("username", "global"),
+                    "kind": meta.get("kind", "fact"),
+                    "ts": meta.get("ts"),
                 }
             )
         return out

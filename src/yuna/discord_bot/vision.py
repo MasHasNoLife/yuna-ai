@@ -43,10 +43,14 @@ async def describe_image(image_bytes: bytes) -> str:
             log.warning("Image conversion failed, sending raw bytes: %s", e)
 
         client = ollama.AsyncClient(host=cfg.endpoints.ollama_url)
-        response = await client.generate(
-            model=cfg.models.vision_discord, prompt=PROMPT, images=[image_bytes]
+        # Use the chat API (not generate) so the model's chat template is applied —
+        # template-aware models (e.g. the Gemma4 channel-format fine-tune) otherwise
+        # leak reasoning tokens into the raw completion.
+        response = await client.chat(
+            model=cfg.models.vision_discord,
+            messages=[{"role": "user", "content": PROMPT, "images": [image_bytes]}],
         )
-        description = response.get("response", "").strip()
+        description = response["message"]["content"].strip()
         return description or "The image was processed but no description was generated."
     except Exception:
         log.exception("Failed to analyze image")

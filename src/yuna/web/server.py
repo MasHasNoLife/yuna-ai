@@ -163,6 +163,7 @@ class WSChat:
                 self.session.username = data["username"].strip()
             await self.send_json({"type": "options", **self.options()})
         elif kind == "reset":
+            await self.session.summarize_session()  # remember this conversation first
             self.session.reset()
             await self.send_json({"type": "reset_done"})
 
@@ -199,6 +200,10 @@ async def ws_chat(ws: WebSocket):
         pass
     finally:
         pump.cancel()
+        try:
+            await asyncio.wait_for(chat.session.summarize_session(), timeout=60.0)
+        except Exception:
+            log.warning("Session summary on disconnect skipped")
         await chat.session.drain(timeout=10.0)
         log.info("Client disconnected")
 

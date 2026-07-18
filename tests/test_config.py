@@ -5,7 +5,7 @@ def test_defaults_without_file():
     cfg = load_config(path="/nonexistent/config.yaml")
     assert cfg.models.chat == "qwen2.5:14b"
     assert cfg.dashboard.host == "127.0.0.1"
-    assert cfg.memory.recall_threshold == 0.35
+    assert cfg.memory.recall_threshold == 0.5
 
 
 def test_yaml_overrides(tmp_path):

@@ -1,6 +1,7 @@
 from yuna.core.fact_extractor import (
     MemoryOp,
     build_prompt,
+    is_junk_fact,
     is_worth_extracting,
     parse_operations,
 )
@@ -63,3 +64,59 @@ def test_is_worth_extracting():
     assert not is_worth_extracting("lol")
     assert not is_worth_extracting("yes ok sure")
     assert is_worth_extracting("my favorite color is neon green")
+
+
+# ── New typed operations ─────────────────────────────────────────────────────
+
+
+def test_event_extraction():
+    ops = parse_operations("[EVENT] Mas started learning to cook pasta.")
+    assert ops == [MemoryOp("event", "Mas started learning to cook pasta.")]
+
+
+def test_self_extraction():
+    ops = parse_operations("[SELF] Yuna has gotten into charcoal drawing recently.")
+    assert ops == [MemoryOp("self", "Yuna has gotten into charcoal drawing recently.")]
+
+
+def test_build_prompt_includes_reply():
+    prompt = build_prompt("Mas", "what are you up to?", "", "", "Just sketching all day!")
+    assert "Just sketching all day!" in prompt
+
+
+# ── Junk filtering (denials + conversation meta-states) ─────────────────────
+
+
+def test_junk_denials_detected():
+    assert is_junk_fact("There is no robot and laser game project.")
+    assert is_junk_fact("The project does not exist.")
+    assert is_junk_fact("That never happened.")
+
+
+def test_junk_meta_states_detected():
+    assert is_junk_fact("Mas is unsure what coding thing Yuna is referring to.")
+    assert is_junk_fact("Mas believes Yuna may have summoned him.")
+    assert is_junk_fact("Saad asked Yuna what they are doing.")
+    assert is_junk_fact("Mas is doing well and asking about Yuna's activities.")
+    assert is_junk_fact("Mas is open to discussing various topics.")
+
+
+def test_real_facts_not_junk():
+    assert not is_junk_fact("Mas's favorite dish is carbonara.")
+    assert not is_junk_fact("Mas plays League of Legends and Osu.")
+    assert not is_junk_fact("Mas is trying to make a research paper.")
+    assert not is_junk_fact("Yuna's nickname is tuna.")
+
+
+def test_parse_filters_junk_facts():
+    ops = parse_operations(
+        "[FACT] There is no robot and laser game project.\n[FACT] Mas loves carbonara."
+    )
+    assert ops == [MemoryOp("fact", "Mas loves carbonara.")]
+
+
+def test_parse_allows_forget_of_junk_shaped_fact():
+    # FORGET targets an existing stored fact — the junk filter must not block it
+    ops = parse_operations("[FORGET] There is no robot and laser game project.")
+    assert len(ops) == 1
+    assert ops[0].kind == "forget"

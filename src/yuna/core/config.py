@@ -46,6 +46,7 @@ class LLMConfig:
 
     backend: str = "ollama"
     google_model: str = "gemma-4-26b-a4b-it"  # or gemma-4-31b-it (dense, slower)
+    format_reminder: bool = True  # per-turn [tag]/format nudge (disable for RP-tuned models)
 
 
 @dataclass
@@ -67,16 +68,17 @@ class SamplingConfig:
 
 @dataclass
 class MemoryConfig:
-    recall_threshold: float = 0.35
+    recall_threshold: float = 0.5  # question-style queries score ~0.4-0.5 with nomic-embed
     dedup_threshold: float = 0.05
-    delete_threshold: float = 0.6
-    n_results: int = 2
+    delete_threshold: float = 0.15  # near-exact only: paraphrases ~0.08, unrelated ~0.23+
+    n_results: int = 4
 
 
 @dataclass
 class TTSConfig:
     backend: str = "kokoro"  # kokoro (local) | fish_cloud (API) | fish_local (INT4 server)
     kokoro_voice: str = "af_heart"
+    kokoro_device: str = "cpu"  # cpu keeps Kokoro off the GPU so it never fights the LLM for VRAM
     fish_voice: str = "furina"  # voice id from voice_reference/voices.json
     fish_model: str = "s2-pro"  # local INT4 server model
     fish_cloud_model: str = "s1"  # cloud API model header
