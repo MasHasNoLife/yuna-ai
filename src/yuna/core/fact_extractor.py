@@ -18,7 +18,7 @@ PROMPT_TEMPLATE = """You are a STRICT memory curator for a long-term companion. 
 OPERATION TYPES:
 [FACT] durable truth about {username} or the world ("{username}'s favorite dish is carbonara")
 [EVENT] something that happened, tied to now ("{username} started learning to cook pasta")
-[SELF] durable detail Yuna revealed about herself in her reply ("Yuna has been into lo-fi music lately")
+[SELF] durable detail {assistant} revealed about themself in their reply ("{assistant} has been into lo-fi music lately")
 [UPDATE] old fact -> corrected fact (only when a Known Database Fact is organically corrected)
 [FORGET] fact to delete (see rules 6-7)
 
@@ -26,20 +26,20 @@ CRITICAL RULES:
 1. Extract ONLY from the "New Exchange". Never re-extract Known Database Facts or Recent Chat Context.
 2. If there is nothing genuinely worth remembering, reply NONE. Most small-talk exchanges are NONE.
 3. NEVER store conversation states or meta-talk. FORBIDDEN examples (all must be NONE):
-   - "{username} is asking about X" / "is unsure what Yuna means" / "believes Yuna said something"
+   - "{username} is asking about X" / "is unsure what {assistant} means" / "believes {assistant} said something"
    - "{username} is doing well" / "is in a good mood" (moods are not memories)
    - anything describing the conversation itself rather than the people
 4. DENIALS ARE NOT FACTS. If {username} denies something ("there is no such project", "I never said that",
    "that didn't happen"):
    - If a Known Database Fact matches the denied thing -> [FORGET] that fact.
    - Otherwise -> NONE. NEVER store the denial itself ("There is no robot project" is FORBIDDEN).
-5. PRONOUNS: "I/me/my" = {username}. "you/your" = Yuna. Third parties by name from context.
+5. PRONOUNS: "I/me/my" = {username}. "you/your" = {assistant}. Third parties by name from context.
 6. [FORGET] only when rule 4 applies or {username} explicitly says to forget.
 7. Corrections use [UPDATE] old -> new, not FORGET+FACT.
-8. [SELF] only for concrete, durable details Yuna stated about her own life/tastes — not feelings of the moment.
+8. [SELF] only for concrete, durable details {assistant} stated about their own life/tastes — not feelings of the moment.
 
 Example 1:
-{username}: "my favorite color is neon green" / Yuna: "ooh bold choice!"
+{username}: "my favorite color is neon green" / {assistant}: "ooh bold choice!"
 Response: [FACT] {username} loves the color neon green.
 
 Example 2:
@@ -55,8 +55,8 @@ Example 4:
 Response: NONE
 
 Example 5:
-{username}: "what are you up to?" / Yuna: "Just sketching — I've gotten really into charcoal drawing this month."
-Response: [SELF] Yuna has gotten into charcoal drawing recently.
+{username}: "what are you up to?" / {assistant}: "Just sketching — I've gotten really into charcoal drawing this month."
+Response: [SELF] {assistant} has gotten into charcoal drawing recently.
 
 Known Database Facts:
 {recalled_facts}
@@ -66,7 +66,7 @@ Recent Chat Context:
 
 New Exchange:
 {username}: "{user_input}"
-Yuna: "{assistant_reply}"
+{assistant}: "{assistant_reply}"
 Response:"""
 
 # Backstop patterns for junk the model still lets through: denials stored as
@@ -77,9 +77,10 @@ _JUNK_PATTERNS = (
     r"\bnever happened\b",
     r"\bis (?:unsure|uncertain|confused|unclear)\b",
     r"\bis referring to\b",
-    r"\basked (?:yuna|about)\b",
+    r"\basked \w+ what\b",
+    r"\basked about\b",
     r"\bis asking\b",
-    r"\bbelieves? yuna\b",
+    r"\bbelieves? \w+ (?:may|might)\b",
     r"\bmay have summoned\b",
     r"\bis (?:doing well|in a good mood|in a bad mood)\b",
     r"\bwants? to know\b",
@@ -112,9 +113,11 @@ def build_prompt(
     recent_context: str,
     recalled_facts: str,
     assistant_reply: str = "",
+    assistant_name: str = "Yuna",
 ) -> str:
     return PROMPT_TEMPLATE.format(
         username=username,
+        assistant=assistant_name,
         user_input=user_input,
         assistant_reply=assistant_reply or "(no reply yet)",
         recent_context=recent_context or "None",
@@ -175,19 +178,23 @@ async def extract_and_apply(
     allow_forget: bool = True,
     on_op=None,
     assistant_reply: str = "",
+    assistant_name: str = "Yuna",
 ) -> list[MemoryOp]:
     """Run the extractor model and apply the resulting ops to `store`
     (a yuna.core.memory.MemoryStore) under `partition`.
 
     Designed to run as a background task; errors are logged, never raised.
     `on_op(op)` is called after each applied operation (live UI feeds).
+    [SELF] facts go to the partition named after `assistant_name` (lowercased).
     """
     import asyncio
 
     from yuna.core import llm
 
     try:
-        prompt = build_prompt(username, user_input, recent_context, recalled_facts, assistant_reply)
+        prompt = build_prompt(
+            username, user_input, recent_context, recalled_facts, assistant_reply, assistant_name
+        )
         response = await llm.chat(client, model, [{"role": "user", "content": prompt}])
         ops = parse_operations(response)
         applied: list[MemoryOp] = []
@@ -197,7 +204,7 @@ async def extract_and_apply(
                 await asyncio.to_thread(store.save, partition, op.fact, op.kind)
             elif op.kind == "self":
                 log.info("[memory] + (self) %s", op.fact)
-                await asyncio.to_thread(store.save, SELF_PARTITION, op.fact, "fact")
+                await asyncio.to_thread(store.save, assistant_name.lower(), op.fact, "fact")
             elif op.kind == "update":
                 log.info("[memory] %s -> %s", op.fact, op.new_fact)
                 await asyncio.to_thread(store.delete, partition, op.fact)

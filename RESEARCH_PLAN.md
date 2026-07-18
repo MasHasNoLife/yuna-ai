@@ -103,6 +103,31 @@ Ordered; items 1–4 are the critical path. Most infrastructure already exists:
 
 ---
 
+## 3.5 Pilot findings — July 19, 2026 (1 conv × 2 sessions × 6 QA, qwen2.5-14b)
+
+First end-to-end run of the harness (`yuna bench`), token-F1 on LoCoMo conv-26:
+
+| strategy | F1 | EM | memories stored | ingest |
+|---|---|---|---|---|
+| none | 0.000 | 0.000 | 0 | — |
+| raw_rag | 0.320 | 0.167 | 35 raw turns | 9 s |
+| agentic | 0.208 | 0.167 | 17 typed facts | 30 s |
+
+Sanity checks pass (none = 0; memory > none). Two findings that shape the work:
+
+1. **Temporal grounding is the agentic pipeline's weak spot.** Extraction stores
+   relative time ("last Saturday", "last year") anchored to nothing, and memory
+   timestamps are wall-clock at ingest, not the session date — so every temporal
+   (category-2) question failed while raw_rag (whose docs carry the session-date
+   prefix) got partial credit. Fix: pass the session/conversation date into
+   extraction and store it as the memory timestamp; normalize relative dates.
+   This becomes a clean before/after ablation.
+2. **Extraction misses implied facts** (e.g. identity implied across several
+   stored facts but never stated as one) — motivates the consolidation pass.
+
+Extraction quality itself was high: typed facts clean, [SELF] facts correctly
+routed to the speaker's partition, zero junk stored.
+
 ## 4. Related work to read (for §2 of the paper)
 
 - **Agent memory systems:** MemGPT (Packer et al.), Mem0, Generative Agents

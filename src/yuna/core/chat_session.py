@@ -48,6 +48,8 @@ FORMAT_REMINDER = (
 )
 
 MEMORY_PARTITION = "global"  # where chat facts/events/session summaries live
+RAW_PARTITION = "raw"  # raw dialogue turns for the raw_rag baseline strategy
+STRATEGIES = ("none", "full_history", "raw_rag", "agentic")
 
 SUMMARY_PROMPT = (
     "Summarize this conversation between {username} and Yuna in ONE or TWO short "
@@ -83,13 +85,26 @@ def time_preamble(now: datetime | None = None) -> str:
 
 
 class ChatSession:
-    def __init__(self, username: str = "Mas", llm_backend: str | None = None):
+    def __init__(
+        self,
+        username: str = "Mas",
+        llm_backend: str | None = None,
+        strategy: str | None = None,
+        store=None,
+        system_prompt: str | None = None,
+    ):
         self.username = username
-        self.persona = load_persona()
-        self.store = get_store("main")
+        self.strategy = strategy or get_config().memory.strategy
+        if self.strategy not in STRATEGIES:
+            raise ValueError(f"Unknown memory strategy '{self.strategy}' (have: {STRATEGIES})")
+        if system_prompt is None:
+            self.persona = load_persona()
+            system_prompt = self.persona.system
+        self.system_prompt = system_prompt
+        self.store = store if store is not None else get_store("main")
         self.backend = llm_backends.get_backend(llm_backend)
         self.extractor_client = None  # lazy — extraction always runs on local Ollama
-        self.messages = make_history(self.persona.system)
+        self.messages = make_history(system_prompt)
         self.events: asyncio.Queue[dict] = asyncio.Queue()
         self.background: set[asyncio.Task] = set()
         self.hub = get_hub()
@@ -98,7 +113,7 @@ class ChatSession:
         self.recent_user_inputs: list[str] = []  # raw, uninjected — for recall queries
         self.exchanges: list[tuple[str, str]] = []  # (user, reply) — for summaries
         self._continuity_loaded = False
-        log.info("Session for %s on %s", username, self.backend.label)
+        log.info("Session for %s on %s (memory=%s)", username, self.backend.label, self.strategy)
 
     # ── Controls ────────────────────────────────────────────────────────────
 
@@ -108,7 +123,7 @@ class ChatSession:
         return self.backend.label
 
     def reset(self) -> None:
-        self.messages = make_history(self.persona.system)
+        self.messages = make_history(self.system_prompt)
         self.recent_user_inputs = []
         self.exchanges = []
         self._continuity_loaded = False
@@ -130,6 +145,8 @@ class ChatSession:
         """Once per session: append the last conversation's summary to the system
         prompt so Yuna starts with narrative memory, not a cold boot."""
         self._continuity_loaded = True
+        if self.strategy != "agentic":
+            return
         found = await asyncio.to_thread(self.store.latest_summary, MEMORY_PARTITION)
         if not found:
             return
@@ -152,7 +169,7 @@ class ChatSession:
         """Store a 1-2 sentence summary of this session as a 'session' memory.
         Called by the transport on disconnect/reset. Safe to call repeatedly —
         it no-ops unless there are at least 2 new exchanges."""
-        if len(self.exchanges) < 2:
+        if self.strategy != "agentic" or len(self.exchanges) < 2:
             return
         transcript = "\n".join(f"{self.username}: {u}\nYuna: {r}" for u, r in self.exchanges[-12:])
         try:
@@ -235,10 +252,14 @@ class ChatSession:
         # 1. Memory recall (query includes the previous user message for context)
         t0 = time.monotonic()
         query = build_recall_query(user_input, self.recent_user_inputs)
-        recalled, self_facts = await asyncio.gather(
-            asyncio.to_thread(self.store.search, MEMORY_PARTITION, query),
-            asyncio.to_thread(self.store.profile, fact_extractor.SELF_PARTITION, 6),
-        )
+        recalled, self_facts = "", []
+        if self.strategy == "agentic":
+            recalled, self_facts = await asyncio.gather(
+                asyncio.to_thread(self.store.search, MEMORY_PARTITION, query),
+                asyncio.to_thread(self.store.profile, fact_extractor.SELF_PARTITION, 6),
+            )
+        elif self.strategy == "raw_rag":
+            recalled = await asyncio.to_thread(self.store.search, RAW_PARTITION, query)
         record.recall_ms = (time.monotonic() - t0) * 1000
         facts = [f.strip() for f in recalled.split("|") if f.strip()] if recalled else []
         record.recalled = len(facts)
@@ -256,7 +277,9 @@ class ChatSession:
             full_input += FORMAT_REMINDER
 
         self.messages.append({"role": "user", "content": full_input})
-        self.messages = trim_history(self.messages, cfg.sampling.max_history)
+        # full_history is the context-stuffing baseline: never trim
+        if self.strategy != "full_history":
+            self.messages = trim_history(self.messages, cfg.sampling.max_history)
 
         # 3. Stream the reply
         response = ""
@@ -304,8 +327,17 @@ class ChatSession:
         self.recent_user_inputs = (self.recent_user_inputs + [user_input])[-3:]
         self.exchanges.append((user_input, response))
 
-        # 4. Extraction AFTER the reply: mines both sides of the exchange and
-        # never queues ahead of generation on the shared local model.
-        self._spawn_extraction(user_input, recalled, response)
+        # 4. Memory write AFTER the reply — strategy-dependent:
+        #    agentic: model-driven typed extraction (mines both sides)
+        #    raw_rag: store the raw exchange verbatim, no model call
+        if self.strategy == "agentic":
+            self._spawn_extraction(user_input, recalled, response)
+        elif self.strategy == "raw_rag":
+            raw_doc = f"{self.username}: {user_input} / Yuna: {response}"
+            task = asyncio.create_task(
+                asyncio.to_thread(self.store.save, RAW_PARTITION, raw_doc, "raw")
+            )
+            self.background.add(task)
+            task.add_done_callback(self.background.discard)
 
         yield {"type": "reply_done", "text": response, "turn": record.turn}

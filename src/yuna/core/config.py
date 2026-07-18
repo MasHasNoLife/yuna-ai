@@ -68,6 +68,12 @@ class SamplingConfig:
 
 @dataclass
 class MemoryConfig:
+    # Memory strategy — the paper's experimental conditions:
+    #   none         no long-term memory (short rolling context only)
+    #   full_history never trim history (context-stuffing baseline)
+    #   raw_rag      retrieve raw dialogue turns, no extraction (plain RAG baseline)
+    #   agentic      typed FACT/EVENT/SELF extraction + self-memory + continuity (ours)
+    strategy: str = "agentic"
     recall_threshold: float = 0.5  # question-style queries score ~0.4-0.5 with nomic-embed
     dedup_threshold: float = 0.05
     delete_threshold: float = 0.15  # near-exact only: paraphrases ~0.08, unrelated ~0.23+

@@ -49,6 +49,22 @@ def main(argv: list[str] | None = None) -> int:
     sub.add_parser("dashboard", help="alias for 'web'")
     sub.add_parser("doctor", help="check every dependency and service")
 
+    p_bench = sub.add_parser("bench", help="memory benchmark (LoCoMo replay + QA scoring)")
+    p_bench.add_argument(
+        "--dataset", default="data/benchmarks/locomo10.json", help="path to locomo10.json"
+    )
+    p_bench.add_argument(
+        "--strategy",
+        default="agentic",
+        choices=["none", "full_history", "raw_rag", "agentic"],
+        help="memory strategy under test",
+    )
+    p_bench.add_argument("--model", default=None, help="Ollama model (default: models.extractor)")
+    p_bench.add_argument("--conversations", type=int, default=1, help="how many convs (0=all)")
+    p_bench.add_argument("--sessions", type=int, default=0, help="sessions per conv (0=all)")
+    p_bench.add_argument("--qa", type=int, default=0, help="questions per conv (0=all)")
+    p_bench.add_argument("--out", default="data/bench_results", help="output directory")
+
     args = parser.parse_args(argv)
     cfg = get_config()
     setup_logging(args.verbose, log_dir=cfg.paths.logs)
@@ -111,6 +127,26 @@ def main(argv: list[str] | None = None) -> int:
         from yuna.doctor import run as run_doctor
 
         return run_doctor()
+
+    if args.command == "bench":
+        import json
+        from pathlib import Path
+
+        from yuna.bench.runner import RunConfig
+        from yuna.bench.runner import run as run_bench
+
+        bench_cfg = RunConfig(
+            dataset=Path(args.dataset),
+            strategy=args.strategy,
+            model=args.model or cfg.models.extractor,
+            out_dir=Path(args.out),
+            conversations=args.conversations,
+            sessions=args.sessions,
+            qa=args.qa,
+        )
+        summary = asyncio.run(run_bench(bench_cfg))
+        print(json.dumps(summary, indent=2, ensure_ascii=False))
+        return 0
 
     parser.error(f"unknown command {args.command}")
     return 2
