@@ -74,17 +74,26 @@ class FishCloudTTS:
             "model": cfg.fish_cloud_model,
         }
 
-        async with httpx.AsyncClient(timeout=httpx.Timeout(60.0, connect=10.0)) as client:
-            async with client.stream(
-                "POST", API_URL, headers=headers, content=ormsgpack.packb(body)
-            ) as resp:
-                if resp.status_code != 200:
-                    detail = (await resp.aread()).decode(errors="replace")[:200]
-                    if resp.status_code == 402:
-                        raise ConnectionError(
-                            "Fish API credit empty — top up at fish.audio/app/developers"
-                        )
-                    raise ConnectionError(f"Fish cloud TTS HTTP {resp.status_code}: {detail}")
-                async for chunk in resp.aiter_bytes():
-                    if chunk:
-                        yield chunk
+        try:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(60.0, connect=10.0)) as client:
+                async with client.stream(
+                    "POST", API_URL, headers=headers, content=ormsgpack.packb(body)
+                ) as resp:
+                    if resp.status_code != 200:
+                        detail = (await resp.aread()).decode(errors="replace")[:200]
+                        if resp.status_code == 402:
+                            raise ConnectionError(
+                                "Fish API credit empty — top up at fish.audio/app/developers"
+                            )
+                        raise ConnectionError(f"Fish cloud TTS HTTP {resp.status_code}: {detail}")
+                    async for chunk in resp.aiter_bytes():
+                        if chunk:
+                            yield chunk
+        except httpx.HTTPError as e:
+            # The streaming endpoint drops the connection *before* headers when the
+            # key has no credit, so the 402 above never fires — it surfaces here as
+            # a transport error instead. Give the same actionable hint.
+            raise ConnectionError(
+                "Fish cloud TTS request failed — likely empty API credit "
+                f"(top up at fish.audio/app/developers) or a network issue [{type(e).__name__}]"
+            ) from e
