@@ -37,7 +37,7 @@ sampling:
 memory:
   strategy: agentic            # none | full_history | raw_rag | agentic (paper conditions)
   recall_threshold: 0.5        # lower = stricter relevance (question-style queries score ~0.4-0.5)
-  dedup_threshold: 0.05        # near-duplicate cutoff on insert
+  dedup_threshold: 0.15        # near-duplicate cutoff on insert (paraphrases ~0.06-0.10)
   delete_threshold: 0.15       # max distance for delete-by-query — near-exact only, so a
                                # FORGET of a nonexistent fact can't nuke a related real one
   n_results: 4                 # memories retrieved per turn (threshold-filtered)

@@ -79,7 +79,7 @@ class MemoryConfig:
     #   agentic      typed FACT/EVENT/SELF extraction + self-memory + continuity (ours)
     strategy: str = "agentic"
     recall_threshold: float = 0.5  # question-style queries score ~0.4-0.5 with nomic-embed
-    dedup_threshold: float = 0.05
+    dedup_threshold: float = 0.15  # paraphrase dups measure 0.06-0.10; distinct facts 0.23+
     delete_threshold: float = 0.15  # near-exact only: paraphrases ~0.08, unrelated ~0.23+
     n_results: int = 4
 

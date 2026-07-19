@@ -332,7 +332,9 @@ class ChatSession:
         #    agentic: model-driven typed extraction (mines both sides)
         #    raw_rag: store the raw exchange verbatim, no model call
         if self.strategy == "agentic":
-            self._spawn_extraction(user_input, recalled, response)
+            # include self-facts in the extractor's known set, or it re-extracts them
+            known = " | ".join(p for p in (recalled, *self_facts) if p)
+            self._spawn_extraction(user_input, known, response)
         elif self.strategy == "raw_rag":
             raw_doc = f"{self.username}: {user_input} / Yuna: {response}"
             task = asyncio.create_task(

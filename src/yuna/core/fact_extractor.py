@@ -199,22 +199,25 @@ async def extract_and_apply(
         ops = parse_operations(response)
         applied: list[MemoryOp] = []
         for op in ops:
+            changed = False
             if op.kind in ("fact", "event"):
-                log.info("[memory] + (%s) %s", op.kind, op.fact)
-                await asyncio.to_thread(store.save, partition, op.fact, op.kind)
+                changed = await asyncio.to_thread(store.save, partition, op.fact, op.kind)
             elif op.kind == "self":
-                log.info("[memory] + (self) %s", op.fact)
-                await asyncio.to_thread(store.save, assistant_name.lower(), op.fact, "fact")
+                changed = await asyncio.to_thread(
+                    store.save, assistant_name.lower(), op.fact, "fact"
+                )
             elif op.kind == "update":
-                log.info("[memory] %s -> %s", op.fact, op.new_fact)
                 await asyncio.to_thread(store.delete, partition, op.fact)
-                await asyncio.to_thread(store.save, partition, op.new_fact, "fact")
+                changed = await asyncio.to_thread(store.save, partition, op.new_fact, "fact")
             elif op.kind == "forget":
                 if not allow_forget:
                     log.warning("[memory] forget rejected for partition %s", partition)
                     continue
-                log.info("[memory] - %s", op.fact)
-                await asyncio.to_thread(store.delete, partition, op.fact)
+                changed = await asyncio.to_thread(store.delete, partition, op.fact)
+            if not changed:  # dedup-blocked or no matching fact — nothing happened
+                log.debug("[memory] no-op (%s) %s", op.kind, op.fact[:60])
+                continue
+            log.info("[memory] %s (%s) %s", "-" if op.kind == "forget" else "+", op.kind, op.fact)
             applied.append(op)
             if on_op is not None:
                 try:
