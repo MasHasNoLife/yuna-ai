@@ -24,6 +24,14 @@ def get_client() -> ollama.AsyncClient:
     return ollama.AsyncClient(host=get_config().endpoints.ollama_url)
 
 
+def _with_num_ctx(options: dict) -> dict:
+    """Every Ollama call must use the SAME num_ctx: a different value spawns a
+    new runner, which is a full ~8s model reload. Chat passed 8192 while
+    extraction used the default 4096 — the model reloaded twice per turn."""
+    options.setdefault("num_ctx", get_config().sampling.num_ctx)
+    return options
+
+
 async def check_model(client: ollama.AsyncClient, model: str) -> bool:
     """True if Ollama is reachable and `model` is pulled."""
     try:
@@ -43,7 +51,9 @@ async def chat(client: ollama.AsyncClient, model: str, messages: list[dict], **o
     last_error: Exception | None = None
     for attempt in range(_RETRIES):
         try:
-            response = await client.chat(model=model, messages=messages, options=options or None)
+            response = await client.chat(
+                model=model, messages=messages, options=_with_num_ctx(options)
+            )
             return response["message"]["content"]
         except Exception as e:
             last_error = e
@@ -64,7 +74,7 @@ async def chat_stream(
     for attempt in range(_RETRIES):
         try:
             stream = await client.chat(
-                model=model, messages=messages, stream=True, options=options or None
+                model=model, messages=messages, stream=True, options=_with_num_ctx(options)
             )
             break
         except Exception as e:
