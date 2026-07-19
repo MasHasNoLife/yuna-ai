@@ -292,6 +292,7 @@ class ChatSession:
                 temperature=cfg.sampling.temperature,
                 top_p=cfg.sampling.top_p,
                 repeat_penalty=cfg.sampling.repeat_penalty,
+                num_ctx=cfg.sampling.num_ctx,
             ):
                 if chunk.thought:
                     yield {"type": "thinking", "text": chunk.text}

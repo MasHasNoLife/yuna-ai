@@ -3,8 +3,11 @@
 # Secrets (DISCORD_TOKEN, YUNA_DASHBOARD_TOKEN) belong in .env, never here.
 
 models:
-  chat: &gemma2 gemma2:27b
-  extractor: *gemma2           # memory extraction — same model so no eviction
+  # 12B QAT sibling of the Gemma4-26B tune: same character, 7.4 GB -> fully on
+  # GPU (fast) with room for 8k context. Pull with:
+  #   ollama pull hf.co/HauhauCS/Gemma4-12B-QAT-Uncensored-HauhauCS-Balanced:Q4_K_M
+  chat: &gemma4q hf.co/HauhauCS/Gemma4-12B-QAT-Uncensored-HauhauCS-Balanced:Q4_K_M
+  extractor: *gemma4q          # memory extraction — same model so no eviction
   script: gemma2:27b           # offline reaction scriptwriting
   vision_frames: llava:13b     # video frame analysis
   vision_discord: llava:13b    # discord image understanding
@@ -26,6 +29,7 @@ sampling:
   temperature: 0.8
   top_p: 0.9
   repeat_penalty: 1.15
+  num_ctx: 8192                # context window — the 12B leaves VRAM headroom for this
   max_history: 30              # realtime chat window (messages)
   discord_max_history: 40      # discord per-channel window (messages)
 

@@ -62,6 +62,7 @@ class SamplingConfig:
     temperature: float = 0.8
     top_p: float = 0.9
     repeat_penalty: float = 1.15
+    num_ctx: int = 8192  # Ollama context window (KV cache); needs free VRAM headroom
     max_history: int = 30
     discord_max_history: int = 40
 
