@@ -5,21 +5,39 @@ export class PcmPlayer {
     this.ctx = null;
     this.sampleRate = 24000;
     this.nextTime = 0;
+    this.carry = null; // trailing odd byte held over between chunks
     this.canvas = visualizerCanvas;
     this.vctx = visualizerCanvas ? visualizerCanvas.getContext("2d") : null;
   }
 
   start(sampleRate) {
-    if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!this.ctx)
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
     if (this.ctx.state === "suspended") this.ctx.resume();
     this.sampleRate = sampleRate;
+    this.carry = null; // fresh utterance — drop any stray byte from the last one
     this.nextTime = Math.max(this.ctx.currentTime + 0.05, this.nextTime);
   }
 
-  // 16-bit little-endian mono PCM
+  // 16-bit little-endian mono PCM. Streamed chunks arrive at arbitrary byte
+  // boundaries, so a chunk may end mid-sample; we carry that leftover byte to
+  // the next chunk. Decoding each chunk independently would misalign every
+  // sample after the first odd-length chunk and play as noise.
   feed(arrayBuffer) {
-    if (!this.ctx || arrayBuffer.byteLength < 2) return;
-    const int16 = new Int16Array(arrayBuffer);
+    if (!this.ctx) return;
+    let bytes = new Uint8Array(arrayBuffer);
+    if (this.carry) {
+      const merged = new Uint8Array(this.carry.length + bytes.length);
+      merged.set(this.carry);
+      merged.set(bytes, this.carry.length);
+      bytes = merged;
+      this.carry = null;
+    }
+    const usable = bytes.length - (bytes.length % 2);
+    if (usable < bytes.length) this.carry = bytes.slice(usable);
+    if (usable < 2) return;
+    const int16 = new Int16Array(usable / 2);
+    new Uint8Array(int16.buffer).set(bytes.subarray(0, usable));
     const float32 = new Float32Array(int16.length);
     let peak = 0;
     for (let i = 0; i < int16.length; i++) {
@@ -32,7 +50,8 @@ export class PcmPlayer {
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
     src.connect(this.ctx.destination);
-    if (this.nextTime < this.ctx.currentTime) this.nextTime = this.ctx.currentTime + 0.02;
+    if (this.nextTime < this.ctx.currentTime)
+      this.nextTime = this.ctx.currentTime + 0.02;
     src.start(this.nextTime);
     this.nextTime += buf.duration;
     this.drawLevel(peak);
@@ -62,7 +81,8 @@ export class Recorder {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.chunks = [];
     this.mediaRecorder = new MediaRecorder(stream);
-    this.mediaRecorder.ondataavailable = (e) => e.data.size && this.chunks.push(e.data);
+    this.mediaRecorder.ondataavailable = (e) =>
+      e.data.size && this.chunks.push(e.data);
     this.mediaRecorder.start();
   }
 
