@@ -52,7 +52,10 @@ async def chat(client: ollama.AsyncClient, model: str, messages: list[dict], **o
     for attempt in range(_RETRIES):
         try:
             response = await client.chat(
-                model=model, messages=messages, options=_with_num_ctx(options)
+                model=model,
+                messages=messages,
+                options=_with_num_ctx(options),
+                think=get_config().llm.think,
             )
             return response["message"]["content"]
         except Exception as e:
@@ -74,7 +77,11 @@ async def chat_stream(
     for attempt in range(_RETRIES):
         try:
             stream = await client.chat(
-                model=model, messages=messages, stream=True, options=_with_num_ctx(options)
+                model=model,
+                messages=messages,
+                stream=True,
+                options=_with_num_ctx(options),
+                think=get_config().llm.think,
             )
             break
         except Exception as e:

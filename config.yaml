@@ -17,6 +17,7 @@ models:
 llm:
   backend: ollama              # ollama (primary, local) | google (API, needs GOOGLE_API_KEY)
   format_reminder: true        # per-turn [tag]/format nudge (set false for RP-tuned models)
+  think: false                 # hidden reasoning tokens (Gemma 4) — ~10s silence/turn if on
   google_model: gemma-4-26b-a4b-it   # or gemma-4-31b-it (dense, stronger, slower)
 
 endpoints:

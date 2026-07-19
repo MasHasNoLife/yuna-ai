@@ -47,6 +47,9 @@ class LLMConfig:
     backend: str = "ollama"
     google_model: str = "gemma-4-26b-a4b-it"  # or gemma-4-31b-it (dense, slower)
     format_reminder: bool = True  # per-turn [tag]/format nudge (disable for RP-tuned models)
+    # Reasoning models (Gemma 4 family) emit hundreds of hidden thinking tokens
+    # before the visible reply — ~10s of silence per turn on a 12B. Off for chat.
+    think: bool = False
 
 
 @dataclass
