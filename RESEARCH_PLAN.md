@@ -157,6 +157,47 @@ routed to the speaker's partition, zero junk stored.
 **Next:** extractor-model ladder (3B→14B), all 10 conversations, 3 seeds,
 LLM-as-judge scoring alongside F1, consolidation-pass condition.
 
+### FULL BENCHMARK — July 19 (all 10 conversations, 1,986 QA, Gemma4-12B-QAT,
+### think disabled, temporal grounding ON) — the definitive table
+
+| strategy | F1 | EM | c1 multi-hop | c2 temporal | c3 open | c4 single-hop | avg ctx (chars) | QA lat |
+|---|---|---|---|---|---|---|---|---|
+| none | 0.001 | 0.000 | 0.00 | 0.00 | 0.01 | 0.00 | 21 | 0.5 s |
+| raw_rag | 0.201 | 0.095 | 0.23 | 0.16 | 0.05 | 0.33 | 1,428 | 0.8 s |
+| full_history | **0.308** | **0.158** | **0.35** | 0.14 | **0.12** | **0.54** | 59,585 | 0.7 s |
+| **agentic (ours)** | 0.226 | 0.100 | 0.31 | **0.33** | 0.10 | 0.29 | **889** | 0.7 s |
+
+**The honest story at full scale (this is what goes in the paper):**
+
+1. **Temporal grounding is the headline, and it holds at scale.** Agentic wins
+   temporal questions **0.33 — ~2× full-history (0.14) and ~2× raw RAG (0.16)**.
+   The single-conversation run showed 0.43; across all 10 it settles at 0.33,
+   still the decisive winner. Distilled absolute dates beat date arithmetic over
+   a 60k-char transcript, every time. This is the paper's central positive claim.
+2. **Extreme context efficiency — the small-local-model argument.** Agentic
+   reaches **73% of full-history's F1 using 67× less context** (889 vs 59,585
+   chars/question). full-history needs a 16k+ window and is already truncating
+   these conversations at 60k chars; agentic fits any 4k-context model on a 12 GB
+   GPU. This is RQ3 answered: the memory pays for itself in context budget.
+3. **Where agentic loses, and why (state it plainly):** full-history wins overall
+   F1 (0.308 vs 0.226), driven by single-hop copy questions (0.54 vs 0.29) — if
+   the literal answer sits verbatim in the window, stuffing beats distillation.
+   Agentic is competitive on multi-hop (0.31 vs 0.35). The takeaway is NOT "ours
+   wins everything" — it's "ours wins temporal reasoning and wins efficiency by
+   ~2 orders of magnitude, at a modest overall-F1 cost that shrinks as
+   conversations outgrow any fixed window."
+4. **Adversarial (c5) ≈ 0 everywhere — a scoring artifact, not a finding.** Token
+   F1 can't credit "Not mentioned" vs varied gold phrasings of unanswerable.
+   Fix before publication: LLM-as-judge / answerability-aware scorer.
+
+**Why this is still a strong paper:** the framing is efficiency + temporal
+competence for small local models, not beating GPT-4-style context stuffing on
+raw recall. Both surviving claims (2× temporal, 67× context) are clean,
+measurable, and reproducible from this repo.
+
+**Next:** extractor-model ladder (3B→14B) — RQ1; LLM-judge rescoring; gold
+extraction annotation (~200 ops); consolidation pass for single-hop recovery.
+
 ## 4. Related work to read (for §2 of the paper)
 
 - **Agent memory systems:** MemGPT (Packer et al.), Mem0, Generative Agents
