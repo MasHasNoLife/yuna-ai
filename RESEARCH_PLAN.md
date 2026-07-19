@@ -195,6 +195,26 @@ competence for small local models, not beating GPT-4-style context stuffing on
 raw recall. Both surviving claims (2× temporal, 67× context) are clean,
 measurable, and reproducible from this repo.
 
+### The window-truncation analysis (July 19) — the result that completes the story
+
+full_history keeps the LAST 60k chars, so early sessions of long conversations
+get cut. Splitting the 1,986 questions by whether their evidence survived:
+
+| strategy | evidence in window (n=1332) | evidence truncated (n=650) |
+|---|---|---|
+| full_history | **0.406** | 0.110 (**−73%**) |
+| agentic (ours) | 0.215 | **0.249** (flat) |
+| raw_rag | 0.183 | 0.240 (flat) |
+
+- full_history's overall win comes ENTIRELY from questions whose answer still
+  sits verbatim in the window; beyond it, it collapses to near-none levels.
+- Agentic (and raw_rag) are invariant to conversation length — retrieval doesn't
+  care how old the fact is. On the third of the benchmark that already exceeds
+  the window, **agentic beats full_history 2.3×** (0.249 vs 0.110).
+- As conversations grow, the truncated fraction → 100%: context stuffing
+  degrades toward zero while memory stays flat. This is the paper's Figure 1:
+  F1 vs evidence age, flat line (ours) crossing a falling line (stuffing).
+
 **Next:** extractor-model ladder (3B→14B) — RQ1; LLM-judge rescoring; gold
 extraction annotation (~200 ops); consolidation pass for single-hop recovery.
 
