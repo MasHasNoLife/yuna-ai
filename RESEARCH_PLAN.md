@@ -128,6 +128,35 @@ Sanity checks pass (none = 0; memory > none). Two findings that shape the work:
 Extraction quality itself was high: typed facts clean, [SELF] facts correctly
 routed to the speaker's partition, zero junk stored.
 
+### Full-conversation run — July 19 (conv-26: 19 sessions, 419 turns, 199 QA,
+### Gemma4-12B-QAT, think disabled, temporal grounding ON)
+
+| strategy | F1 | EM | c1 multi-hop | c2 temporal | c3 open | c4 single-hop | avg ctx (chars) | ingest |
+|---|---|---|---|---|---|---|---|---|
+| none | 0.003 | 0.000 | 0.00 | 0.00 | 0.03 | 0.00 | 21 | — |
+| raw_rag | 0.201 | 0.085 | 0.21 | 0.19 | 0.06 | 0.36 | 1,439 | 22 s |
+| **agentic (ours)** | 0.244 | 0.101 | 0.26 | **0.43** | 0.13 | 0.31 | **927** | 259 s |
+| full_history | **0.297** | 0.121 | 0.29 | 0.15 | 0.13 | **0.59** | 60,000 | — |
+
+**Headline findings:**
+
+1. **Temporal grounding works — and beats everything.** After the fix (absolute
+   dates inlined at extraction), agentic scores **0.43 on temporal questions —
+   ~3× full-history (0.15) and ~2× raw RAG (0.19)**. Reading "(on 20 May 2023)"
+   from a distilled fact beats date arithmetic over a 60k-char transcript.
+   Before the fix (pilot): agentic temporal was 0.00. Clean before/after ablation.
+2. **Context efficiency:** agentic reaches 82% of full-history's F1 using
+   **65× less context** (927 vs 60,000 chars/question) — the small-local-model
+   story: full-history needs a 16k+ window; agentic fits any 4k model.
+3. Full-history's edge is single-hop copy extraction (0.59) — expected; it
+   degrades as conversations outgrow the window (this conv already truncated
+   at 60k chars).
+4. Adversarial (c5) ≈ 0 for all strategies — scoring artifact (gold phrasing
+   of "no answer" varies); needs an answerability-aware scorer or LLM judge.
+
+**Next:** extractor-model ladder (3B→14B), all 10 conversations, 3 seeds,
+LLM-as-judge scoring alongside F1, consolidation-pass condition.
+
 ## 4. Related work to read (for §2 of the paper)
 
 - **Agent memory systems:** MemGPT (Packer et al.), Mem0, Generative Agents
