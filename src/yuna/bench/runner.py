@@ -22,7 +22,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 
-from yuna.bench.datasets import BenchConversation, load_locomo
+from yuna.bench.datasets import BenchConversation, load_locomo, parse_session_date
 from yuna.bench.scoring import exact_match, token_f1
 from yuna.core import fact_extractor, llm
 from yuna.core.config import get_config
@@ -135,6 +135,7 @@ class BenchRun:
                     )
             elif self.cfg.strategy == "agentic":
                 prev_exchange = ""
+                session_ts = parse_session_date(session.date)
                 for a_text, b_text in _pair_exchanges(session, conv.speaker_a):
                     recalled = await asyncio.to_thread(
                         store.search, FACT_PARTITION, f"{a_text} {b_text}"[:400]
@@ -150,6 +151,8 @@ class BenchRun:
                         partition=FACT_PARTITION,
                         assistant_reply=b_text,
                         assistant_name=conv.speaker_b,
+                        today=session.date,
+                        event_ts=session_ts,
                     )
                     prev_exchange = f"{conv.speaker_a}: {a_text}\n{conv.speaker_b}: {b_text}"
                     n_exchanges += 1

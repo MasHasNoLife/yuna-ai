@@ -120,3 +120,10 @@ def test_parse_allows_forget_of_junk_shaped_fact():
     ops = parse_operations("[FORGET] There is no robot and laser game project.")
     assert len(ops) == 1
     assert ops[0].kind == "forget"
+
+
+def test_build_prompt_includes_today():
+    prompt = build_prompt("Mas", "i ran a race last saturday", "", "", today="25 May 2023")
+    assert "25 May 2023" in prompt
+    # unknown when not provided
+    assert "unknown" in build_prompt("Mas", "hello there friend", "", "")

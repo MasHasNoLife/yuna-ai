@@ -230,6 +230,7 @@ class ChatSession:
                 partition=MEMORY_PARTITION,
                 on_op=on_op,
                 assistant_reply=reply,
+                today=datetime.now().strftime("%A, %d %B %Y"),
             )
         )
         self.background.add(task)
@@ -287,7 +288,12 @@ class ChatSession:
         # 2. Build the turn: time sense + self-knowledge + recalled memories
         preamble = [time_preamble()]
         if self_facts:
-            preamble.append(f"(About yourself, you know: {' '.join(self_facts)})")
+            # random sample, not always the same set — otherwise she fixates on
+            # whatever her few newest self-facts mention, every single turn
+            import random
+
+            shown = random.sample(self_facts, min(4, len(self_facts)))
+            preamble.append(f"(About yourself, you know: {' '.join(shown)})")
         if facts:
             preamble.append(f"(You remember about {self.username}: {'; '.join(facts)})")
         full_input = "\n".join(preamble) + f"\n\n[{self.username}]: {user_input}"

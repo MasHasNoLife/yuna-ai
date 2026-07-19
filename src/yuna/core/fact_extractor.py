@@ -37,6 +37,11 @@ CRITICAL RULES:
 6. [FORGET] only when rule 4 applies or {username} explicitly says to forget.
 7. Corrections use [UPDATE] old -> new, not FORGET+FACT.
 8. [SELF] only for concrete, durable details {assistant} stated about their own life/tastes — not feelings of the moment.
+9. DATES: today, for this exchange, is {today}. When storing an [EVENT] that mentions
+   relative time ("yesterday", "last Saturday", "last year"), convert it to an absolute
+   date or period using today's date, in parentheses.
+   Example: today is 25 May 2023, message says "I ran a charity race last Saturday"
+   Response: [EVENT] {username} ran a charity race (on 20 May 2023).
 
 Example 1:
 {username}: "my favorite color is neon green" / {assistant}: "ooh bold choice!"
@@ -114,6 +119,7 @@ def build_prompt(
     recalled_facts: str,
     assistant_reply: str = "",
     assistant_name: str = "Yuna",
+    today: str = "",
 ) -> str:
     return PROMPT_TEMPLATE.format(
         username=username,
@@ -122,6 +128,7 @@ def build_prompt(
         assistant_reply=assistant_reply or "(no reply yet)",
         recent_context=recent_context or "None",
         recalled_facts=recalled_facts or "None",
+        today=today or "unknown",
     )
 
 
@@ -179,6 +186,8 @@ async def extract_and_apply(
     on_op=None,
     assistant_reply: str = "",
     assistant_name: str = "Yuna",
+    today: str = "",
+    event_ts: float | None = None,
 ) -> list[MemoryOp]:
     """Run the extractor model and apply the resulting ops to `store`
     (a yuna.core.memory.MemoryStore) under `partition`.
@@ -186,6 +195,9 @@ async def extract_and_apply(
     Designed to run as a background task; errors are logged, never raised.
     `on_op(op)` is called after each applied operation (live UI feeds).
     [SELF] facts go to the partition named after `assistant_name` (lowercased).
+    `today`/`event_ts` anchor the memories in time: `today` lets the model
+    absolutize relative dates; `event_ts` timestamps the stored memory (used by
+    the bench to stamp session dates instead of ingest wall-clock).
     """
     import asyncio
 
@@ -193,7 +205,13 @@ async def extract_and_apply(
 
     try:
         prompt = build_prompt(
-            username, user_input, recent_context, recalled_facts, assistant_reply, assistant_name
+            username,
+            user_input,
+            recent_context,
+            recalled_facts,
+            assistant_reply,
+            assistant_name,
+            today,
         )
         response = await llm.chat(client, model, [{"role": "user", "content": prompt}])
         ops = parse_operations(response)
@@ -201,14 +219,16 @@ async def extract_and_apply(
         for op in ops:
             changed = False
             if op.kind in ("fact", "event"):
-                changed = await asyncio.to_thread(store.save, partition, op.fact, op.kind)
+                changed = await asyncio.to_thread(store.save, partition, op.fact, op.kind, event_ts)
             elif op.kind == "self":
                 changed = await asyncio.to_thread(
-                    store.save, assistant_name.lower(), op.fact, "fact"
+                    store.save, assistant_name.lower(), op.fact, "fact", event_ts
                 )
             elif op.kind == "update":
                 await asyncio.to_thread(store.delete, partition, op.fact)
-                changed = await asyncio.to_thread(store.save, partition, op.new_fact, "fact")
+                changed = await asyncio.to_thread(
+                    store.save, partition, op.new_fact, "fact", event_ts
+                )
             elif op.kind == "forget":
                 if not allow_forget:
                     log.warning("[memory] forget rejected for partition %s", partition)

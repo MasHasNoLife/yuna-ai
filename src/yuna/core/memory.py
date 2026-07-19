@@ -64,11 +64,12 @@ class MemoryStore:
 
     # ── Operations ──────────────────────────────────────────────────────────
 
-    def save(self, username: str, fact: str, kind: str = "fact") -> bool:
+    def save(self, username: str, fact: str, kind: str = "fact", ts: float | None = None) -> bool:
         """Insert a fact unless a near-duplicate already exists in the partition.
 
         kind: 'fact' (durable truth), 'event' (dated happening), 'session'
-        (conversation summary). Everything is timestamped for age-aware recall.
+        (conversation summary). Everything is timestamped for age-aware recall;
+        pass `ts` to backdate (bench stamps session dates, not ingest time).
         """
         if not fact or not fact.strip():
             return False
@@ -95,7 +96,7 @@ class MemoryStore:
         try:
             self.collection.add(
                 documents=[fact],
-                metadatas=[{"username": username.lower(), "kind": kind, "ts": time.time()}],
+                metadatas=[{"username": username.lower(), "kind": kind, "ts": ts or time.time()}],
                 ids=[str(uuid.uuid4())],
             )
             return True

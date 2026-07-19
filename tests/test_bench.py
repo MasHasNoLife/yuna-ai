@@ -112,3 +112,20 @@ def test_qa_within_sessions():
     assert not qa_within_sessions({"evidence": ["D1:5", "D3:1"]}, 2)
     assert qa_within_sessions({"evidence": []}, 1)  # adversarial: keep
     assert qa_within_sessions({}, 1)
+
+
+# ── Session date parsing ────────────────────────────────────────────────────
+
+
+def test_parse_session_date():
+    from datetime import datetime
+
+    from yuna.bench.datasets import parse_session_date
+
+    ts = parse_session_date("1:56 pm on 8 May, 2023")
+    assert ts is not None
+    d = datetime.fromtimestamp(ts)
+    assert (d.year, d.month, d.day) == (2023, 5, 8)
+    assert parse_session_date("7:30 pm on 21 December 2022") is not None
+    assert parse_session_date("no date here") is None
+    assert parse_session_date("") is None

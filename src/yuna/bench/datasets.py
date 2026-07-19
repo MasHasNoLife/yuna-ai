@@ -47,6 +47,34 @@ class BenchConversation:
         return sum(len(s.turns) for s in self.sessions)
 
 
+_MONTHS = {
+    m: i
+    for i, m in enumerate(
+        "january february march april may june july august september october november december".split(),
+        1,
+    )
+}
+_DATE_RE = re.compile(r"(\d{1,2})\s+([A-Za-z]+),?\s+(\d{4})")
+
+
+def parse_session_date(date_str: str) -> float | None:
+    """Unix timestamp from a LoCoMo session date like '1:56 pm on 8 May, 2023'.
+    Day-level precision is enough for age-aware recall; None if unparseable."""
+    from datetime import datetime
+
+    m = _DATE_RE.search(date_str or "")
+    if not m:
+        return None
+    day, month_name, year = int(m.group(1)), m.group(2).lower(), int(m.group(3))
+    month = _MONTHS.get(month_name)
+    if not month:
+        return None
+    try:
+        return datetime(year, month, day).timestamp()
+    except ValueError:
+        return None
+
+
 def _turn_text(raw: dict) -> str:
     """Turn text; image-only turns fall back to their caption."""
     text = (raw.get("text") or raw.get("clean_text") or "").strip()
