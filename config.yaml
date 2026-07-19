@@ -49,7 +49,7 @@ tts:
   kokoro_device: cpu           # cpu | cuda — cpu keeps Kokoro off the GPU (no VRAM fight with the LLM)
   fish_voice: furina           # voice id from voice_reference/voices.json
   fish_model: s2-pro           # local INT4 server model
-  fish_cloud_model: s1         # cloud API model
+  fish_cloud_model: s2.1-pro-free  # cloud API model (free tier — no API credit needed)
   fish_cloud_reference_id: ""  # optional fish.audio voice id (skips inline upload)
 
 stt:
