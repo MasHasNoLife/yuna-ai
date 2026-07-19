@@ -104,6 +104,12 @@ class YunaBot(commands.Bot):
     # ── Reply pipeline ──────────────────────────────────────────────────────
 
     async def respond(self, message: discord.Message, clean_content: str, original_content: str):
+        from yuna.core import safety
+
+        if safety.is_blocked(original_content):
+            log.warning("Blocked discord input; deflected in character")
+            await message.reply(safety.deflection().split("] ", 1)[-1])
+            return
         cfg = get_config()
         user_id = message.author.id
         prompt_name = self.prompt_name_for(user_id, message.author.name)

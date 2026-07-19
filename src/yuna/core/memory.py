@@ -73,6 +73,11 @@ class MemoryStore:
         if not fact or not fact.strip():
             return False
         fact = fact.strip()
+        from yuna.core import safety
+
+        if safety.is_blocked(fact):
+            log.warning("Refused to store blocked content: %s", fact[:40])
+            return False
         cfg = get_config().memory
 
         try:

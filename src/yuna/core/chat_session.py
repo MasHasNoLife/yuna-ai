@@ -29,7 +29,7 @@ import time
 from collections.abc import AsyncIterator
 from datetime import datetime
 
-from yuna.core import fact_extractor, llm_backends
+from yuna.core import fact_extractor, llm_backends, safety
 from yuna.core.config import get_config
 from yuna.core.history import make_history, trim_history
 from yuna.core.logging import get_logger
@@ -245,6 +245,24 @@ class ChatSession:
         self.last_record = record
 
         yield {"type": "turn_start", "turn": record.turn}
+
+        # Content guard: explicit input never reaches the model or memory.
+        # A canned in-character shutdown is returned instead.
+        if safety.is_blocked(user_input):
+            reply = safety.deflection()
+            log.warning("Blocked input; deflected in character")
+            self.hub.log_event("blocked_input", username=self.username)
+            self.messages.append(
+                {"role": "user", "content": f"[{self.username}]: (said something inappropriate)"}
+            )
+            self.messages.append({"role": "assistant", "content": reply})
+            record.reply_chars = len(reply)
+            tag = TAG_RE.match(reply)
+            if tag:
+                yield {"type": "emotion", "tag": tag.group(1).lower()}
+            yield {"type": "token", "text": reply}
+            yield {"type": "reply_done", "text": reply, "turn": record.turn}
+            return
 
         if not self._continuity_loaded:
             await self._load_continuity()
