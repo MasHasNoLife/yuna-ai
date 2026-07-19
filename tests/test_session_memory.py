@@ -62,7 +62,7 @@ def test_recall_query_capped():
 
 def test_time_preamble_night():
     p = time_preamble(datetime(2026, 7, 18, 23, 54))
-    assert p == "(Saturday night, July 18)"
+    assert p == "(Saturday night, July 18, 11:54 pm)"
 
 
 def test_time_preamble_morning():
@@ -73,3 +73,23 @@ def test_time_preamble_morning():
 def test_time_preamble_late_night():
     p = time_preamble(datetime(2026, 7, 19, 2, 30))
     assert "late night" in p
+
+
+# ── remember-question grounding ─────────────────────────────────────────────
+
+
+def test_remember_questions_detected():
+    from yuna.core.chat_session import REMEMBER_RE
+
+    assert REMEMBER_RE.search("do you remember us playing a game earlier today")
+    assert REMEMBER_RE.search("remember when we went to the lake?")
+    assert REMEMBER_RE.search("didn't we talk about this yesterday")
+    assert REMEMBER_RE.search("that time we stayed up all night")
+
+
+def test_normal_messages_not_flagged_as_remember():
+    from yuna.core.chat_session import REMEMBER_RE
+
+    assert not REMEMBER_RE.search("what are we gonna be doing later?")
+    assert not REMEMBER_RE.search("i had a rough day at work")
+    assert not REMEMBER_RE.search("can you remember this for later: i hate mondays")

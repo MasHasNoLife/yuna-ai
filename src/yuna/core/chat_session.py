@@ -44,7 +44,24 @@ TAG_RE = re.compile(r"\[(.*?)\]")
 FORMAT_REMINDER = (
     "\n\n[SYSTEM REMINDER: You are Yuna. The VERY FIRST WORD of your response "
     "MUST be a [tag]. NEVER write asterisks or action narration. Keep it to "
-    "1-3 short sentences, like a real text conversation.]"
+    "1-3 short sentences, like a real text conversation. MEMORY HONESTY: only "
+    "claim to remember things that appear in your context; otherwise say you "
+    "don't remember. If Mas corrects you about what happened, believe him — "
+    "never argue about shared history.]"
+)
+
+# Leading questions about shared memories ("do you remember us...") make RP
+# models invent a past. When one is detected, a grounding note is injected so
+# the model checks its actual recalled memories instead of playing along.
+REMEMBER_RE = re.compile(
+    r"\b(do (?:you|u) remember|remember (?:when|that|how)|did we|didn't we"
+    r"|have we (?:ever|been)|that time (?:we|you)|last time (?:we|you))\b",
+    re.IGNORECASE,
+)
+MEMORY_CHECK_NOTE = (
+    "(Memory check: only confirm a shared memory if it is actually in the "
+    "memories shown to you this turn. If it isn't there, say honestly that you "
+    "don't remember it — do NOT invent or embellish a past event.)"
 )
 
 MEMORY_PARTITION = "global"  # where chat facts/events/session summaries live
@@ -81,7 +98,8 @@ def time_preamble(now: datetime | None = None) -> str:
     else:
         part = "night"
     day = now.strftime("%B %d").lstrip("0").replace(" 0", " ")
-    return f"({now.strftime('%A')} {part}, {day})"
+    clock = now.strftime("%I:%M %p").lstrip("0").lower()
+    return f"({now.strftime('%A')} {part}, {day}, {clock})"
 
 
 class ChatSession:
@@ -296,6 +314,8 @@ class ChatSession:
             preamble.append(f"(About yourself, you know: {' '.join(shown)})")
         if facts:
             preamble.append(f"(You remember about {self.username}: {'; '.join(facts)})")
+        if REMEMBER_RE.search(user_input):
+            preamble.append(MEMORY_CHECK_NOTE)
         full_input = "\n".join(preamble) + f"\n\n[{self.username}]: {user_input}"
         if self.format_reminder:
             full_input += FORMAT_REMINDER
