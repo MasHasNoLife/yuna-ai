@@ -59,8 +59,10 @@ REMEMBER_RE = re.compile(
     re.IGNORECASE,
 )
 MEMORY_CHECK_NOTE = (
-    "(Memory check: only confirm a shared memory if it is actually in the "
-    "memories shown to you this turn. If it isn't there, say honestly that you "
+    "(Memory check: only confirm a shared memory if a memory shown this turn "
+    "EXPLICITLY describes that event happening. Knowing a related fact is NOT "
+    "remembering the event — 'Mas plays osu' does not mean you two ever played "
+    "it together. If no memory describes the event, say honestly that you "
     "don't remember it — do NOT invent or embellish a past event.)"
 )
 
@@ -293,7 +295,8 @@ class ChatSession:
         if self.strategy == "agentic":
             recalled, self_facts = await asyncio.gather(
                 asyncio.to_thread(self.store.search, MEMORY_PARTITION, query),
-                asyncio.to_thread(self.store.profile, fact_extractor.SELF_PARTITION, 6),
+                # wide pool (whole autobiography), sampled down to 4 per turn
+                asyncio.to_thread(self.store.profile, fact_extractor.SELF_PARTITION, 24),
             )
         elif self.strategy == "raw_rag":
             recalled = await asyncio.to_thread(self.store.search, RAW_PARTITION, query)
