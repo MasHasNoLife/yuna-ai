@@ -129,3 +129,15 @@ def test_parse_session_date():
     assert parse_session_date("7:30 pm on 21 December 2022") is not None
     assert parse_session_date("no date here") is None
     assert parse_session_date("") is None
+
+
+def test_is_abstain():
+    from yuna.bench.scoring import is_abstain
+
+    assert is_abstain("Not mentioned")
+    assert is_abstain("The context does not provide this — no information available.")
+    assert is_abstain("I don't know based on the context.")
+    assert is_abstain("This cannot be determined from the conversation.")
+    assert not is_abstain("Caroline went to Paris last May.")
+    assert not is_abstain("He mentioned his sister once.")  # 'mentioned' alone isn't abstaining
+    assert not is_abstain("")

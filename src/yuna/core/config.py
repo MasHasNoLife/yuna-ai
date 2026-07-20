@@ -86,11 +86,11 @@ class MemoryConfig:
 
 @dataclass
 class TTSConfig:
-    backend: str = "kokoro"  # kokoro (local) | fish_cloud (API) | fish_local (INT4 server)
+    backend: str = "fish_cloud"  # kokoro (local) | fish_cloud (API) | fish_local (INT4 server)
     kokoro_voice: str = "af_heart"
     kokoro_device: str = "cpu"  # cpu keeps Kokoro off the GPU so it never fights the LLM for VRAM
     fish_voice: str = "furina"  # voice id from voice_reference/voices.json
-    fish_model: str = "s2-pro"  # local INT4 server model
+    fish_model: str = "s2.1-pro-free"  # local INT4 server model
     fish_cloud_model: str = "s1"  # cloud API model header
     fish_cloud_reference_id: str = ""  # optional fish.audio voice id (skips inline upload)
 

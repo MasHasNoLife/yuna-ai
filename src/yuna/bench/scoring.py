@@ -20,6 +20,21 @@ def normalize_answer(text: str) -> str:
     return " ".join(text.split())
 
 
+_ABSTAIN = re.compile(
+    r"not (?:mentioned|specified|stated|provided|available|in the context)"
+    r"|no (?:information|answer|mention)"
+    r"|(?:don't|do not|doesn't) know"
+    r"|cannot (?:be )?(?:determined|answered)|unanswerable|unknown",
+    re.IGNORECASE,
+)
+
+
+def is_abstain(prediction: str) -> bool:
+    """True if the model declined to answer — the correct response to an
+    unanswerable (adversarial) question."""
+    return bool(_ABSTAIN.search(prediction or ""))
+
+
 def exact_match(prediction: str, gold: str) -> float:
     return float(normalize_answer(prediction) == normalize_answer(gold))
 

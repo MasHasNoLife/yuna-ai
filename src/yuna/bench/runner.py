@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from yuna.bench.datasets import BenchConversation, load_locomo, parse_session_date
-from yuna.bench.scoring import exact_match, token_f1
+from yuna.bench.scoring import exact_match, is_abstain, token_f1
 from yuna.core import fact_extractor, llm
 from yuna.core.config import get_config
 from yuna.core.logging import get_logger
@@ -50,11 +50,14 @@ FULL_HISTORY_CHAR_CAP = 60_000  # ~15k tokens; needs a large num_ctx
 class RunConfig:
     dataset: Path
     strategy: str  # none | full_history | raw_rag | agentic
-    model: str
+    model: str  # extractor model (ingest); also answers QA unless qa_model set
     out_dir: Path
     conversations: int = 1  # 0 = all
     sessions: int = 0  # per conversation, 0 = all
     qa: int = 0  # per conversation, 0 = all
+    qa_model: str = ""  # QA answerer; empty = same as model. The extractor
+    # ladder (RQ1) varies `model` while holding qa_model fixed, so differences
+    # are attributable to extraction quality, not the responder.
 
 
 _DIA_ID = re.compile(r"D(\d+):")
@@ -214,21 +217,29 @@ class BenchRun:
                 t0 = time.monotonic()
                 pred = await llm.chat(
                     self.client(),
-                    self.cfg.model,
+                    self.cfg.qa_model or self.cfg.model,
                     [{"role": "user", "content": prompt}],
                     **options,
                 )
                 pred = pred.strip().split("\n")[0]
+                # Adversarial (cat 5) questions are unanswerable: correct means
+                # abstaining. Token overlap with varied gold phrasings is
+                # meaningless there, so score abstention instead.
+                if qa["category"] == 5:
+                    f1 = em = float(is_abstain(pred))
+                else:
+                    f1, em = round(token_f1(pred, qa["answer"]), 3), exact_match(pred, qa["answer"])
                 rec = {
                     "conv": conv.id,
                     "strategy": self.cfg.strategy,
                     "model": self.cfg.model,
+                    "qa_model": self.cfg.qa_model or self.cfg.model,
                     "category": qa["category"],
                     "question": qa["question"],
                     "gold": qa["answer"],
                     "pred": pred,
-                    "f1": round(token_f1(pred, qa["answer"]), 3),
-                    "em": exact_match(pred, qa["answer"]),
+                    "f1": f1,
+                    "em": em,
                     "context_chars": len(context),
                     "qa_s": round(time.monotonic() - t0, 1),
                 }
@@ -274,6 +285,7 @@ async def run(cfg: RunConfig) -> dict:
     summary = {
         "strategy": cfg.strategy,
         "model": cfg.model,
+        "qa_model": cfg.qa_model or cfg.model,
         "conversations": len(conversations),
         "questions": len(all_records),
         "f1_mean": round(sum(r["f1"] for r in all_records) / max(len(all_records), 1), 3),

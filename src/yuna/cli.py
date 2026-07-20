@@ -60,6 +60,9 @@ def main(argv: list[str] | None = None) -> int:
         help="memory strategy under test",
     )
     p_bench.add_argument("--model", default=None, help="Ollama model (default: models.extractor)")
+    p_bench.add_argument(
+        "--qa-model", default="", help="QA answerer model (default: same as --model)"
+    )
     p_bench.add_argument("--conversations", type=int, default=1, help="how many convs (0=all)")
     p_bench.add_argument("--sessions", type=int, default=0, help="sessions per conv (0=all)")
     p_bench.add_argument("--qa", type=int, default=0, help="questions per conv (0=all)")
@@ -143,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
             conversations=args.conversations,
             sessions=args.sessions,
             qa=args.qa,
+            qa_model=args.qa_model,
         )
         summary = asyncio.run(run_bench(bench_cfg))
         print(json.dumps(summary, indent=2, ensure_ascii=False))
