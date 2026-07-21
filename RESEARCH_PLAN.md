@@ -234,15 +234,24 @@ extraction annotation (~200 ops); consolidation pass for single-hop recovery.
 
 ## 5. Venues & timeline
 
+**Compressed to an August finish (revised July 21).** Most of the original
+Jul–Sep engineering is already done (system, harness, 4-strategy results,
+length-invariance finding, outline), so the schedule pulls in ~6 weeks.
+
 | When (2026) | Milestone |
 |---|---|
-| Jul 18 – Jul 31 | Harness skeleton + condition flags; download LoCoMo/MSC; start related-work notes |
-| Aug 1 – Aug 15 | Gold annotation done; pilot run (1 seed, all conditions, LoCoMo subset); **supervisor outreach emails go out** |
-| Aug 16 – Sep 15 | Full matrix (all strategies × extractor ladder × seeds); draft intro/method |
-| Sep 16 – Oct 10 | Full draft; second benchmark (MSC); feedback round |
-| Mid–late Oct | **arXiv preprint live** — hard deadline; it gets cited in every SOP |
-| Oct–Dec | Workshop submissions: NeurIPS/ICLR workshops on agents & memory, EMNLP/NAACL findings-track or workshops (verify calls when announced) |
-| Jan–Feb 2027 | **SIGDIAL 2027** and/or ACL workshop cycle as full-paper venues — dialogue systems is the natural home |
+| **Jul 21 – Jul 27 (wk 1)** | Extractor ladder + judge rescore run (pausable, self-serve); gold annotation (2–3 evenings); draft Results §5 from existing tables; references.bib started |
+| **Jul 28 – Aug 3 (wk 2)** | MSC second benchmark run; architecture diagram (Fig 2); draft Method §3 + Setup §4; **supervisor outreach emails go out** with the results table |
+| **Aug 4 – Aug 10 (wk 3)** | Draft Related Work §2 + Discussion §6; assemble all figures/tables; full internal draft end-to-end |
+| **Aug 11 – Aug 17 (wk 4)** | Write Intro §1 + Abstract (last, as summaries); self-review + tighten; incorporate any early supervisor feedback |
+| **Aug 18 – Aug 24 (wk 5)** | Polish pass, reproducibility (REPRODUCE.md, seeds, raw results published); proofread |
+| **Aug 25 – Aug 31 (wk 6)** | **arXiv preprint live** — hard deadline; buffer week for slippage |
+| Sep onward | Workshop/venue submissions (NeurIPS/ICLR/EMNLP workshops; SIGDIAL 2027) as upside — verify calls when announced |
+
+Critical path (the only strict ordering): ladder+judge run → Results draft →
+full draft → arXiv. Gold annotation and MSC run in parallel and gate only the
+extraction-precision table and the second-benchmark section respectively — if
+either slips, the paper still ships with LoCoMo + the judged main results.
 
 Fallback logic unchanged: arXiv preprint + public benchmark repo is the
 portfolio; peer-review acceptance is upside, not the foundation.
