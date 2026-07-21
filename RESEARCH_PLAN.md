@@ -215,8 +215,49 @@ get cut. Splitting the 1,986 questions by whether their evidence survived:
   degrades toward zero while memory stays flat. This is the paper's Figure 1:
   F1 vs evidence age, flat line (ours) crossing a falling line (stuffing).
 
-**Next:** extractor-model ladder (3B→14B) — RQ1; LLM-judge rescoring; gold
-extraction annotation (~200 ops); consolidation pass for single-hop recovery.
+### LLM-judge rescoring + extractor ladder — July 22 (all 1,986 QA, judged by
+### qwen2.5-14b; c5 scored by abstention)
+
+**Table 1 — strategies (judged accuracy, extractor=answerer=Gemma4-12B):**
+
+| strategy | judged acc | c1 multihop | c2 **temporal** | c3 open | c4 single-hop | c5 abstain |
+|---|---|---|---|---|---|---|
+| none | 0.228 | 0.00 | 0.01 | 0.00 | 0.00 | 1.00 |
+| raw_rag | 0.434 | 0.18 | 0.29 | 0.10 | 0.39 | 0.85 |
+| full_history | **0.544** | **0.39** | 0.24 | **0.22** | **0.66** | 0.72 |
+| agentic (ours) | 0.457 | 0.31 | **0.37** | 0.16 | 0.35 | 0.88 |
+
+**Table 2 — extractor ladder (judged, answerer fixed = Gemma4-12B):**
+
+| extractor | judged acc | c1 | c2 **temporal** | c3 | c4 |
+|---|---|---|---|---|---|
+| qwen2.5:3b | 0.309 | 0.12 | **0.06** | 0.05 | 0.16 |
+| qwen2.5:7b | 0.348 | 0.15 | **0.19** | 0.12 | 0.21 |
+| qwen2.5:14b | 0.470 | 0.29 | **0.34** | 0.12 | 0.40 |
+
+**What the judge confirms (and refines):**
+1. **Temporal win holds under the fairer metric.** agentic c2 = 0.37 vs
+   full_history 0.24 and raw_rag 0.29 — still the top temporal strategy
+   (~1.5× full_history). The judge narrows the F1 gap (was 2×) but the
+   direction is robust.
+2. **full_history wins overall judged acc (0.544)** on single-hop copy (0.66)
+   and multi-hop (0.39). Same honest story: stuffing wins when the answer sits
+   in-window. The **length-invariance analysis (§ above) is the rebuttal** —
+   redo that split on judged scores to confirm (F1 version: −73% vs flat). ⬜
+3. **c5 caveat:** abstain scoring lifts every floor (none = 0.228 is *entirely*
+   c5 credit — a memoryless model correctly abstains on unanswerables). The
+   discriminating signal is c1–c4; report c5 separately, not folded into a
+   single headline number.
+4. **RQ1 answer — the memory manager cannot be too small.** Judged acc scales
+   monotonically 3B→7B→14B (0.309 → 0.348 → 0.470), and **temporal grounding is
+   the first capability to break**: c2 = 0.06 (3B) → 0.19 (7B) → 0.34 (14B). A
+   3B extractor essentially cannot do dated memory; competence arrives ~7–14B.
+   A 14B extractor (0.470) slightly *beats* the 12B (agentic 0.457), so ~12–14B
+   is the sweet spot on a 12 GB card.
+
+**Next:** redo length-invariance split on judged scores; gold extraction
+annotation (~200 ops) → precision; consolidation pass for single-hop recovery;
+MSC second benchmark.
 
 ## 4. Related work to read (for §2 of the paper)
 
