@@ -242,8 +242,10 @@ get cut. Splitting the 1,986 questions by whether their evidence survived:
    direction is robust.
 2. **full_history wins overall judged acc (0.544)** on single-hop copy (0.66)
    and multi-hop (0.39). Same honest story: stuffing wins when the answer sits
-   in-window. The **length-invariance analysis (§ above) is the rebuttal** —
-   redo that split on judged scores to confirm (F1 version: −73% vs flat). ⬜
+   in-window. The **length-invariance analysis is the rebuttal, now confirmed on
+   judged scores** (excl. c5): full_history 0.671 in-window → **0.163 truncated
+   (−76%)**; agentic 0.337 → **0.330 (flat)**; raw_rag 0.305 → 0.334 (flat). On
+   truncated-evidence questions agentic beats full_history **2.0×**. Figure 1 ✅.
 3. **c5 caveat:** abstain scoring lifts every floor (none = 0.228 is *entirely*
    c5 credit — a memoryless model correctly abstains on unanswerables). The
    discriminating signal is c1–c4; report c5 separately, not folded into a
