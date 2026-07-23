@@ -93,3 +93,17 @@ def test_normal_messages_not_flagged_as_remember():
     assert not REMEMBER_RE.search("what are we gonna be doing later?")
     assert not REMEMBER_RE.search("i had a rough day at work")
     assert not REMEMBER_RE.search("can you remember this for later: i hate mondays")
+
+
+# ── age annotation must not contradict an in-text date ───────────────────────
+
+
+def test_no_age_prefix_when_text_has_absolute_date():
+    from yuna.core.memory import _HAS_ABS_DATE
+
+    # events carrying their own date should be detected (age prefix suppressed)
+    assert _HAS_ABS_DATE.search("Mas and Yuna last spoke (on 19 July 2026).")
+    assert _HAS_ABS_DATE.search("ran a charity race (on 20 May 2023)")
+    # plain facts / undated summaries are not
+    assert not _HAS_ABS_DATE.search("Yuna has a sketchbook")
+    assert not _HAS_ABS_DATE.search("they talked about the project")

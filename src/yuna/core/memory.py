@@ -8,6 +8,7 @@ Replaces the old root-level memory.py. Differences:
 
 from __future__ import annotations
 
+import re
 import time
 import uuid
 from pathlib import Path
@@ -18,6 +19,12 @@ from yuna.core.logging import get_logger
 log = get_logger("memory")
 
 _DAY = 86400
+# An event whose text already carries an absolute date (a 4-digit year) must NOT
+# also get a wall-clock age prefix — the two can contradict. In live chat an
+# event is timestamped when written (e.g. today), but its content date (from
+# temporal grounding) can be earlier, which would render "(earlier today) … last
+# spoke (on 19 July 2026)". The written date is authoritative; skip the prefix.
+_HAS_ABS_DATE = re.compile(r"\b(?:19|20)\d{2}\b")
 
 
 def format_age(ts: float | None, now: float | None = None) -> str:
@@ -135,7 +142,7 @@ class MemoryStore:
                 meta = meta or {}
                 if meta.get("kind") in ("event", "session"):
                     age = format_age(meta.get("ts"))
-                    if age:
+                    if age and not _HAS_ABS_DATE.search(doc):
                         doc = f"({age}) {doc}"
                 relevant.append(doc)
             return " | ".join(relevant)
