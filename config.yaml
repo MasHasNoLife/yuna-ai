@@ -6,7 +6,10 @@ models:
   # 12B QAT sibling of the Gemma4-26B tune: same character, 7.4 GB -> fully on
   # GPU (fast) with room for 8k context. Pull with:
   #   ollama pull hf.co/HauhauCS/Gemma4-12B-QAT-Uncensored-HauhauCS-Balanced:Q4_K_M
+  # RESEARCH default (fixed chat/extractor model for all paper runs):
   chat: &gemma4q hf.co/HauhauCS/Gemma4-12B-QAT-Uncensored-HauhauCS-Balanced:Q4_K_M
+  # TESTING (26B-A4B MoE) — swap the two lines above to use for general Yuna:
+  # chat: &gemma4q hf.co/HauhauCS/Gemma4-26B-A4B-Uncensored-HauhauCS-Balanced:Q4_K_M
   extractor: *gemma4q          # memory extraction — same model so no eviction
   script: gemma2:27b           # offline reaction scriptwriting
   vision_frames: llava:13b     # video frame analysis
