@@ -177,7 +177,9 @@ function submit(source = "text") {
   const text = input.value.trim();
   if (!text) return;
   addUserMsg(text);
-  send({ type: "user_message", text, source });
+  // Carry the active person on every message — bulletproof against reconnects
+  // or a set_options that didn't land.
+  send({ type: "user_message", text, source, username: ($("user-input").value || "").trim() });
   input.value = "";
 }
 

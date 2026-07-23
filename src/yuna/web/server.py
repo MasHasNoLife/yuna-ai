@@ -146,6 +146,8 @@ class WSChat:
         kind = data.get("type")
         if kind == "user_message":
             text = (data.get("text") or "").strip()
+            if data.get("username", "").strip():
+                self.session.set_user(data["username"].strip())  # per-message, reconnect-proof
             if text:
                 await self.handle_message(text, source=data.get("source", "text"))
         elif kind == "set_options":
