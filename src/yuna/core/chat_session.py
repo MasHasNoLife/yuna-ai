@@ -115,6 +115,7 @@ class ChatSession:
         system_prompt: str | None = None,
     ):
         self.username = username
+        self.mem_partition = self._partition(username)
         self.strategy = strategy or get_config().memory.strategy
         if self.strategy not in STRATEGIES:
             raise ValueError(f"Unknown memory strategy '{self.strategy}' (have: {STRATEGIES})")
@@ -143,6 +144,29 @@ class ChatSession:
         log.info("LLM backend -> %s", self.backend.label)
         return self.backend.label
 
+    @staticmethod
+    def _partition(name: str) -> str:
+        """Memory partition for a user. 'Mas' keeps the historical 'global' store
+        (so existing memories aren't orphaned); everyone else gets their own
+        isolated partition, so Yuna never recalls one person's memories to
+        another. Yuna's own self-facts (SELF_PARTITION) stay shared across users."""
+        n = (name or "").strip().lower()
+        return MEMORY_PARTITION if n in ("", "mas") else f"u:{n}"
+
+    def set_user(self, name: str) -> None:
+        """Switch the active person: their own memory partition, fresh history,
+        and their own last-conversation continuity on the next turn."""
+        new = (name or "").strip() or "Mas"
+        if new == self.username:
+            return
+        self.username = new
+        self.mem_partition = self._partition(new)
+        self.messages = make_history(self.system_prompt)
+        self.recent_user_inputs = []
+        self.exchanges = []
+        self._continuity_loaded = False
+        log.info("User -> %s (memory partition=%s)", self.username, self.mem_partition)
+
     def reset(self) -> None:
         self.messages = make_history(self.system_prompt)
         self.recent_user_inputs = []
@@ -168,7 +192,7 @@ class ChatSession:
         self._continuity_loaded = True
         if self.strategy != "agentic":
             return
-        found = await asyncio.to_thread(self.store.latest_summary, MEMORY_PARTITION)
+        found = await asyncio.to_thread(self.store.latest_summary, self.mem_partition)
         if not found:
             return
         text, ts = found
@@ -210,7 +234,7 @@ class ChatSession:
             )
             summary = summary.strip().split("\n")[0][:300]
             if summary:
-                await asyncio.to_thread(self.store.save, MEMORY_PARTITION, summary, "session")
+                await asyncio.to_thread(self.store.save, self.mem_partition, summary, "session")
                 self.exchanges = []
                 self.hub.log_event("session_summary", summary=summary, username=self.username)
                 log.info("Session summarized: %s", summary[:80])
@@ -248,7 +272,7 @@ class ChatSession:
                 "\n".join(context_lines),
                 recalled,
                 self.store,
-                partition=MEMORY_PARTITION,
+                partition=self.mem_partition,
                 on_op=on_op,
                 assistant_reply=reply,
                 today=datetime.now().strftime("%A, %d %B %Y"),
@@ -295,7 +319,7 @@ class ChatSession:
         recalled, self_facts = "", []
         if self.strategy == "agentic":
             recalled, self_facts = await asyncio.gather(
-                asyncio.to_thread(self.store.search, MEMORY_PARTITION, query),
+                asyncio.to_thread(self.store.search, self.mem_partition, query),
                 # wide pool (whole autobiography), sampled down to 4 per turn
                 asyncio.to_thread(self.store.profile, fact_extractor.SELF_PARTITION, 24),
             )

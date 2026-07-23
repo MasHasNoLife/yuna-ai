@@ -107,3 +107,29 @@ def test_no_age_prefix_when_text_has_absolute_date():
     # plain facts / undated summaries are not
     assert not _HAS_ABS_DATE.search("Yuna has a sketchbook")
     assert not _HAS_ABS_DATE.search("they talked about the project")
+
+
+# ── per-user memory isolation ────────────────────────────────────────────────
+
+
+def test_partition_mapping():
+    from yuna.core.chat_session import ChatSession
+
+    assert ChatSession._partition("Mas") == "global"
+    assert ChatSession._partition("mas") == "global"
+    assert ChatSession._partition("") == "global"
+    assert ChatSession._partition("Alex") == "u:alex"
+    assert ChatSession._partition("  Bob  ") == "u:bob"
+
+
+def test_set_user_switches_partition_and_resets():
+    from yuna.core.chat_session import ChatSession
+
+    s = ChatSession(username="Mas")
+    assert s.mem_partition == "global"
+    s.exchanges.append(("hi", "hey"))
+    s.set_user("Alex")
+    assert s.username == "Alex"
+    assert s.mem_partition == "u:alex"
+    assert s.exchanges == []  # fresh history for the new person
+    assert s._continuity_loaded is False

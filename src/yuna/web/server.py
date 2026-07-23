@@ -160,7 +160,7 @@ class WSChat:
                 except (ValueError, ConnectionError) as e:
                     await self.send_json({"type": "error", "message": str(e)})
             if "username" in data and data["username"].strip():
-                self.session.username = data["username"].strip()
+                self.session.set_user(data["username"].strip())
             await self.send_json({"type": "options", **self.options()})
         elif kind == "reset":
             await self.session.summarize_session()  # remember this conversation first

@@ -186,6 +186,14 @@ input.addEventListener("keydown", (e) => {
 $("speak-toggle").onchange = (e) => send({ type: "set_options", speak: e.target.checked });
 $("tts-select").onchange = (e) => send({ type: "set_options", tts_backend: e.target.value });
 $("llm-select").onchange = (e) => send({ type: "set_options", llm_backend: e.target.value });
+$("user-input").onchange = (e) => {
+  const name = e.target.value.trim();
+  if (!name) return;
+  send({ type: "set_options", username: name });
+  $("chat-log").innerHTML =
+    `<div class="sys-note">Now talking as <b>${escapeHtml(name)}</b> — Yuna keeps a separate memory for each person.</div>`;
+  loadMemories();
+};
 
 // Push-to-talk: hold the mic button
 const micBtn = $("mic-btn");
