@@ -150,7 +150,11 @@ class BenchRun:
                         self.cfg.model,
                         conv.speaker_a,
                         a_text,
-                        f"Session date: {session.date}\n{prev_exchange}",
+                        (
+                            f"Session date: {session.date}\n{prev_exchange}"
+                            if self.cfg.temporal_grounding
+                            else prev_exchange  # ablation: no session date leak
+                        ),
                         recalled,
                         store,
                         partition=FACT_PARTITION,
