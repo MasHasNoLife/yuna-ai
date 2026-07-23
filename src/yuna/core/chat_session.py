@@ -68,6 +68,19 @@ MEMORY_CHECK_NOTE = (
 )
 
 MEMORY_PARTITION = "global"  # where chat facts/events/session summaries live
+
+# When the person is NOT Mas, this overrides the little-sister framing so Yuna
+# doesn't call a stranger "Onii-chan" or treat them as family. Her identity,
+# interests, and safety boundaries are unchanged — only the relationship shifts.
+STRANGER_OVERRIDE = (
+    "\n\n# CURRENT PERSON — READ THIS, IT OVERRIDES THE FAMILY FRAMING ABOVE\n"
+    "You are NOT talking to Mas right now. You're talking to {name}, who is NOT "
+    "your brother and NOT family. Do NOT call them Onii-chan, do NOT call them "
+    "Mas, do NOT use any sibling/brother lines. {name} is someone you're just "
+    "getting to know. Be your normal curious, warm self with a new person — a "
+    "bit more reserved than with family. Everything else about you (your "
+    "interests, personality, and your hard boundaries) stays exactly the same."
+)
 RAW_PARTITION = "raw"  # raw dialogue turns for the raw_rag baseline strategy
 STRATEGIES = ("none", "full_history", "raw_rag", "agentic")
 
@@ -126,7 +139,7 @@ class ChatSession:
         self.store = store if store is not None else get_store("main")
         self.backend = llm_backends.get_backend(llm_backend)
         self.extractor_client = None  # lazy — extraction always runs on local Ollama
-        self.messages = make_history(system_prompt)
+        self.messages = make_history(self._effective_system())
         self.events: asyncio.Queue[dict] = asyncio.Queue()
         self.background: set[asyncio.Task] = set()
         self.hub = get_hub()
@@ -153,6 +166,13 @@ class ChatSession:
         n = (name or "").strip().lower()
         return MEMORY_PARTITION if n in ("", "mas") else f"u:{n}"
 
+    def _effective_system(self) -> str:
+        """System prompt for the current person: the base persona for Mas, or the
+        persona plus a relationship override for anyone else."""
+        if self._partition(self.username) == MEMORY_PARTITION:  # Mas
+            return self.system_prompt
+        return self.system_prompt + STRANGER_OVERRIDE.format(name=self.username)
+
     def set_user(self, name: str) -> None:
         """Switch the active person: their own memory partition, fresh history,
         and their own last-conversation continuity on the next turn."""
@@ -161,14 +181,14 @@ class ChatSession:
             return
         self.username = new
         self.mem_partition = self._partition(new)
-        self.messages = make_history(self.system_prompt)
+        self.messages = make_history(self._effective_system())
         self.recent_user_inputs = []
         self.exchanges = []
         self._continuity_loaded = False
         log.info("User -> %s (memory partition=%s)", self.username, self.mem_partition)
 
     def reset(self) -> None:
-        self.messages = make_history(self.system_prompt)
+        self.messages = make_history(self._effective_system())
         self.recent_user_inputs = []
         self.exchanges = []
         self._continuity_loaded = False
