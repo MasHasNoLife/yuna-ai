@@ -123,6 +123,33 @@ size of roughly 7–14B**, comfortably within a single 12 GB GPU. This sets a
 concrete floor for the "small local memory manager" proposition: small, but not
 arbitrarily small.
 
+## 5.5b Extraction precision
+
+We hand-checked 200 stored memories, stratified across all 10 conversations,
+against the source transcripts — verifying for each that a supporting turn
+exists and that the memory is attributed to the correct speaker.
+
+**Faithfulness precision = 199/200 (99.5%): zero hallucinations, one
+misattribution.** The single error confused two speakers in a fact-dense
+conversation — one participant's basketball origin story ("started at age ten,
+father signed him up") was attributed to the other participant, a non-player who
+merely owns a fan's signed ball. Notably, the *correct* version of the fact was
+also stored, so the error is a spurious duplicate under the wrong subject rather
+than a fabrication. This is the characteristic failure mode: speaker confusion
+on the most memory-dense speaker (≈30 basketball facts), not invention.
+
+A stricter usefulness bar (penalising faithful-but-trivial memories, e.g. a
+prop visible in a photo) lowers precision only to 198/200 (99.0%).
+
+**Caveats (stated for honesty):** (i) precision only — we do not measure recall
+(facts the extractor missed); downstream QA accuracy (§5.1) is the end-to-end
+proxy, since a missed fact surfaces as a failed answer. (ii) The sample is drawn
+from *stored* memories, i.e. after the junk filter and deduplication, so this is
+pipeline precision, not raw-model precision. (iii) Verification was done by the
+authors; an independent annotator with an inter-annotator agreement score is
+future work. We report the specific 1/200 misattribution rate rather than a bare
+"99.5%" precisely so the claim is auditable.
+
 ## 5.6 Cost and interactivity
 
 Extraction runs asynchronously, after the reply is streamed, so it never delays

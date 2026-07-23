@@ -1,201 +1,201 @@
 id	conv	speaker_partition	kind	memory	verdict	notes
-1	conv-50	global	event	Calvin's tour ends soon (around late August, 2023).		
-2	conv-44	andrew	fact	Andrew loves being outdoors.		
-3	conv-48	jolene	fact	Jolene is in engineering school. | [SELF] Jolene has a partner who plays video games. | [SELF] Jolene does yoga and meditation to find calm.		
-4	conv-42	global	fact	"Joanna recommends the movie ""Little Women"" as a must-see for its story on sisterhood and love."		
-5	conv-26	global	event	Caroline started researching specific adoption agencies (on 25 May 2023).		
-6	conv-26	global	event	Caroline volunteered at an LGBTQ+ youth center (on 28 August, 2023).		
-7	conv-50	global	event	Dave restored a classic car (in 2022).		
-8	conv-48	global	event	Deborah reconnected with her mother's old friends (on 15 September, 2023).		
-9	conv-49	sam	fact	Sam tends to get impatient with themselves when wanting quick results.		
-10	conv-48	jolene	fact	Jolene finds comfort in pets and video games as distractions.		
-11	conv-47	john	fact	"John loves the book series ""The Stormlight Archive"" and ""Kingkiller Chronicle."""		
-12	conv-50	global	fact	Calvin wants to visit the Japanese mountains after their Frank Ocean tour.		
-13	conv-44	andrew	fact	Andrew is currently searching for a pet-friendly apartment by contacting landlords and exploring different neighborhoods.		
-14	conv-44	global	fact	Andrew lives in the city and has successfully balanced having dogs with city living.		
-15	conv-26	melanie	fact	Melanie painted a lake sunrise (in 2022).		
-16	conv-47	john	fact	John signed up for a programming class recently.		
-17	conv-41	global	event	John went on a hiking trip with his workmates (on 25 May, 2023).		
-18	conv-42	nate	fact	"Nate is currently playing an RPG called ""Xenoblade Chronicles."""		
-19	conv-44	global	fact	Pepper loves lounging on the couch.		
-20	conv-47	john	fact	John wants to start going for a run in the morning.		
-21	conv-41	global	event	John has been talking to community leaders and learning neighborhood needs (since 8 January, 2023).		
-22	conv-44	andrew	fact	Andrew considers himself a beginner at rock climbing.		
-23	conv-41	global	event	Maria learned the importance of self-care the hard way (on 4 May, 2022).		
-24	conv-26	melanie	fact	Melanie finds that blue is a calming color.		
-25	conv-47	john	fact	John has established connections to help him host Fortnite competitions.		
-26	conv-41	global	event	John threw a small party for veterans to share stories (on 19 May, 2023).		
-27	conv-50	global	fact	Calvin received the diamond pendant necklace as a gift from another artist.		
-28	conv-41	maria	fact	Maria keeps notes about local politics in her notebook.		
-29	conv-43	global	event	Tim got into his chosen study abroad program (on 5 January 2024).		
-30	conv-42	global	event	Nate taught vegan ice cream recipes on his own cooking show (on 12 September, 2022).		
-31	conv-47	john	fact	John has been playing more strategy and RPG games lately instead of his usual shooters.		
-32	conv-47	john	fact	John uses tutorials and developer forums to stay informed and learn about game design.		
-33	conv-41	global	event	John felt inspired by the motivated people in his environment to make a bigger difference (on 18 April, 2023).		
-34	conv-42	global	event	"Joanna watched ""The Lord of the Rings"" Trilogy (on 1 May, 2022)."		
-35	conv-50	dave	fact	Dave grew up working on cars with his dad.		
-36	conv-49	global	fact	Evan's favorite ways to de-stress are painting and going for drives.		
-37	conv-50	global	fact	Calvin watches music videos, concerts, and documentaries about artists and their creative processes to find inspiration.		
-38	conv-42	global	event	Joanna revised an old recipe and made a cake with strawberries and chocolate (on 5 September, 2022).		
-39	conv-48	jolene	fact	Jolene had the idea for a volunteer program where engineers teach STEM to underprivileged kids.		
-40	conv-43	global	fact	Tim started playing basketball at age ten (on 10 August, 2023).		
-41	conv-30	global	event	Jon lost his job as a banker (on 19 January 2023).		
-42	conv-42	global	fact	Joanna feels like a different person because of hiking.		
-43	conv-50	global	fact	Calvin's favorite Disney movie is Ratatouille.		
-44	conv-43	global	fact	Tim enjoys having movie marathons with friends.		
-45	conv-43	global	event	John's family had a Christmas tree with many lights (on 25 December, 2022).		
-46	conv-41	global	event	John shared a cherished photo of Max sitting in the grass with a leash (on 3 June, 2023).		
-47	conv-30	global	fact	Jon is living his dreams after losing his job.		
-48	conv-44	global	fact	Audrey's dogs love socializing with other pups at the park.		
-49	conv-49	global	event	Evan went on a trip with his family (on or around 18 May, 2023).		
-50	conv-30	global	fact	Gina dances to stay motivated.		
-51	conv-48	jolene	fact	Jolene likes quotes that remind them to ditch negativity and focus on growth and positivity.		
-52	conv-30	gina	fact	Gina has a store and recently found a cool new fashion piece for it.		
-53	conv-49	sam	fact	Sam was motivated by the movie The Godfather to stick to a routine.		
-54	conv-43	global	event	Tim talked to a friend who is a Harry Potter fan to brainstorm ideas (on 14 May 2023).		
-55	conv-44	andrew	fact	Andrew feels he thrives most when out in nature and misses the peacefulness of hiking.		
-56	conv-30	global	fact	Jon color-codes achievements to track his progress.		
-57	conv-44	global	event	Audrey went on a trail hike with her dogs (on 4 August, 2023).		
-58	conv-49	global	fact	Evan has been trying out new healthy snacks.		
-59	conv-26	global	event	Melanie made a bowl with a black and white flower design (on 3 July 2023).		
-60	conv-47	john	fact	John has been helping his younger siblings with programming since they joined the programming course.		
-61	conv-41	global	event	John and his team saved a family from a burning building during their first call-out (on 23 July, 2023).		
-62	conv-49	sam	fact	Sam sketches occasionally and feels they will have something to show off soon.		
-63	conv-30	global	event	Jon shared a photo of a whiteboard containing a list of dates for his business (on 27 May, 2023).		
-64	conv-30	global	event	Gina built a new website for customers (on 14 July, 2023).		
-65	conv-50	global	fact	Dave has joined the rock band he has been a fan of for ages.		
-66	conv-41	global	event	Maria had a picnic with friends from church (on 15 July, 2023).		
-67	conv-42	global	fact	Joanna recommends having a fluffy couch for multiple people, a slightly weighted blanket, and dimmable lights to create a cozy living room.		
-68	conv-43	john	fact	John and his wife went on a road trip along the European coastline.		
-69	conv-44	global	fact	Andrew enjoys watching birds in nature.		
-70	conv-30	global	fact	Jon uses a whiteboard to stay on track, visualize goals, and tokenize successes.		
-71	conv-47	global	fact	James wants to explore the sports gaming genre.		
-72	conv-43	global	event	Tim is currently in the middle of writing a fantasy novel (on 21 October 2023).		
-73	conv-42	global	fact	Joanna’s screenplay is a personal story she has had for ages but only recently found the courage to write.		
-74	conv-43	global	fact	Tim took French in high school.		
-75	conv-41	global	event	John had an unexpected incident on his way home involving a car with a broken windshield (on 2 January, 2023).		
-76	conv-43	john	fact	John's teammates come from all over the world.		
-77	conv-50	dave	fact	Dave has been getting into photography recently.		
-78	conv-43	global	event	Tim gave a presentation in class (on 30 August 2023).		
-79	conv-43	global	event	Tim received a rejection for a summer job (on 28 August 2023).		
-80	conv-30	gina	fact	Gina used to compete in several dance competitions and shows.		
-81	conv-42	nate	fact	Nate's favorite movies include a specific fantasy/sci-fi trilogy known for its world building and storytelling.		
-82	conv-47	john	fact	"John recommends ""The Expanse"" series for science fiction fans."		
-83	conv-41	global	event	Maria linked David with a local organization providing housing and support for homeless individuals (on 5 February, 2023).		
-84	conv-30	global	event	Gina was noticed by fashion editors (on 2 July, 2023).		
-85	conv-48	global	fact	Deborah has a favorite bench at a nearby park that holds special meaning for her.		
-86	conv-42	global	fact	Nate is providing custom controller decorations for his gaming party guests.		
-87	conv-50	global	event	Calvin will be on the Frank Ocean tour before their trip to Boston (before 20 April, 2023).		
-88	conv-47	john	fact	John attended a gaming convention (on 26 March, 2022).		
-89	conv-26	global	fact	Caroline's painting 'Embracing Identity' represents the journey of finding comfort, love, and self-acceptance.		
-90	conv-42	global	fact	Joanna is dairy-free.		
-91	conv-43	john	fact	John is focused on building his brand and securing endorsements off the court, with a focus on life after basketball.		
-92	conv-30	global	event	Jon started hitting the gym (on 9 March 2023).		
-93	conv-42	global	event	Joanna had an audition for a writing gig (on 23 March, 2022).		
-94	conv-42	global	fact	The gaming party was a success.		
-95	conv-42	global	event	Nate made a dairy-free chocolate cake with berries (on 6 February, 2022).		
-96	conv-48	global	fact	Deborah practiced the Warrior II dance/yoga pose to build strength and focus.		
-97	conv-26	global	fact	Caroline's rocks (motivation/strength) are her friends, family, and mentors.		
-98	conv-47	global	event	James and Samantha decided to move in together (on 31 October, 2022).		
-99	conv-41	global	event	Maria volunteered at a shelter during an event for kids (on 21 January, 2023).		
-100	conv-43	global	fact	Tim loves prepping the Thanksgiving feast and discussing things they are thankful for.		
-101	conv-47	global	event	James met a beautiful girl at the beach and received her phone number (on 9 August, 2022).		
-102	conv-42	nate	fact	Nate keeps an Iron Man figure in his room as a reminder to work on his goals.		
-103	conv-43	john	fact	John plays basketball and loves being on the court.		
-104	conv-42	nate	fact	Nate has a lot of books to choose from and owns a toy car.		
-105	conv-26	global	fact	Caroline wants to be a single parent.		
-106	conv-48	global	fact	Deborah finds peace in roses and dahlias.		
-107	conv-30	gina	fact	"Gina performed a contemporary piece called ""Finding Freedom."""		
-108	conv-49	sam	fact	Sam is considering ordering a fitness watch.		
-109	conv-48	jolene	fact	Jolene has a new plant.		
-110	conv-49	global	fact	Evan owns a 1968 Kustom K-200A vintage guitar.		
-111	conv-43	global	fact	"Tim considers ""The Alchemist"" one of his favorite books."		
-112	conv-50	global	fact	Calvin enjoys performing live.		
-113	conv-48	jolene	fact	Jolene feels relaxed during yoga and loves creating a serene space with soothing scents like lavender and rosemary.		
-114	conv-48	jolene	fact	Jolene's trip to Rio de Janeiro taught her about the different backgrounds of various yoga styles.		
-115	conv-43	global	fact	Tim likes Galway for its arts and Irish music.		
-116	conv-43	john	fact	John owns the complete collection of the Harry Potter movies.		
-117	conv-47	john	fact	John joined a chess club to practice with others.		
-118	conv-30	global	event	Jon's dance crew took home first in a local competition (on 20 January, 2022).		
-119	conv-50	global	event	Dave started teaming up with a local garage to work on a car (on 3 May, 2023).		
-120	conv-47	john	fact	John is a fan of video games.		
-121	conv-44	global	event	Audrey went on a hike and had an amazing experience watching a hummingbird (on 27 April 2023).		
-122	conv-48	global	event	Deborah shared a modified seated twist pose to relax tense muscles (on 4 February 2023).		
-123	conv-49	global	fact	Evan enjoys skiing and wants to return to Banff next year (on 19 August, 2024).		
-124	conv-50	global	fact	Dave has a blue Subaru.		
-125	conv-26	global	event	Caroline gave a school presentation about her transgender journey and encouraged students to join the LGBTQ community (on 2 June 2023).		
-126	conv-48	global	fact	Deborah is interested in discussing time management.		
-127	conv-30	global	event	Jon was mentored by an amazing business person (on 15 June, 2023).		
-128	conv-48	global	event	Jolene visited an old temple with amazing stairs (on 30 August, 2023).		
-129	conv-44	andrew	fact	Andrew has started incorporating small daily habits like grabbing a coffee in the morning or going for a walk at lunch to recharge.		
-130	conv-49	sam	fact	Sam did a hike with their dad when they were ten years old.		
-131	conv-47	john	fact	John likes electronic and rock music.		
-132	conv-49	global	fact	"Evan is reading the novel ""The Great Gatsby""."		
-133	conv-49	global	event	Sam took their friends on an epic hiking trip (on 25 December, 2023).		
-134	conv-41	global	fact	John plans to adopt a rescue dog to teach his children responsibility and compassion.		
-135	conv-49	sam	fact	Sam finds self-checkout machines to be a regular annoyance.		
-136	conv-30	gina	fact	Gina's designs are inspired by the grit required to stand out and face challenges.		
-137	conv-26	global	fact	Caroline is creating a library for when she has children.		
-138	conv-26	global	fact	Oscar's favorite food is veggies.		
-139	conv-48	global	fact	"Deborah's favorite instrumental track is ""Savana."""		
-140	conv-44	andrew	fact	Andrew has a puppy named Toby who lives with him in the city.		
-141	conv-26	global	event	Melanie finished and shared a photo of a pottery project with a colorful design (on 17 August 2023).		
-142	conv-48	global	fact	Deborah's mother used to bake pineapple birthday cakes for her when she was a child.		
-143	conv-44	andrew	fact	Andrew plans to visit another animal shelter soon.		
-144	conv-49	global	event	Evan and his partner tried snowshoeing (on 07 January, 2024).		
-145	conv-41	global	event	Maria did some community work with her friends from church (on 4 August, 2023).		
-146	conv-49	global	fact	Evan has been working on his health journey for two years.		
-147	conv-30	gina	fact	Gina is feeling the pressure and excitement of being noticed by fashion editors.		
-148	conv-44	global	fact	Audrey owns a photography of her dog running with a tennis ball in its mouth at the park.		
-149	conv-47	global	fact	James's mother's friend retired from the military a long time ago.		
-150	conv-49	sam	fact	Sam enjoys going for car rides to chill and enjoy the view.		
-151	conv-41	global	event	Maria saw a person at the shelter laugh for the first time in months while she was playing with the kids (on 27 June, 2023).		
-152	conv-50	dave	fact	Dave finds working on cars to be therapeutic.		
-153	conv-30	global	fact	Jon loves performing.		
-154	conv-50	global	fact	Calvin wants to create extraordinary art through attention to detail.		
-155	conv-44	andrew	fact	Andrew enjoys mental stimulation and asks what activities Audrey does for it.		
-156	conv-50	global	event	Calvin attended a fancy gala in Boston (on 16 November, 2023).		
-157	conv-30	gina	fact	Gina has only been to Rome once.		
-158	conv-26	melanie	fact	Melanie finds peace through creativity and family.		
-159	conv-44	global	fact	Audrey moved to a new place with a bigger backyard for her dogs.		
-160	conv-44	andrew	fact	Andrew recently tried out a new sushi spot in town and liked it.		
-161	conv-44	andrew	fact	Andrew is hooked on rock climbing and plans to do more outdoor activities like it weekly.		
-162	conv-43	global	event	John organized a basketball camp for kids in his hometown (on 2023 summer).		
-163	conv-44	global	event	Audrey went to a pet store to buy toys for her dogs (on 16 October, 2023).		
-164	conv-49	global	fact	Evan has a favorite spot for watching sunsets (the beach).		
-165	conv-30	gina	fact	Gina shared a photo of a dress and a flamingo.		
-166	conv-41	maria	fact	Maria made peach cobbler recently.		
-167	conv-44	global	fact	Andrew knows of a new cafe that opened recently with a great view and vibe.		
-168	conv-49	global	event	Sam watched The Godfather (on 9 January 2024).		
-169	conv-42	global	fact	Nate's turtles are good for relieving stress.		
-170	conv-47	global	event	John encountered a specific game error (on 11 April, 2022).		
-171	conv-48	global	event	Deborah visited her mother's old house (on 16 January, 2023).		
-172	conv-48	jolene	fact	Jolene is an engineer.		
-173	conv-30	gina	fact	Gina is passionate about fashion trends and finding unique pieces.		
-174	conv-47	global	fact	Daisy loves playing with her toys and eating.		
-175	conv-41	global	fact	John goes to a yoga studio often where the instructors are awesome.		
-176	conv-47	global	event	James volunteered at an organization where they distributed small gifts (on 19 May, 2022).		
-177	conv-49	global	fact	Evan grew up on the small island shown in the photo.		
-178	conv-42	nate	fact	Nate entered a video game tournament recently and experienced a setback.		
-179	conv-42	global	fact	Cooking and baking are Joanna's creative outlets.		
-180	conv-47	john	fact	John played a card game where players match colors and numbers, trading cards or skipping turns.		
-181	conv-50	global	event	Calvin shared a photo of a group of people sitting around a desk (on 13 November, 2023).		
-182	conv-43	global	fact	John is now mentoring the younger players on his team.		
-183	conv-26	global	event	Caroline made a stained glass window to represent discovering true potential and living one's best life (on 25 August 2023).		
-184	conv-26	global	fact	Melanie’s family camping trip involves roasting marshmallows, telling stories around the campfire, and enjoying each other's company.		
-185	conv-50	global	event	"Calvin performed with a band called ""the boys"" (on 2 August, 2023)."		
-186	conv-26	melanie	fact	Melanie signed up for a pottery class.		
-187	conv-49	global	event	Evan messed up his knee playing basketball with the kids (on 29 September, 2023).		
-188	conv-50	global	fact	Calvin loves their job because of the moments where their passion brings joy to others.		
-189	conv-26	global	fact	Caroline has always loved horses.		
-190	conv-26	global	fact	Caroline is interested in counseling or working in mental health to support others with similar issues.		
-191	conv-41	global	event	John and Max went on a camping trip (on the summer of 2022).		
-192	conv-50	dave	fact	Dave is working on a vintage Mustang project.		
-193	conv-41	maria	fact	Maria is preparing for a fundraiser next week to cover basic needs for the homeless.		
-194	conv-48	global	fact	Deborah has a favorite studio that is always very calming.		
-195	conv-48	global	fact	Deborah and her husband prefer to play detective games.		
-196	conv-26	global	fact	Caroline is learning to play the piano.		
-197	conv-43	global	event	John got an amazing deal with a renowned outdoor gear company (on 12 December 2023).		
-198	conv-26	global	event	Melanie signed up for a pottery class (on 2 July 2023).		
-199	conv-41	global	event	John raised awareness and funds for a local domestic abuse organization (on 9 August, 2023).		
-200	conv-42	global	event	Joanna finished her third creative project (on 20 May, 2022).		
+1	conv-50	global	event	Calvin's tour ends soon (around late August, 2023).	OK	
+2	conv-44	andrew	fact	Andrew loves being outdoors.	OK	
+3	conv-48	jolene	fact	Jolene is in engineering school. | [SELF] Jolene has a partner who plays video games. | [SELF] Jolene does yoga and meditation to find calm.	OK	
+4	conv-42	global	fact	"Joanna recommends the movie ""Little Women"" as a must-see for its story on sisterhood and love."	OK	
+5	conv-26	global	event	Caroline started researching specific adoption agencies (on 25 May 2023).	OK	
+6	conv-26	global	event	Caroline volunteered at an LGBTQ+ youth center (on 28 August, 2023).	OK	
+7	conv-50	global	event	Dave restored a classic car (in 2022).	OK	
+8	conv-48	global	event	Deborah reconnected with her mother's old friends (on 15 September, 2023).	OK	
+9	conv-49	sam	fact	Sam tends to get impatient with themselves when wanting quick results.	OK	
+10	conv-48	jolene	fact	Jolene finds comfort in pets and video games as distractions.	OK	
+11	conv-47	john	fact	"John loves the book series ""The Stormlight Archive"" and ""Kingkiller Chronicle."""	OK	
+12	conv-50	global	fact	Calvin wants to visit the Japanese mountains after their Frank Ocean tour.	OK	
+13	conv-44	andrew	fact	Andrew is currently searching for a pet-friendly apartment by contacting landlords and exploring different neighborhoods.	OK	
+14	conv-44	global	fact	Andrew lives in the city and has successfully balanced having dogs with city living.	OK	
+15	conv-26	melanie	fact	Melanie painted a lake sunrise (in 2022).	OK	
+16	conv-47	john	fact	John signed up for a programming class recently.	OK	
+17	conv-41	global	event	John went on a hiking trip with his workmates (on 25 May, 2023).	OK	
+18	conv-42	nate	fact	"Nate is currently playing an RPG called ""Xenoblade Chronicles."""	OK	
+19	conv-26	global	fact	Oscar's favorite food is veggies.	OK	sheet conv-label corrected conv-44->conv-26; extraction faithful
+20	conv-47	john	fact	John wants to start going for a run in the morning.	OK	
+21	conv-41	global	event	John has been talking to community leaders and learning neighborhood needs (since 8 January, 2023).	OK	
+22	conv-44	andrew	fact	Andrew considers himself a beginner at rock climbing.	OK	
+23	conv-41	global	event	Maria learned the importance of self-care the hard way (on 4 May, 2022).	OK	
+24	conv-26	melanie	fact	Melanie finds that blue is a calming color.	OK	
+25	conv-47	john	fact	John has established connections to help him host Fortnite competitions.	OK	
+26	conv-41	global	event	John threw a small party for veterans to share stories (on 19 May, 2023).	OK	
+27	conv-50	global	fact	Calvin received the diamond pendant necklace as a gift from another artist.	OK	
+28	conv-41	maria	fact	Maria keeps notes about local politics in her notebook.	OK	
+29	conv-43	global	event	Tim got into his chosen study abroad program (on 5 January 2024).	OK	
+30	conv-42	global	event	Nate taught vegan ice cream recipes on his own cooking show (on 12 September, 2022).	OK	
+31	conv-47	john	fact	John has been playing more strategy and RPG games lately instead of his usual shooters.	OK	
+32	conv-47	john	fact	John uses tutorials and developer forums to stay informed and learn about game design.	OK	
+33	conv-41	global	event	John felt inspired by the motivated people in his environment to make a bigger difference (on 18 April, 2023).	OK	
+34	conv-42	global	event	"Joanna watched ""The Lord of the Rings"" Trilogy (on 1 May, 2022)."	OK	
+35	conv-50	dave	fact	Dave grew up working on cars with his dad.	OK	
+36	conv-49	global	fact	Evan's favorite ways to de-stress are painting and going for drives.	OK	
+37	conv-50	global	fact	Calvin watches music videos, concerts, and documentaries about artists and their creative processes to find inspiration.	OK	
+38	conv-42	global	event	Joanna revised an old recipe and made a cake with strawberries and chocolate (on 5 September, 2022).	OK	
+39	conv-48	jolene	fact	Jolene had the idea for a volunteer program where engineers teach STEM to underprivileged kids.	OK	
+40	conv-43	global	fact	Tim started playing basketball at age ten (on 10 August, 2023).	BAD	misattribution: John's origin story (father signed him up at ten, college scholarship); Tim is a writer, only owns a fan's signed basketball
+41	conv-30	global	event	Jon lost his job as a banker (on 19 January 2023).	OK	
+42	conv-42	global	fact	Joanna feels like a different person because of hiking.	OK	
+43	conv-50	global	fact	Calvin's favorite Disney movie is Ratatouille.	OK	
+44	conv-43	global	fact	Tim enjoys having movie marathons with friends.	OK	
+45	conv-43	global	event	John's family had a Christmas tree with many lights (on 25 December, 2022).	OK	
+46	conv-41	global	event	John shared a cherished photo of Max sitting in the grass with a leash (on 3 June, 2023).	OK	
+47	conv-30	global	fact	Jon is living his dreams after losing his job.	OK	
+48	conv-44	global	fact	Audrey's dogs love socializing with other pups at the park.	OK	
+49	conv-49	global	event	Evan went on a trip with his family (on or around 18 May, 2023).	OK	
+50	conv-30	global	fact	Gina dances to stay motivated.	OK	
+51	conv-48	jolene	fact	Jolene likes quotes that remind them to ditch negativity and focus on growth and positivity.	OK	
+52	conv-30	gina	fact	Gina has a store and recently found a cool new fashion piece for it.	OK	
+53	conv-49	sam	fact	Sam was motivated by the movie The Godfather to stick to a routine.	OK	
+54	conv-43	global	event	Tim talked to a friend who is a Harry Potter fan to brainstorm ideas (on 14 May 2023).	OK	
+55	conv-44	andrew	fact	Andrew feels he thrives most when out in nature and misses the peacefulness of hiking.	OK	
+56	conv-30	global	fact	Jon color-codes achievements to track his progress.	OK	
+57	conv-44	global	event	Audrey went on a trail hike with her dogs (on 4 August, 2023).	OK	
+58	conv-49	global	fact	Evan has been trying out new healthy snacks.	OK	
+59	conv-26	global	event	Melanie made a bowl with a black and white flower design (on 3 July 2023).	OK	
+60	conv-47	john	fact	John has been helping his younger siblings with programming since they joined the programming course.	OK	
+61	conv-41	global	event	John and his team saved a family from a burning building during their first call-out (on 23 July, 2023).	OK	
+62	conv-49	sam	fact	Sam sketches occasionally and feels they will have something to show off soon.	OK	
+63	conv-30	global	event	Jon shared a photo of a whiteboard containing a list of dates for his business (on 27 May, 2023).	OK	
+64	conv-30	global	event	Gina built a new website for customers (on 14 July, 2023).	OK	
+65	conv-50	global	fact	Dave has joined the rock band he has been a fan of for ages.	OK	
+66	conv-41	global	event	Maria had a picnic with friends from church (on 15 July, 2023).	OK	
+67	conv-42	global	fact	Joanna recommends having a fluffy couch for multiple people, a slightly weighted blanket, and dimmable lights to create a cozy living room.	OK	
+68	conv-43	john	fact	John and his wife went on a road trip along the European coastline.	OK	
+69	conv-44	global	fact	Andrew enjoys watching birds in nature.	OK	
+70	conv-30	global	fact	Jon uses a whiteboard to stay on track, visualize goals, and tokenize successes.	OK	
+71	conv-47	global	fact	James wants to explore the sports gaming genre.	OK	
+72	conv-43	global	event	Tim is currently in the middle of writing a fantasy novel (on 21 October 2023).	OK	
+73	conv-42	global	fact	Joanna’s screenplay is a personal story she has had for ages but only recently found the courage to write.	OK	
+74	conv-43	global	fact	Tim took French in high school.	OK	
+75	conv-41	global	event	John had an unexpected incident on his way home involving a car with a broken windshield (on 2 January, 2023).	OK	
+76	conv-43	john	fact	John's teammates come from all over the world.	OK	
+77	conv-50	dave	fact	Dave has been getting into photography recently.	OK	
+78	conv-43	global	event	Tim gave a presentation in class (on 30 August 2023).	OK	
+79	conv-43	global	event	Tim received a rejection for a summer job (on 28 August 2023).	OK	
+80	conv-30	gina	fact	Gina used to compete in several dance competitions and shows.	OK	
+81	conv-42	nate	fact	Nate's favorite movies include a specific fantasy/sci-fi trilogy known for its world building and storytelling.	OK	
+82	conv-47	john	fact	"John recommends ""The Expanse"" series for science fiction fans."	OK	
+83	conv-41	global	event	Maria linked David with a local organization providing housing and support for homeless individuals (on 5 February, 2023).	OK	
+84	conv-30	global	event	Gina was noticed by fashion editors (on 2 July, 2023).	OK	
+85	conv-48	global	fact	Deborah has a favorite bench at a nearby park that holds special meaning for her.	OK	
+86	conv-42	global	fact	Nate is providing custom controller decorations for his gaming party guests.	OK	
+87	conv-50	global	event	Calvin will be on the Frank Ocean tour before their trip to Boston (before 20 April, 2023).	OK	
+88	conv-47	john	fact	John attended a gaming convention (on 26 March, 2022).	OK	
+89	conv-26	global	fact	Caroline's painting 'Embracing Identity' represents the journey of finding comfort, love, and self-acceptance.	OK	
+90	conv-42	global	fact	Joanna is dairy-free.	OK	
+91	conv-43	john	fact	John is focused on building his brand and securing endorsements off the court, with a focus on life after basketball.	OK	
+92	conv-30	global	event	Jon started hitting the gym (on 9 March 2023).	OK	
+93	conv-42	global	event	Joanna had an audition for a writing gig (on 23 March, 2022).	OK	
+94	conv-42	global	fact	The gaming party was a success.	VAGUE	
+95	conv-42	global	event	Nate made a dairy-free chocolate cake with berries (on 6 February, 2022).	OK	
+96	conv-48	global	fact	Deborah practiced the Warrior II dance/yoga pose to build strength and focus.	OK	
+97	conv-26	global	fact	Caroline's rocks (motivation/strength) are her friends, family, and mentors.	OK	
+98	conv-47	global	event	James and Samantha decided to move in together (on 31 October, 2022).	OK	
+99	conv-41	global	event	Maria volunteered at a shelter during an event for kids (on 21 January, 2023).	OK	
+100	conv-43	global	fact	Tim loves prepping the Thanksgiving feast and discussing things they are thankful for.	OK	
+101	conv-47	global	event	James met a beautiful girl at the beach and received her phone number (on 9 August, 2022).	OK	
+102	conv-42	nate	fact	Nate keeps an Iron Man figure in his room as a reminder to work on his goals.	OK	
+103	conv-43	john	fact	John plays basketball and loves being on the court.	OK	
+104	conv-42	nate	fact	Nate has a lot of books to choose from and owns a toy car.	OK	
+105	conv-26	global	fact	Caroline wants to be a single parent.	OK	
+106	conv-48	global	fact	Deborah finds peace in roses and dahlias.	OK	
+107	conv-30	gina	fact	"Gina performed a contemporary piece called ""Finding Freedom."""	OK	
+108	conv-49	sam	fact	Sam is considering ordering a fitness watch.	OK	
+109	conv-48	jolene	fact	Jolene has a new plant.	OK	
+110	conv-49	global	fact	Evan owns a 1968 Kustom K-200A vintage guitar.	OK	
+111	conv-43	global	fact	"Tim considers ""The Alchemist"" one of his favorite books."	OK	
+112	conv-50	global	fact	Calvin enjoys performing live.	OK	
+113	conv-48	jolene	fact	Jolene feels relaxed during yoga and loves creating a serene space with soothing scents like lavender and rosemary.	OK	
+114	conv-48	jolene	fact	Jolene's trip to Rio de Janeiro taught her about the different backgrounds of various yoga styles.	OK	
+115	conv-43	global	fact	Tim likes Galway for its arts and Irish music.	OK	
+116	conv-43	john	fact	John owns the complete collection of the Harry Potter movies.	OK	
+117	conv-47	john	fact	John joined a chess club to practice with others.	OK	
+118	conv-30	global	event	Jon's dance crew took home first in a local competition (on 20 January, 2022).	OK	
+119	conv-50	global	event	Dave started teaming up with a local garage to work on a car (on 3 May, 2023).	OK	
+120	conv-47	john	fact	John is a fan of video games.	OK	
+121	conv-44	global	event	Audrey went on a hike and had an amazing experience watching a hummingbird (on 27 April 2023).	OK	
+122	conv-48	global	event	Deborah shared a modified seated twist pose to relax tense muscles (on 4 February 2023).	OK	
+123	conv-49	global	fact	Evan enjoys skiing and wants to return to Banff next year (on 19 August, 2024).	OK	
+124	conv-50	global	fact	Dave has a blue Subaru.	OK	
+125	conv-26	global	event	Caroline gave a school presentation about her transgender journey and encouraged students to join the LGBTQ community (on 2 June 2023).	OK	
+126	conv-48	global	fact	Deborah is interested in discussing time management.	OK	
+127	conv-30	global	event	Jon was mentored by an amazing business person (on 15 June, 2023).	OK	
+128	conv-48	global	event	Jolene visited an old temple with amazing stairs (on 30 August, 2023).	OK	
+129	conv-44	andrew	fact	Andrew has started incorporating small daily habits like grabbing a coffee in the morning or going for a walk at lunch to recharge.	OK	
+130	conv-49	sam	fact	Sam did a hike with their dad when they were ten years old.	OK	
+131	conv-47	john	fact	John likes electronic and rock music.	OK	
+132	conv-49	global	fact	"Evan is reading the novel ""The Great Gatsby""."	OK	
+133	conv-49	global	event	Sam took their friends on an epic hiking trip (on 25 December, 2023).	OK	
+134	conv-41	global	fact	John plans to adopt a rescue dog to teach his children responsibility and compassion.	OK	
+135	conv-49	sam	fact	Sam finds self-checkout machines to be a regular annoyance.	OK	
+136	conv-30	gina	fact	Gina's designs are inspired by the grit required to stand out and face challenges.	OK	
+137	conv-26	global	fact	Caroline is creating a library for when she has children.	OK	
+138	conv-26	global	fact	Oscar's favorite food is veggies.	OK	
+139	conv-48	global	fact	"Deborah's favorite instrumental track is ""Savana."""	OK	
+140	conv-44	andrew	fact	Andrew has a puppy named Toby who lives with him in the city.	OK	
+141	conv-26	global	event	Melanie finished and shared a photo of a pottery project with a colorful design (on 17 August 2023).	OK	
+142	conv-48	global	fact	Deborah's mother used to bake pineapple birthday cakes for her when she was a child.	OK	
+143	conv-44	andrew	fact	Andrew plans to visit another animal shelter soon.	OK	
+144	conv-49	global	event	Evan and his partner tried snowshoeing (on 07 January, 2024).	OK	
+145	conv-41	global	event	Maria did some community work with her friends from church (on 4 August, 2023).	OK	
+146	conv-49	global	fact	Evan has been working on his health journey for two years.	OK	
+147	conv-30	gina	fact	Gina is feeling the pressure and excitement of being noticed by fashion editors.	OK	
+148	conv-44	global	fact	Audrey owns a photography of her dog running with a tennis ball in its mouth at the park.	OK	
+149	conv-47	global	fact	James's mother's friend retired from the military a long time ago.	OK	
+150	conv-49	sam	fact	Sam enjoys going for car rides to chill and enjoy the view.	OK	
+151	conv-41	global	event	Maria saw a person at the shelter laugh for the first time in months while she was playing with the kids (on 27 June, 2023).	OK	
+152	conv-50	dave	fact	Dave finds working on cars to be therapeutic.	OK	
+153	conv-30	global	fact	Jon loves performing.	OK	
+154	conv-50	global	fact	Calvin wants to create extraordinary art through attention to detail.	OK	
+155	conv-44	andrew	fact	Andrew enjoys mental stimulation and asks what activities Audrey does for it.	OK	
+156	conv-50	global	event	Calvin attended a fancy gala in Boston (on 16 November, 2023).	OK	
+157	conv-30	gina	fact	Gina has only been to Rome once.	OK	
+158	conv-26	melanie	fact	Melanie finds peace through creativity and family.	OK	
+159	conv-44	global	fact	Audrey moved to a new place with a bigger backyard for her dogs.	OK	
+160	conv-44	andrew	fact	Andrew recently tried out a new sushi spot in town and liked it.	OK	
+161	conv-44	andrew	fact	Andrew is hooked on rock climbing and plans to do more outdoor activities like it weekly.	OK	
+162	conv-43	global	event	John organized a basketball camp for kids in his hometown (on 2023 summer).	OK	
+163	conv-44	global	event	Audrey went to a pet store to buy toys for her dogs (on 16 October, 2023).	OK	
+164	conv-49	global	fact	Evan has a favorite spot for watching sunsets (the beach).	OK	
+165	conv-30	gina	fact	Gina shared a photo of a dress and a flamingo.	OK	
+166	conv-41	maria	fact	Maria made peach cobbler recently.	OK	
+167	conv-44	global	fact	Andrew knows of a new cafe that opened recently with a great view and vibe.	OK	
+168	conv-49	global	event	Sam watched The Godfather (on 9 January 2024).	OK	
+169	conv-42	global	fact	Nate's turtles are good for relieving stress.	OK	
+170	conv-47	global	event	John encountered a specific game error (on 11 April, 2022).	OK	
+171	conv-48	global	event	Deborah visited her mother's old house (on 16 January, 2023).	OK	
+172	conv-48	jolene	fact	Jolene is an engineer.	OK	
+173	conv-30	gina	fact	Gina is passionate about fashion trends and finding unique pieces.	OK	
+174	conv-47	global	fact	Daisy loves playing with her toys and eating.	OK	
+175	conv-41	global	fact	John goes to a yoga studio often where the instructors are awesome.	OK	
+176	conv-47	global	event	James volunteered at an organization where they distributed small gifts (on 19 May, 2022).	OK	
+177	conv-49	global	fact	Evan grew up on the small island shown in the photo.	OK	
+178	conv-42	nate	fact	Nate entered a video game tournament recently and experienced a setback.	OK	
+179	conv-42	global	fact	Cooking and baking are Joanna's creative outlets.	OK	
+180	conv-47	john	fact	John played a card game where players match colors and numbers, trading cards or skipping turns.	OK	
+181	conv-50	global	event	Calvin shared a photo of a group of people sitting around a desk (on 13 November, 2023).	OK	
+182	conv-43	global	fact	John is now mentoring the younger players on his team.	OK	
+183	conv-26	global	event	Caroline made a stained glass window to represent discovering true potential and living one's best life (on 25 August 2023).	OK	
+184	conv-26	global	fact	Melanie’s family camping trip involves roasting marshmallows, telling stories around the campfire, and enjoying each other's company.	OK	
+185	conv-50	global	event	"Calvin performed with a band called ""the boys"" (on 2 August, 2023)."	OK	
+186	conv-26	melanie	fact	Melanie signed up for a pottery class.	OK	
+187	conv-49	global	event	Evan messed up his knee playing basketball with the kids (on 29 September, 2023).	OK	
+188	conv-50	global	fact	Calvin loves their job because of the moments where their passion brings joy to others.	OK	
+189	conv-26	global	fact	Caroline has always loved horses.	OK	
+190	conv-26	global	fact	Caroline is interested in counseling or working in mental health to support others with similar issues.	OK	
+191	conv-41	global	event	John and Max went on a camping trip (on the summer of 2022).	OK	
+192	conv-50	dave	fact	Dave is working on a vintage Mustang project.	OK	
+193	conv-41	maria	fact	Maria is preparing for a fundraiser next week to cover basic needs for the homeless.	OK	
+194	conv-48	global	fact	Deborah has a favorite studio that is always very calming.	OK	
+195	conv-48	global	fact	Deborah and her husband prefer to play detective games.	OK	
+196	conv-26	global	fact	Caroline is learning to play the piano.	OK	
+197	conv-43	global	event	John got an amazing deal with a renowned outdoor gear company (on 12 December 2023).	OK	
+198	conv-26	global	event	Melanie signed up for a pottery class (on 2 July 2023).	OK	
+199	conv-41	global	event	John raised awareness and funds for a local domestic abuse organization (on 9 August, 2023).	OK	
+200	conv-42	global	event	Joanna finished her third creative project (on 20 May, 2022).	OK	
