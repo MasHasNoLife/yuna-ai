@@ -47,10 +47,19 @@ independent and reproducible.
   from the answerer; any judge bias applies uniformly across conditions, since
   every strategy's answers face the same judge. The adversarial category remains
   scored deterministically by abstention.
-- **Extraction precision/recall** (RQ, pending): a hand-annotated gold set of
-  ~200 sampled extraction operations, labelled for faithfulness, attribution,
-  and usefulness, to measure the quality of what the extractor stores
-  independently of downstream QA.
+- **Extraction precision** (§5.5b): a hand-verified gold set of 200 sampled
+  stored memories, stratified across all conversations, each traced to its
+  source turn and checked for faithfulness and correct speaker attribution.
+  We measure *precision* — of what is stored, how much is correct — directly.
+  We do **not** separately annotate *recall* (of the facts that should have
+  been stored, how many were captured), because a full recall gold set requires
+  enumerating every extractable fact in every conversation. Instead we treat the
+  end-to-end QA accuracy (§5.1) as the proxy for recall: a fact the extractor
+  fails to store surfaces as a question the agentic condition answers wrong. The
+  two metrics are complementary — precision certifies that stored memory is
+  trustworthy; downstream accuracy reflects whether enough was captured to be
+  useful. A dedicated recall annotation with inter-annotator agreement is future
+  work.
 - **Cost:** time-to-first-token, generation throughput, and peak VRAM, emitted
   per turn by the system's own instrumentation.
 
