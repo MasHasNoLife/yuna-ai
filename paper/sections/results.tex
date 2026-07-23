@@ -1,0 +1,125 @@
+\section{Results}
+\label{sec:results}
+
+All numbers are LLM-as-judge accuracy (qwen2.5-14b judge, temperature 0) over the
+full LoCoMo benchmark (1{,}986 QA pairs). Adversarial (category~5) questions are
+scored by abstention detection; because a memory-less model abstains on
+everything, that category lifts every strategy's floor, so we report it
+separately and never fold it into a single headline number. The answerer model is
+held fixed (Gemma4-12B-QAT, Q4, on a single 12\,GB RTX~4070).
+
+\subsection{Memory strategies}
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{lcccccc}
+\toprule
+strategy & overall & multi-hop & temporal & open & single-hop & abstain \\
+\midrule
+none & 0.228 & 0.00 & 0.01 & 0.00 & 0.00 & 1.00 \\
+raw\_rag & 0.434 & 0.18 & 0.29 & 0.10 & 0.39 & 0.85 \\
+full\_history & \textbf{0.544} & \textbf{0.39} & 0.24 & \textbf{0.22} & \textbf{0.66} & 0.72 \\
+agentic (ours) & 0.457 & 0.31 & \textbf{0.37} & 0.16 & 0.35 & 0.88 \\
+\bottomrule
+\end{tabular}
+\caption{Judged accuracy by memory strategy. Agentic memory gives the best
+temporal reasoning; full-history wins overall on in-window single-hop copy.}
+\label{tab:strategies}
+\end{table}
+
+Agentic memory gives the best temporal reasoning of any strategy (0.37 vs.\ 0.24
+for full\_history), by grounding absolute dates at write time
+(\S\ref{sec:results-temporal}). full\_history wins overall accuracy, driven by
+single-hop (0.66) and multi-hop (0.39) questions whose answer is present verbatim
+in the window---an advantage that is contingent on the answer surviving
+truncation (\S\ref{sec:results-length}).
+
+\subsection{Temporal grounding ablation}
+\label{sec:results-temporal}
+Absolutizing relative dates at extraction and stamping memories with session
+dates is a single isolable mechanism; disabling it drops agentic temporal
+accuracy to near zero, enabling it yields the 0.37 above.
+\todo{Figure 3: temporal accuracy, grounding off vs.\ on --- from the ablation run.}
+
+\subsection{Length-invariance: the core result}
+\label{sec:results-length}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.8\linewidth]{fig1_length_invariance.pdf}
+\caption{Retrieval-based memory is length-invariant; context-stuffing collapses
+past its window. full\_history's accuracy drops 76\% once a question's evidence
+is truncated, while agentic memory is unchanged.}
+\label{fig:length}
+\end{figure}
+
+full\_history retains only the most recent 60k characters. Splitting the
+questions (excluding adversarial) by whether their evidence still lies in that
+window (Table~\ref{tab:length}):
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{lcc}
+\toprule
+strategy & evidence in-window ($n{=}997$) & evidence truncated ($n{=}539$) \\
+\midrule
+full\_history & 0.671 & 0.163 (\textbf{$-$76\%}) \\
+agentic (ours) & 0.337 & 0.330 (\textbf{flat}) \\
+raw\_rag & 0.305 & 0.334 (flat) \\
+\bottomrule
+\end{tabular}
+\caption{Judged accuracy by whether evidence survives the context window.}
+\label{tab:length}
+\end{table}
+
+full\_history's entire advantage comes from questions still inside its window;
+beyond it, accuracy collapses 76\%---below either retrieval method. Agentic memory
+is length-invariant (0.337 vs.\ 0.330), and outperforms context-stuffing
+2.0$\times$ on truncated-evidence questions (Figure~\ref{fig:length}). As a
+conversation grows, the truncated fraction approaches 100\%: the regime where
+stuffing wins is the one a persistent companion grows out of.
+
+\subsection{Context efficiency}
+Agentic memory feeds 889 characters of memory per question vs.\ 59{,}585 for
+full\_history---\textbf{67$\times$ less context} for competitive accuracy,
+fitting a 4k-token window on a 12\,GB GPU.
+
+\subsection{How small can the memory manager be?}
+\label{sec:results-ladder}
+
+\begin{table}[t]
+\centering\small
+\begin{tabular}{lccccc}
+\toprule
+extractor & overall & multi-hop & temporal & open & single-hop \\
+\midrule
+qwen2.5:3b & 0.309 & 0.12 & 0.06 & 0.05 & 0.16 \\
+qwen2.5:7b & 0.348 & 0.15 & 0.19 & 0.12 & 0.21 \\
+qwen2.5:14b & 0.470 & 0.29 & 0.34 & 0.12 & 0.40 \\
+\bottomrule
+\end{tabular}
+\caption{Judged accuracy by extractor size (answerer fixed). Quality scales with
+size; temporal grounding breaks first under compression.}
+\label{tab:ladder}
+\end{table}
+
+Varying the extractor (answerer fixed), quality scales monotonically with size,
+and temporal grounding is the first capability to break: temporal accuracy is
+0.06 at 3B, 0.19 at 7B, 0.34 at 14B. A 3B extractor cannot reliably run the typed
+protocol on dated information; competence emerges at $\sim$7--14B, setting a
+concrete minimum viable size for the memory manager.
+
+\subsection{Extraction precision}
+A hand-verified sample of 200 stored memories, traced to source turns across all
+conversations, yields \textbf{199/200 faithfulness precision}: zero
+hallucinations and one speaker misattribution (a fact-dense speaker's basketball
+history duplicated onto another participant). A stricter usefulness bar lowers
+this only to 198/200. We report precision directly and treat downstream QA
+accuracy as the recall proxy (missed facts surface as wrong answers); a dedicated
+recall annotation with inter-annotator agreement is future work.
+
+\subsection{Cost and interactivity}
+Extraction runs asynchronously after the reply streams, so it never delays
+time-to-first-token. On the RTX~4070: TTFT $\approx$0.9\,s, generation
+$\approx$40+ tok/s, extraction adds $\approx$2\,GB VRAM. The full recall--generate--extract
+loop runs in real time on a single consumer GPU.

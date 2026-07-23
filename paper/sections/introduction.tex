@@ -1,0 +1,48 @@
+
+A conversational agent that cannot remember is not a companion; it is a
+sequence of strangers. Yet remembering is bounded by the context window: a model
+can only attend to what fits, and a relationship that spans weeks does not fit.
+The standard response is retrieval-augmented memory — extract what matters, store
+it, retrieve it on demand — and a growing line of work (MemGPT, Mem0, Generative
+Agents) has shown this can give agents durable, useful memory.
+
+That work shares an assumption we want to remove: **the memory manager is a
+large, capable model**, usually reached through an API. For a companion that
+runs on a user's own machine — private, offline, always-available — this is
+exactly the wrong dependency. The open question is not whether memory helps (it
+does), but whether the *management* of memory — deciding what to store, how to
+date it, when to update or forget — can be done by a small model on consumer
+hardware, and if so, how small.
+
+We study this concretely on a single 12 GB GPU, with the chat model held fixed
+and only the memory pathway varied. We compare an \textbf{agentic} memory protocol —
+which extracts typed facts (durable facts, dated events, the agent's own
+self-facts), absolutizes relative dates at write time, deduplicates on insert,
+and retrieves age-aware — against three baselines: no memory, stuffing the full
+transcript into the window, and retrieving raw dialogue turns without extraction.
+
+Our findings reframe how these strategies should be compared. Judged on
+aggregate accuracy, full-history stuffing wins — but we show this win is
+\textbf{contingent on conversation length}. Splitting questions by whether their
+evidence still fits in the window, stuffing's accuracy collapses 76\% once the
+evidence is truncated, while retrieval-based memory is \textbf{length-invariant},
+and overtakes stuffing 2.0× in exactly the long-conversation regime a persistent
+companion lives in. Separately, extracting and *dating* memories at write time
+yields the best temporal reasoning of any strategy, at ~67× less context — the
+result that makes local deployment practical. Finally, sweeping the extractor
+from 3B to 14B, we find a \textbf{minimum viable size}: below ~7B the typed protocol
+fails, and temporal grounding is the first thing lost.
+
+\textbf{Contributions.}
+1. A reproducible benchmark of an agentic FACT/EVENT/SELF/UPDATE/FORGET memory
+   protocol against no-memory, full-history, and raw-retrieval baselines, judged
+   and released with raw outputs.
+2. The \textbf{length-invariance} result: context-stuffing's accuracy advantage
+   expires as conversations grow, while retrieval-based memory does not — with a
+   direct measurement of the crossover.
+3. An answer to \textbf{how small the memory manager can be} (≈7–14B), identifying
+   temporal grounding as the capability that breaks first under compression.
+4. An open-source system running the full recall–generate–extract loop in real
+   time on a single 12 GB consumer GPU.
+
+---

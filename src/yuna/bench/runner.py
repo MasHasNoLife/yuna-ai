@@ -58,6 +58,8 @@ class RunConfig:
     qa_model: str = ""  # QA answerer; empty = same as model. The extractor
     # ladder (RQ1) varies `model` while holding qa_model fixed, so differences
     # are attributable to extraction quality, not the responder.
+    temporal_grounding: bool = True  # False = ablation: no date absolutization
+    # and ingest-time (not session-date) timestamps, for the Fig 3 before/after.
 
 
 _DIA_ID = re.compile(r"D(\d+):")
@@ -154,8 +156,8 @@ class BenchRun:
                         partition=FACT_PARTITION,
                         assistant_reply=b_text,
                         assistant_name=conv.speaker_b,
-                        today=session.date,
-                        event_ts=session_ts,
+                        today=session.date if self.cfg.temporal_grounding else "",
+                        event_ts=session_ts if self.cfg.temporal_grounding else None,
                     )
                     prev_exchange = f"{conv.speaker_a}: {a_text}\n{conv.speaker_b}: {b_text}"
                     n_exchanges += 1
