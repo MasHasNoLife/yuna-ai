@@ -19,7 +19,13 @@ function connect() {
   ws = new WebSocket(`${proto}://${location.host}/ws/chat`);
   ws.binaryType = "arraybuffer";
 
-  ws.onopen = () => setConn(true);
+  ws.onopen = () => {
+    setConn(true);
+    // Re-apply the active person on every (re)connect — a fresh session defaults
+    // to Mas, so without this the "You" field silently reverts.
+    const name = ($("user-input").value || "").trim();
+    if (name) send({ type: "set_options", username: name });
+  };
   ws.onclose = () => {
     setConn(false);
     setTimeout(connect, 2000);
@@ -186,9 +192,15 @@ input.addEventListener("keydown", (e) => {
 $("speak-toggle").onchange = (e) => send({ type: "set_options", speak: e.target.checked });
 $("tts-select").onchange = (e) => send({ type: "set_options", tts_backend: e.target.value });
 $("llm-select").onchange = (e) => send({ type: "set_options", llm_backend: e.target.value });
+// Restore the last-used identity so a page reload doesn't silently revert to Mas.
+{
+  const saved = localStorage.getItem("yuna_user");
+  if (saved) $("user-input").value = saved;
+}
 $("user-input").onchange = (e) => {
   const name = e.target.value.trim();
   if (!name) return;
+  localStorage.setItem("yuna_user", name);
   send({ type: "set_options", username: name });
   $("chat-log").innerHTML =
     `<div class="sys-note">Now talking as <b>${escapeHtml(name)}</b> — Yuna keeps a separate memory for each person.</div>`;
