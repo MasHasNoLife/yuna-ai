@@ -44,11 +44,20 @@ not. full_history's advantage is contingent on the answer surviving the window.
 ## 5.2 Temporal grounding ablation
 
 Temporal grounding — absolutizing relative dates at extraction and stamping
-each memory with its session date — is a single, isolable mechanism. Disabling
-it drops agentic temporal accuracy to near-zero; enabling it yields the 0.37 in
-Table 1. This is a clean before/after: the mechanism is responsible for the
-entire temporal advantage, and it costs nothing at answer time (the work is
-done once, at ingest). *(Figure 3: temporal accuracy, grounding off vs. on.)*
+each memory with its session date — is a single, isolable mechanism. We run
+the full benchmark twice with an identical extractor (Gemma4-12B), toggling
+only temporal grounding (Figure 3).
+
+| condition | overall | multi-hop | temporal | open | single-hop |
+|---|---|---|---|---|---|
+| grounding OFF | 0.392 | 0.28 | 0.081 | 0.125 | 0.301 |
+| grounding ON  | 0.453 | 0.262 | **0.364** | 0.115 | 0.353 |
+
+Disabling grounding drops temporal accuracy from 0.364 to 0.081 — a **4.5×
+reduction** — while other categories remain comparable (overall 0.453 vs
+0.392). The mechanism is responsible for the entire temporal advantage at
+negligible cost: the work is done once at ingest, adding no latency at answer
+time. *(Figure 3: bar chart, grounding off vs. on by category.)*
 
 ## 5.3 Length-invariance: the core result
 

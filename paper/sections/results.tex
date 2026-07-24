@@ -37,9 +37,25 @@ truncation (\S\ref{sec:results-length}).
 \subsection{Temporal grounding ablation}
 \label{sec:results-temporal}
 Absolutizing relative dates at extraction and stamping memories with session
-dates is a single isolable mechanism; disabling it drops agentic temporal
-accuracy to near zero, enabling it yields the 0.37 above.
-\todo{Figure 3: temporal accuracy, grounding off vs.\ on --- from the ablation run.}
+dates is a single isolable mechanism. We run the full benchmark twice with an
+identical extractor (Gemma4-12B), toggling only temporal grounding
+(Figure~\ref{fig:temporal}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{fig3_temporal_ablation.pdf}
+\caption{Temporal grounding ablation. Disabling date absolutization drops
+temporal accuracy from 0.36 to 0.08 (4.5$\times$); other categories are
+largely unaffected, confirming the mechanism is responsible for the entire
+temporal advantage.}
+\label{fig:temporal}
+\end{figure}
+
+Disabling grounding drops temporal accuracy from 0.364 to 0.081---a
+4.5$\times$ reduction---while other categories remain comparable (overall
+0.453 vs.\ 0.392). The mechanism is responsible for the entire temporal
+advantage at negligible cost: the work is done once at ingest, adding no
+latency at answer time.
 
 \subsection{Length-invariance: the core result}
 \label{sec:results-length}
