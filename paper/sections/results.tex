@@ -134,6 +134,31 @@ this only to 198/200. We report precision directly and treat downstream QA
 accuracy as the recall proxy (missed facts surface as wrong answers); a dedicated
 recall annotation with inter-annotator agreement is future work.
 
+\subsection{Statistical robustness}
+\label{sec:results-robustness}
+We attach non-parametric 95\% confidence intervals (10{,}000-resample
+percentile bootstrap over the per-question judged verdicts) to the two central
+claims, and test each with a paired bootstrap over the same questions answered
+under both conditions.
+
+\emph{Agentic beats context-stuffing on temporal reasoning.} On the 321
+temporal questions, agentic scores $0.368$ vs.\ full\_history's $0.237$; the
+paired difference is $+0.131$ (95\% CI $[+0.065, +0.196]$, $p<0.001$),
+so the temporal advantage is not sampling noise.
+
+\emph{Length-invariance is real.} full\_history's in-window accuracy
+($0.702$, CI $[0.67, 0.73]$) and truncated accuracy ($0.170$, CI
+$[0.14, 0.20]$) have non-overlapping intervals---the $-76\%$ collapse is
+significant. Agentic memory's in-window ($0.330$, CI $[0.30, 0.36]$) and
+truncated ($0.343$, CI $[0.30, 0.38]$) intervals overlap almost entirely: it
+is \emph{statistically flat} across the window boundary, as
+Figure~\ref{fig:length} claims.
+
+\emph{Temporal grounding.} The ablation gap (\S\ref{sec:results-temporal}) is
+$+0.283$ on temporal questions (95\% CI $[+0.227, +0.340]$, $p<0.001$). All
+three findings survive the bootstrap; the analysis is reproducible from the
+frozen judged verdicts via \texttt{scripts/robustness\_ci.py}.
+
 \subsection{Cost and interactivity}
 Extraction runs asynchronously after the reply streams, so it never delays
 time-to-first-token. On the RTX~4070: TTFT $\approx$0.9\,s, generation
