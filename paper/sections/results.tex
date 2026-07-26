@@ -9,6 +9,7 @@ separately and never fold it into a single headline number. The answerer model i
 held fixed (Gemma4-12B-QAT, Q4, on a single 12\,GB RTX~4070).
 
 \subsection{Memory strategies}
+\label{sec:results-strategies}
 
 \begin{table}[t]
 \centering\small
@@ -70,32 +71,35 @@ is truncated, while agentic memory is unchanged.}
 \end{figure}
 
 full\_history retains only the most recent 60k characters. Splitting the
-questions (excluding adversarial) by whether their evidence still lies in that
+non-adversarial questions by whether their evidence still lies in that
 window (Table~\ref{tab:length}):
 
 \begin{table}[t]
 \centering\small
 \begin{tabular}{lcc}
 \toprule
-strategy & evidence in-window ($n{=}997$) & evidence truncated ($n{=}539$) \\
+strategy & evidence in-window ($n{=}927$) & evidence truncated ($n{=}601$) \\
 \midrule
-full\_history & 0.671 & 0.163 (\textbf{$-$76\%}) \\
-agentic (ours) & 0.337 & 0.330 (\textbf{flat}) \\
-raw\_rag & 0.305 & 0.334 (flat) \\
+full\_history & 0.702 & 0.170 (\textbf{$-$76\%}) \\
+agentic (ours) & 0.330 & 0.343 (\textbf{flat}) \\
+raw\_rag & 0.306 & 0.329 (flat) \\
 \bottomrule
 \end{tabular}
-\caption{Judged accuracy by whether evidence survives the context window.}
+\caption{Judged accuracy by whether evidence survives the context window. The
+split is reconstructed from LoCoMo evidence turns against the 60k-character
+truncation point; see \S\ref{sec:results-robustness} for confidence intervals.}
 \label{tab:length}
 \end{table}
 
 full\_history's entire advantage comes from questions still inside its window;
 beyond it, accuracy collapses 76\%---below either retrieval method. Agentic memory
-is length-invariant (0.337 vs.\ 0.330), and outperforms context-stuffing
+is length-invariant (0.330 vs.\ 0.343), and outperforms context-stuffing
 2.0$\times$ on truncated-evidence questions (Figure~\ref{fig:length}). As a
 conversation grows, the truncated fraction approaches 100\%: the regime where
 stuffing wins is the one a persistent companion grows out of.
 
 \subsection{Context efficiency}
+\label{sec:results-efficiency}
 Agentic memory feeds 889 characters of memory per question vs.\ 59{,}585 for
 full\_history---\textbf{67$\times$ less context} for competitive accuracy,
 fitting a 4k-token window on a 12\,GB GPU.
@@ -126,6 +130,7 @@ protocol on dated information; competence emerges at $\sim$7--14B, setting a
 concrete minimum viable size for the memory manager.
 
 \subsection{Extraction precision}
+\label{sec:results-precision}
 A hand-verified sample of 200 stored memories, traced to source turns across all
 conversations, yields \textbf{199/200 faithfulness precision}: zero
 hallucinations and one speaker misattribution (a fact-dense speaker's basketball

@@ -20,11 +20,13 @@ rcParams.update({
 x = [0, 1]
 xlabels = ["Evidence in window\n(recent)", "Evidence truncated\n(old)"]
 
+# Numbers come from scripts/robustness_ci.py (single source of truth; it
+# reconstructs the in-window/truncated split and bootstraps CIs).
 series = [
     # label,           y_in,  y_out, color,     marker, linestyle, label_dy(pts)
-    ("full-history",   0.671, 0.163, "#D55E00", "s", "--", 0),
-    ("agentic (ours)", 0.337, 0.330, "#0072B2", "o", "-", -15),
-    ("raw RAG",        0.305, 0.334, "#009E73", "^", ":", +15),
+    ("full-history",   0.702, 0.170, "#D55E00", "s", "--", 0),
+    ("agentic (ours)", 0.330, 0.343, "#0072B2", "o", "-", -15),
+    ("raw RAG",        0.306, 0.329, "#009E73", "^", ":", +15),
 ]
 
 fig, ax = plt.subplots(figsize=(5.6, 3.6))
@@ -36,7 +38,7 @@ for label, y0, y1, c, mk, ls, dy in series:
                 va="center", ha="left", color=c, fontsize=10, fontweight="bold")
 
 # annotate the collapse and the flat gap
-ax.annotate("−76%", xy=(1, (0.671 + 0.163) / 2), xytext=(0.62, 0.47),
+ax.annotate("−76%", xy=(1, (0.702 + 0.170) / 2), xytext=(0.62, 0.47),
             color="#D55E00", fontsize=10, fontweight="bold")
 ax.annotate("2.0× at the truncated end", xy=(1, 0.25), xytext=(0.05, 0.20),
             color="#333333", fontsize=9, style="italic")

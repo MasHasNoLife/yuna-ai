@@ -1,56 +1,60 @@
+\section{Related Work}
+\label{sec:related}
 
-
-Our work sits between three lines of research — agent memory systems, long-term
-conversation benchmarks, and retrieval-augmented generation — and departs from
-all three on one axis: we constrain the memory manager to a small *local* model
+Our work sits between three lines of research---agent memory systems, long-term
+conversation benchmarks, and retrieval-augmented generation---and departs from
+all three on one axis: we constrain the memory manager to a small \emph{local} model
 on consumer hardware and evaluate length-invariance directly.
 
-\section{Agent memory systems}
+\subsection{Agent memory systems}
 
 \textbf{MemGPT} \citep{packer2023memgpt} frames the LLM as an operating system that
 pages information between a bounded context window and external storage,
 managing memory tiers to give the appearance of unbounded context. \textbf{Mem0}
 \citep{chhikara2025mem0} builds a memory layer that extracts, consolidates, and
 retrieves salient facts from ongoing conversations, reporting large token-cost
-and latency savings — the closest system in spirit to our typed extraction
+and latency savings---the closest system in spirit to our typed extraction
 protocol. \textbf{Generative Agents} \citep{park2023generative} store a natural-language
 memory stream retrieved by a recency/importance/relevance score and periodically
 synthesised into higher-level reflections; our age-aware retrieval and the
 consolidation pass we propose as future work are related in mechanism. Across
 these systems the memory manager is assumed to be a strong, typically
-API-hosted model. We ask the opposite question — how small can that manager be
-— and quantify the answer (§5.5).
+API-hosted model. We ask the opposite question---how small can that manager
+be---and quantify the answer (\S\ref{sec:results-ladder}).
 
-\section{Long-term conversation benchmarks}
+\subsection{Long-term conversation benchmarks}
 
 \textbf{LoCoMo} \citep{maharana2024locomo}, our primary benchmark, provides very long
 multi-session dialogues (hundreds of turns over many sessions) with QA spanning
 single-hop, multi-hop, temporal, open-domain, and adversarial categories; the
 original work shows that both long-context models and RAG lag human performance,
-especially on temporal reasoning — the gap our grounding mechanism targets. We
+especially on temporal reasoning---the gap our grounding mechanism targets. We
 add abstain-aware and LLM-judged scoring and, critically, a
-length-invariance split the original evaluation does not report. **Beyond
-Goldfish Memory / Multi-Session Chat** \citep{xu2022msc} studies persona
-consistency across sessions and is our planned second benchmark.
+length-invariance split the original evaluation does not report.
+\textbf{Multi-Session Chat} \citep{xu2022msc} studies persona
+consistency across sessions; its conversations are short enough to fit a modern
+context window, so it cannot exhibit the truncation regime that drives our
+central result, and we discuss it as complementary rather than confirmatory
+(\S\ref{sec:disc-threats}).
 
-\section{Retrieval-augmented generation}
+\subsection{Retrieval-augmented generation}
 
 \textbf{RAG} \citep{lewis2020rag} established retrieve-then-generate over a dense index
 as a way to extend a model's effective knowledge; our raw-turn baseline is a
 direct instance. \textbf{Self-RAG} \citep{asai2023selfrag} adds self-reflective control
-over *when* to retrieve and whether generations are supported — a decision our
-agentic protocol makes at *write* time (what is worth storing, whether a claim
+over \emph{when} to retrieve and whether generations are supported---a decision our
+agentic protocol makes at \emph{write} time (what is worth storing, whether a claim
 should update or delete an existing memory) rather than at read time.
 
-\section{Small-model capability}
+\subsection{Small-model capability}
 
 A separate line examines the capability gap between small open models and
 frontier APIs, and the effect of quantisation on that gap. This grounds our
-framing question — *can a 3B–14B model perform reliable memory management?* —
-which §5.5 answers with a floor of roughly 7–14B, with temporal grounding the
-first capability to degrade under compression.
+framing question---\emph{can a 3B--14B model perform reliable memory
+management?}---which \S\ref{sec:results-ladder} answers with a floor of roughly
+7--14B, with temporal grounding the first capability to degrade under compression.
 
-\section{Positioning}
+\subsection{Positioning}
 
 Unlike prior memory systems, which assume a capable (often API) manager and
 report aggregate accuracy at a fixed conversation length, we (i) constrain the
