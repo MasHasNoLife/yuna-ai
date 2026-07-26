@@ -16,9 +16,9 @@ for real deployment:
   date arithmetic over raw text (\S\ref{sec:results-temporal}).
   \item \textbf{Length-invariance.} Retrieval-based memory is indifferent to conversation
   length, whereas context-stuffing degrades sharply once the conversation
-  outgrows the window (\S\ref{sec:results-length}). full\_history's overall win is
-  contingent on the answer surviving truncation; agentic memory has no such
-  dependency.
+  outgrows the window (\S\ref{sec:results-length}). The overall win for
+  full-history stuffing is contingent on the answer surviving truncation;
+  agentic memory has no such dependency.
   \item \textbf{Efficiency.} Competitive accuracy at $\sim$67$\times$ less context, within a
   4k-token window on a 12\,GB GPU (\S\ref{sec:results-efficiency}).
 \end{enumerate}
@@ -84,9 +84,9 @@ as one---a gap we observed qualitatively in the extraction output.
   materialise implied facts---the natural remedy for the single-hop and
   multi-hop gaps, and a further ``agentic maintenance'' contribution. We observe
   duplicate-family growth in long-running live use, which this would also fix.
-  \item \textbf{A second truncation-regime benchmark.} Generalising length-invariance
-  requires a dataset whose conversations exceed the context window; constructing
-  or identifying one is a contribution in itself.
+  \item \textbf{A second truncation-regime benchmark.} Generalising the
+  length-invariance result requires a dataset whose conversations exceed the
+  context window; constructing or identifying one is a contribution in itself.
   \item \textbf{Recall annotation.} A gold set enumerating the facts that \emph{should} have
   been extracted, to complement the precision audit and decouple extraction
   quality from downstream QA.

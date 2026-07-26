@@ -9,6 +9,10 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{amsmath}
+% microtype silently removes most overfull-hbox warnings via subtle
+% character protrusion/expansion; url lets long paths break across lines.
+\usepackage{microtype}
+\usepackage[hyphens]{url}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 \graphicspath{{figures/}}
 
