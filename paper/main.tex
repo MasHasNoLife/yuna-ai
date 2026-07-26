@@ -1,5 +1,8 @@
 \documentclass[11pt]{article}
 % Swap for the target venue's style (e.g. acl.sty / neurips) before submission.
+% hyperref loads url itself with no options, so the hyphens option must be
+% registered before that happens or LaTeX raises an option clash.
+\PassOptionsToPackage{hyphens}{url}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1in]{geometry}
@@ -10,9 +13,8 @@
 \usepackage{xcolor}
 \usepackage{amsmath}
 % microtype silently removes most overfull-hbox warnings via subtle
-% character protrusion/expansion; url lets long paths break across lines.
+% character protrusion/expansion.
 \usepackage{microtype}
-\usepackage[hyphens]{url}
 \newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
 \graphicspath{{figures/}}
 
