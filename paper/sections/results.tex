@@ -129,6 +129,15 @@ and temporal grounding is the first capability to break: temporal accuracy is
 protocol on dated information; competence emerges at $\sim$7--14B, setting a
 concrete minimum viable size for the memory manager.
 
+This floor is markedly lower than prior experience suggests. MemGPT reports that
+even 70B function-calling models failed as memory managers
+\citep{packer2023memgpt}; we find a 14B model sufficient. We attribute the gap to
+interface width rather than to model capability: emitting five typed operations
+into a fixed grammar is a much smaller ask than driving a general function-calling
+API over a memory hierarchy, and the parser rejects malformed output rather than
+acting on it. Constraining the protocol is what brings the manager within reach
+of consumer hardware.
+
 \subsection{Extraction precision}
 \label{sec:results-precision}
 A hand-verified sample of 200 stored memories, traced to source turns across all

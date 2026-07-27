@@ -10,12 +10,15 @@ it, retrieve it on demand---and a growing line of work
 give agents durable, useful memory.
 
 That work shares an assumption we want to remove: \textbf{the memory manager is a
-large, capable model}, usually reached through an API. For a companion that
-runs on a user's own machine---private, offline, always-available---this is
-exactly the wrong dependency. The open question is not whether memory helps (it
-does), but whether the \emph{management} of memory---deciding what to store, how to
-date it, when to update or forget---can be done by a small model on consumer
-hardware, and if so, how small.
+large, capable model}, usually reached through an API---GPT-4 for MemGPT,
+GPT-4o-mini for Mem0. The assumption is not incidental: MemGPT reports that
+smaller managers fail outright, with even function-calling-finetuned 70B models
+issuing malformed calls or hallucinating \citep{packer2023memgpt}. For a
+companion that runs on a user's own machine---private, offline,
+always-available---this is exactly the wrong dependency. The open question is not
+whether memory helps (it does), but whether the \emph{management} of
+memory---deciding what to store, how to date it, when to update or forget---can
+be done by a small model on consumer hardware, and if so, how small.
 
 We study this concretely on a single 12\,GB GPU, with the chat model held fixed
 and only the memory pathway varied. We compare an \textbf{agentic} memory protocol---%

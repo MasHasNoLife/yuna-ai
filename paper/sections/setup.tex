@@ -9,9 +9,12 @@ very long-term conversational memory: 10 multi-session conversations between two
 speakers ($\approx$4{,}000 turns total across up to 30+ sessions each, spanning simulated
 weeks to months), each with a QA set probing recall over the full history. The
 1{,}986 questions are labelled into five categories: \textbf{multi-hop} (reasoning over
-several facts), \textbf{temporal} (dates, ordering, durations), \textbf{open-domain},
+several facts), \textbf{temporal} (dates, ordering, durations), \textbf{open-domain}
+(conversation combined with external world knowledge),
 \textbf{single-hop} (one fact, often verbatim), and \textbf{adversarial} (unanswerable---%
-the correct response is to decline).
+the correct response is to decline). We use the officially released benchmark
+subset (10 conversations, 1{,}986 questions); the original preprint additionally
+describes a larger unreleased pool, so figures in the literature vary.
 
 Image-only turns are represented by their captions. To keep the QA fair under
 partial ingestion, a question is only asked when the evidence it depends on

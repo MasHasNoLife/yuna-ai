@@ -10,17 +10,33 @@ on consumer hardware and evaluate length-invariance directly.
 
 \textbf{MemGPT} \citep{packer2023memgpt} frames the LLM as an operating system that
 pages information between a bounded context window and external storage,
-managing memory tiers to give the appearance of unbounded context. \textbf{Mem0}
+managing memory tiers to give the appearance of unbounded context. It is
+evaluated with GPT-4 (function-calling variants), and its authors report
+explicitly that smaller models fail in the manager role: GPT-3.5 variants
+finetuned for function calling made syntactic and semantic errors or misused the
+memory functions, and even 70B Llama-2 variants finetuned for function calling
+produced incorrect calls or hallucinated. \textbf{Mem0}
 \citep{chhikara2025mem0} builds a memory layer that extracts, consolidates, and
 retrieves salient facts from ongoing conversations, reporting large token-cost
 and latency savings---the closest system in spirit to our typed extraction
-protocol. \textbf{Generative Agents} \citep{park2023generative} store a natural-language
+protocol; it drives both extraction and update decisions with GPT-4o-mini and
+retrieves over OpenAI \texttt{text-embedding-3-small}, and (like us) scores
+LoCoMo with an LLM judge rather than token overlap. \textbf{Generative Agents}
+\citep{park2023generative} store a natural-language
 memory stream retrieved by a recency/importance/relevance score and periodically
-synthesised into higher-level reflections; our age-aware retrieval and the
-consolidation pass we propose as future work are related in mechanism. Across
-these systems the memory manager is assumed to be a strong, typically
-API-hosted model. We ask the opposite question---how small can that manager
-be---and quantify the answer (\S\ref{sec:results-ladder}).
+synthesised into higher-level reflections; the recency term is a time decay over
+a semantic index, which plays the same role as our age-aware retrieval---both
+exist because semantic similarity alone cannot tell a current state from a
+superseded one.
+
+Across these systems the memory manager is a strong, typically API-hosted
+model, and MemGPT's negative result above is the sharpest statement of why. We
+revisit that finding with a narrower mechanism. MemGPT asks a small model to
+drive general-purpose function calling over a memory hierarchy; we ask it only
+to emit a fixed set of typed operations. Under that constraint the picture is
+more favourable than MemGPT's 70B failure suggests---competence appears at
+roughly 7--14B (\S\ref{sec:results-ladder})---but not unboundedly so, and
+temporal grounding is the first capability to go.
 
 \subsection{Long-term conversation benchmarks}
 
