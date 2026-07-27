@@ -22,7 +22,9 @@ Steps marked 👤 need a human; the rest can be delegated.
 | All sections drafted (`.md`) and ported (`.tex`) | ✅ done |
 | LaTeX compiles cleanly on Overleaf | ✅ done |
 | Authorship + repo link set | ✅ done |
-| **Reading pass — verify 3 author lists, add 2–3 refs** | ⬜ **next, 👤** |
+| Reading pass — author lists verified, MemGPT result folded in | ✅ done |
+| Number audit — all tables cross-checked against sources | ✅ done |
+| **Add 2–3 secondary refs (quantisation, Reflexion)** | ⬜ **next** |
 | Polish passes (6 of them) | ⬜ |
 | arXiv submission | ⬜ 👤 |
 
@@ -134,20 +136,19 @@ Back them up, and see step 86 about publishing them.
 27. Read carefully — **this is your closest competitor.**
 28. Your delta: *they assume API-scale models; we measure the minimum local size
     and add temporal grounding.*
-29. ⚠️ Verify the Mem0 author list against the PDF — currently filled in from an
-    unverified source and marked `TODO(reading pass)` in `references.bib`.
+29. ✅ Mem0 author list verified.
 30. Download **LoCoMo** (arXiv 2402.17753).
 31. Read its evaluation section; you must describe the benchmark correctly.
 32. Confirm 10 conversations / 1,986 questions / 5 categories against your own counts.
-33. ⚠️ Verify the LoCoMo author list (same `TODO` flag).
+33. ✅ LoCoMo author list verified.
 34. Note their reported baselines — cite for context.
 35. Download **Generative Agents** (arXiv 2304.03442).
 36. Read the memory-stream section (recency / importance / relevance).
 37. Note the parallel to your age-aware retrieval.
-38. ⚠️ Verify the **RAG** author list (arXiv 2005.11401, same `TODO` flag).
+38. ✅ RAG author list verified. MemGPT's was the one actually wrong (missing Ion Stoica).
 39. Get author lists from each paper's own PDF or arXiv BibTeX export —
     **not** Google Scholar, which truncates.
-40. Delete each `TODO(reading pass)` note as you confirm it.
+40. ✅ All `TODO(reading pass)` notes cleared.
 41. Cut any paper you cannot tie to your argument in one sentence.
 42. Recompile; check the bibliography renders correctly.
 

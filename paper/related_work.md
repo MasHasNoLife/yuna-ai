@@ -1,8 +1,9 @@
 # 2. Related Work
 
-> Citations verified against arXiv/ACL (July 2026); bibkeys in references.bib.
-> Full author lists and two secondary refs (Reflexion, a quantisation paper)
-> still to confirm in the reading pass — marked % VERIFY there.
+> Superseded by `sections/related_work.tex`, which is canonical and has since
+> been expanded with MemGPT's small-model negative result. All author lists are
+> verified (July 2026). Two optional secondary refs (Reflexion, a quantisation
+> paper) remain unadded — see `README.md` steps 43–45.
 
 Our work sits between three lines of research — agent memory systems, long-term
 conversation benchmarks, and retrieval-augmented generation — and departs from
