@@ -92,207 +92,185 @@ Back them up, and see step 86 about publishing them.
 
 ---
 
-## Phase 1 — Compile (1–14) 👤
+## What is left: a 1–100 of remaining work
 
-1. Create an Overleaf account and a new project.
-2. Zip the paper folder: `cd paper && zip -r paper.zip .`
-3. New Project → Upload Project → pick the zip.
-4. Set `main.tex` as the main document (☰ menu → Main document).
-5. Set compiler to **pdfLaTeX** (☰ menu → Compiler). Usually already correct.
-6. Recompile. Errors on the first attempt are normal.
-7. Read only the **first** error — the rest are usually cascades.
-8. `File not found` → check `figures/` uploaded and `\graphicspath{{figures/}}` is set.
-9. `Missing $ inserted` → an unescaped `_` outside math mode.
-10. `Option clash` → a package loaded twice with different options; use
-    `\PassOptionsToPackage{opt}{pkg}` before the first load.
-11. BibTeX `missing field name` / `empty year` → a `%` or an at-sign inside a
-    `.bib` entry. **BibTeX has no `%` comment character** — notes go *between*
-    entries, and must contain no at-signs.
-12. Once it builds, **recompile twice more** — refs and citations need extra passes.
-13. Search the PDF for `??` (broken ref) and `[?]` (broken citation). Should be none.
-14. Read the PDF end to end. Note the page count.
+Everything below is **not yet done**. Steps marked 👤 need you.
+Estimated total: **3–5 working days**, plus endorsement waiting time.
 
-## Phase 2 — Length and front matter (15–22)
+### A. Finish the citations (1–10) — ~30 min
 
-15. Target **8 pages** body + references.
-16. Confirm the author line and email in `main.tex`.
-17. Affiliation: "Independent Researcher" is honest and acceptable.
-18. Confirm the repo URL renders under the byline.
-19. Confirm the title. Current: *Memory That Doesn't Expire: Agentic Long-Term
-    Memory for Conversational Agents on a Single Consumer GPU*. "Single" is
-    deliberate — it preempts the multi-GPU question and frames the constraint as
-    a thesis rather than a hardware note.
-20. Check every figure is legible at printed size.
-21. Check no table overflows the margin.
-22. Commit the compiling version.
+1. Open arXiv 2210.17323 (GPTQ) or 2306.00978 (AWQ); pick one.
+2. Copy its BibTeX from the arXiv "Export" panel, not Google Scholar.
+3. Add it to `references.bib` as `frantar2022gptq` (or `lin2023awq`).
+4. Open arXiv 2303.11366 (Reflexion) or 2210.03629 (ReAct); pick one.
+5. Add it as `shinn2023reflexion` (or `yao2022react`).
+6. Optional: RULER 2404.06654 for long-context evaluation.
+7. Check no note in the file contains an at-sign (BibTeX parses one as an entry).
+8. Cite the quantisation ref where Q4 is justified (Setup, hardware subsection).
+9. Cite the agentic ref in Related Work, "Small-model capability".
+10. Recompile; confirm the bibliography grew and no `[?]` appears.
 
-## Phase 3 — The reading pass (23–42) 👤 — *the real remaining work, ~1 day*
+### B. Confirm the current build (11–18) — ~30 min 👤
 
-23. Download **MemGPT** (arXiv 2310.08560).
-24. Read abstract, intro, method; skim results.
-25. Write one sentence on how you differ: *they page context with a large model;
-    we extract typed facts with a small local one.*
-26. Download **Mem0** (arXiv 2504.19413).
-27. Read carefully — **this is your closest competitor.**
-28. Your delta: *they assume API-scale models; we measure the minimum local size
-    and add temporal grounding.*
-29. ✅ Mem0 author list verified.
-30. Download **LoCoMo** (arXiv 2402.17753).
-31. Read its evaluation section; you must describe the benchmark correctly.
-32. Confirm 10 conversations / 1,986 questions / 5 categories against your own counts.
-33. ✅ LoCoMo author list verified.
-34. Note their reported baselines — cite for context.
-35. Download **Generative Agents** (arXiv 2304.03442).
-36. Read the memory-stream section (recency / importance / relevance).
-37. Note the parallel to your age-aware retrieval.
-38. ✅ RAG author list verified. MemGPT's was the one actually wrong (missing Ion Stoica).
-39. Get author lists from each paper's own PDF or arXiv BibTeX export —
-    **not** Google Scholar, which truncates.
-40. ✅ All `TODO(reading pass)` notes cleared.
-41. Cut any paper you cannot tie to your argument in one sentence.
-42. Recompile; check the bibliography renders correctly.
+11. Recompile on Overleaf three times (LaTeX, BibTeX, LaTeX again).
+12. Record the true page count. Target is 8 including references.
+13. If over 9 pages, the cut pass (51–60) must be aggressive.
+14. Search the PDF for `??` — should be zero.
+15. Search for `[?]` — should be zero.
+16. Confirm the affiliation line renders under your name.
+17. Confirm all three figures render and are legible at 100% zoom.
+18. Confirm no table runs past the right margin.
 
-## Phase 4 — Strengthen related work (43–52)
-
-43. Add a quantisation citation (justifies Q4): GPTQ 2210.17323 or AWQ 2306.00978.
-44. Add an agentic-reasoning citation: Reflexion 2303.11366 or ReAct 2210.03629.
-45. Optionally add a long-context eval benchmark: RULER 2404.06654.
-46. Add complete entries to `references.bib` — no at-signs in the notes.
-47. Cite them in the "Small-model capability" subsection.
-48. Ensure **every** related-work subsection ends with an explicit delta sentence.
-49. Related Work should reach 500–700 words (currently ~490).
-50. Confirm no citation is uncited and no bib entry unused.
-51. Recompile.
-52. Commit.
-
-## Phase 5 — Number audit (53–62)
-
-53. Open the claim ledger (§3 above).
-54. Abstract: verify 76%, 2.0×, 67×, 7–14B.
-55. Table 1 against the four judged summaries.
-56. Table 2 against `robustness_ci.txt`.
-57. Table 3 against the ladder summaries.
-58. §5.7 CIs against `robustness_ci.txt`.
-59. 199/200 against the annotation sheet.
-60. **Confirm intro numbers match results numbers exactly.** Most common catch.
-61. Confirm figure numbers match table numbers.
-62. Commit.
-
-## Phase 6 — Six polish passes (63–80)
+### C. Polish pass 1 — structure (19–30)
 
 *One concern per pass. Combining them means catching nothing.*
 
-63. **Numbers** — every figure against the ledger.
-64. **Citations** — every named system cited on first mention.
-65. **Consistency** — pick one form: `full\_history` for the literal config
-    value, "full-history" in prose. Be uniform. (Also avoids overfull hboxes,
-    since LaTeX cannot hyphenate words containing `\_`.)
-66. Same for "agentic memory" vs "our method" — pick one.
-67. **Tense** — present for what the paper does, past for what the experiments did.
-68. **Hedging** — every claim scoped to LoCoMo, not "all memory systems".
-69. Delete every *obviously, clearly, as expected, very, quite*.
-70. **Captions** — each states a takeaway, not a description.
-71. **Cut** — remove 10% of words. It always improves.
-72. **Read aloud** — catches broken rhythm nothing else finds. 👤
-73. Check each paragraph's first sentence carries its point.
-74. Check no paragraph exceeds ~8 lines.
-75. **Fresh eyes** — wait 24h, reread as a hostile reviewer. 👤
-76. Ask: "would I believe this if a stranger wrote it?" 👤
-77. Verify the three honesty items are present (§ below).
-78. Verify the dropped-MSC rationale reads as a decision, not an omission.
-79. Spellcheck (Overleaf has one built in).
-80. Commit.
+19. Read only the section headings in order; confirm they tell the story alone.
+20. Read only the first sentence of every paragraph; each must carry its point.
+21. Any paragraph over ~8 lines: split it.
+22. Confirm Results §5.1 leads with the honest "full-history wins overall".
+23. Confirm §5.3 (length-invariance) reads as the climax, not a footnote.
+24. Confirm §5.5's MemGPT contrast is stated as interface width, not capability.
+25. Confirm the Discussion opens by narrowing the claims, not widening them.
+26. Check every forward reference (`\S\ref`) points where you expect.
+27. Check the Conclusion introduces no new information.
+28. Confirm the abstract previews every result the body delivers.
+29. Confirm the four contributions in the intro match what the body proves.
+30. Commit.
 
-## Phase 7 — Reproducibility (81–88)
+### D. Polish pass 2 — language (31–42)
 
-81. Add a repo README section: how to reproduce each table.
-82. Include exact commands (`yuna bench`, `yuna.bench.judge`, `robustness_ci.py`).
-83. Document model versions and quantisation tags.
-84. State the LoCoMo download command.
-85. Confirm `robustness_ci.py` runs from a fresh clone.
-86. **Publish the raw `results_judged.jsonl` files** — your strongest credibility
-    signal. They live in gitignored `data/`, so use a GitHub release asset or
-    Zenodo (Zenodo also gives a DOI).
-87. Confirm the repo URL in the paper resolves.
-88. Commit.
+31. Tense: present for the paper's actions, past for the experiments.
+32. Delete every *obviously, clearly, as expected, of course*.
+33. Delete every *very, quite, really, extremely*.
+34. Replace *a lot / a bit / somewhat* with numbers or cut them.
+35. Scope every claim to LoCoMo; never "all memory systems".
+36. Pick one form for prose ("full-history") vs code (`full\_history`); be uniform.
+37. Pick one of "agentic memory" / "our method"; be uniform.
+38. Expand every acronym on first use (TTFT, KV, NF4, QAT).
+39. Confirm British/American spelling is consistent throughout.
+40. Read the abstract alone; it must stand without the body.
+41. Spellcheck (Overleaf has one built in). 👤
+42. Commit.
 
-## Phase 8 — arXiv (89–100) 👤
+### E. Polish pass 3 — floats and captions (43–50)
 
-89. Create an arXiv account.
-90. Check whether **cs.CL requires an endorsement** for you. As an unaffiliated
-    first-time submitter, likely yes.
-91. ⚠️ **Start this early.** Endorsement means emailing a published researcher
-    with your abstract and PDF, then waiting. Budget a week; it is the single
-    biggest schedule risk. Run it in parallel with Phase 6, not after.
-92. Primary category **cs.CL**; cross-list **cs.AI**.
-93. Overleaf → ☰ menu → Download → **Source** (this is the zip arXiv wants).
-94. Include the compiled `.bbl` — arXiv does not always run live BibTeX.
-95. Test-compile the exact upload package in a clean folder to catch missing files.
-96. Upload source, not just the PDF — arXiv compiles it itself.
-97. Fix any arXiv-specific errors (it runs its own TeX Live).
-98. Preview the generated PDF; confirm it matches Overleaf's.
-99. Write the arXiv abstract field — plain text, no LaTeX macros, ≤1920 chars.
-100. Pick **CC BY 4.0**, submit, then add the link to your CV, repo, and
-     Masters applications. Announcement takes ~1 business day. 🎉
+43. Every caption states a takeaway, not a description.
+44. Fig 1 caption names the −76% collapse and the flat line.
+45. Fig 3 caption names the 4.5× temporal gap.
+46. Every table caption says what the reader should conclude.
+47. Confirm each figure/table is referenced in the text before it appears.
+48. Confirm float placement does not orphan a caption onto its own page.
+49. Confirm figures are vector PDF, not raster, at final size.
+50. Commit.
+
+### F. Polish pass 4 — cut (51–60)
+
+51. Target: remove 10% of words. It always improves the paper.
+52. Cut any sentence that restates the previous one.
+53. Cut hedges that duplicate the threats-to-validity section.
+54. Cut method detail a reader does not need to reimplement.
+55. Cut any related-work sentence not tied to your delta.
+56. Collapse any two-sentence pair that could be one.
+57. Re-check the page count after cutting.
+58. If still over 8 pages, move the per-category appendix table out.
+59. Confirm nothing load-bearing was cut (re-run the number audit).
+60. Commit.
+
+### G. Polish pass 5 — fresh eyes (61–70) 👤
+
+61. Leave the paper alone for 24 hours. Do not skip this.
+62. Read the whole PDF aloud. Rhythm problems surface nowhere else.
+63. Mark every sentence you stumble on; rewrite those.
+64. Re-read as a hostile reviewer: where would you attack?
+65. Confirm the three honesty items survive: full-history wins overall,
+    judge limitations, precision-not-recall.
+66. Confirm the dropped-MSC rationale reads as a decision, not an omission.
+67. Ask: "would I believe this if a stranger wrote it?"
+68. Ask: "can a reader reproduce every number from what is written?"
+69. Fix what those questions expose.
+70. Tag the commit `draft-v1`.
+
+### H. Reproducibility package (71–82)
+
+71. Add a "Reproducing the paper" section to the repo README.
+72. Document the LoCoMo download command.
+73. Document the benchmark command for each of the four strategies.
+74. Document the judge command (`yuna.bench.judge`, qwen2.5:14b, temp 0).
+75. Document `scripts/robustness_ci.py` and what it regenerates.
+76. Record exact model tags and quantisation (Gemma4-12B-QAT Q4_K_M, qwen2.5 3b/7b/14b).
+77. Record the hardware (RTX 4070 12 GB) and CUDA/torch versions.
+78. Verify the instructions work from a fresh clone. 👤
+79. **Publish the raw `results_judged.jsonl` files** — strongest credibility signal.
+80. Use a GitHub release asset or Zenodo; Zenodo also mints a DOI.
+81. Add that link to the paper's reproducibility sentence.
+82. Commit and tag `draft-v2`.
+
+### I. Getting it published (83–100) 👤
+
+**Read the endorsement note below first — this is the long pole.**
+
+83. Create an arXiv account with your gmail.
+84. Start a cs.CL submission to trigger the endorsement request.
+85. Copy the unique endorsement code arXiv emails you.
+86. Build a shortlist of candidate endorsers: active cs.CL authors whose work
+    you cite, or faculty from your university who publish in NLP.
+87. Write a short, specific request: who you are, one-line paper summary,
+    the arXiv code, a link to the PDF and repo. No mass mailing.
+88. Send to 3–5 candidates, individually. Expect most not to reply.
+89. In parallel, post an endorsement request on the Hugging Face forums —
+    there is an active independent-researcher community doing exactly this.
+90. **In parallel, pick a workshop** (see note). Do not serialise these.
+91. While waiting: prepare the submission package.
+92. Overleaf → Menu → Download → Source (this is the zip arXiv wants).
+93. Include the compiled `.bbl`; arXiv does not always run live BibTeX.
+94. Test-compile that exact zip in a clean folder to catch missing files.
+95. Write the arXiv abstract field: plain text, no LaTeX macros, ≤1920 chars.
+96. Choose primary cs.CL, cross-list cs.AI.
+97. Choose a licence; CC BY 4.0 is the standard permissive choice.
+98. Once endorsed, upload, preview the arXiv-generated PDF, fix any errors.
+99. Submit. Announcement takes about one business day.
+100. Add the link to your CV, repo README, and Masters applications. 🎉
 
 ---
 
-## The three honesty traps
+## On arXiv endorsement — yes, you need it
 
-Where a reviewer will probe — and where being straight buys credibility.
+arXiv **changed this policy on 21 January 2026**, and the change works against you.
+Previously an institutional email alone was enough. Now a first-time submitter
+must satisfy **both** conditions:
 
-**1. full_history beats us overall (0.544 vs 0.457).**
-Do not bury this; you would be caught immediately. Lead with it, then reframe:
-it wins *because* LoCoMo's conversations are short enough that answers survive
-the window, and you *prove* the advantage expires (−76%). Reporting a baseline
-beating you, and explaining exactly why, is the strongest credibility move
-available.
+1. an institutional email from an academic or research organisation, **and**
+2. prior authorship on an arXiv paper in the relevant domain.
 
-**2. LLM-as-judge is the primary metric.**
-Acknowledge a 14B judge is imperfect. Mitigations: temperature 0, judge ≠
-answerer, deterministic abstain scoring for c5, token-F1 reported alongside.
-Human agreement study = future work.
+You have neither. So **personal endorsement is your only route** — there is no
+way around it, and it is harder than it was six months ago.
 
-**3. Precision without recall (199/200).**
-You measured whether stored facts are *faithful*, not whether the extractor
-*missed* facts. Downstream QA accuracy is the recall proxy. Also disclose
-self-annotation (no second annotator, so no inter-annotator agreement).
+**What endorsement is not:** it is not peer review. An endorser confirms only
+that the work belongs in the category and that you understand the field. They
+are explicitly not vouching for correctness and are not expected to read the
+paper closely. Saying this in your request lowers the bar you are asking someone
+to clear.
 
-Also disclose: MSC was **deliberately** not run — its sessions fit inside the
-context window, so full_history would never truncate and length-invariance
-could not appear.
+**Endorser requirements:** they must have authored a minimum number of papers in
+the domain, submitted between three months and five years ago — so an active
+mid-career researcher, not an emeritus one.
 
----
+**Endorsement is per-category, not per-paper.** Once endorsed for cs.CL, every
+future cs.CL submission is unblocked. You pay this cost once.
 
-## Writing conventions
+### arXiv is not the only path — and may not be the best one
 
-- **Tense**: present for the paper's actions ("we evaluate"), past for
-  experiments ("the extractor produced").
-- **"We"** is standard and correct, even solo.
-- **Never** *obviously, clearly, as expected* — if it's obvious, cut it; if not,
-  you're bluffing.
-- **Hedge precisely**: "length-invariant on LoCoMo", not "memory systems are
-  length-invariant".
-- **Captions state takeaways**: "Retrieval is length-invariant; stuffing
-  collapses" ✓ / "Accuracy by condition" ✗.
-- **One claim per subsection**, stated in the first sentence, then the table,
-  then interpretation. Never make the reader infer your point from a table.
-- Kill every *very, quite, really*.
+Your goal is Masters applications, not arXiv specifically. Worth weighing:
 
----
+- **A workshop paper is arguably worth more than a preprint.** It is peer
+  reviewed, it is a real venue on your CV, you get reviewer feedback, and
+  coauthors or contacts made there can endorse you later. An unreviewed preprint
+  from an unaffiliated author carries less weight than an accepted workshop paper.
+- **Zenodo** gives you a permanent DOI with no endorsement gate — a fine fallback
+  for citability while arXiv is pending.
+- **OpenReview** hosts many workshop submissions publicly.
 
-## Critical path
-
-**Phase 1 (compile) → Phase 3 (reading) → Phase 6 (polish) → Phase 8 (arXiv).**
-Phases 2, 4, 5, 7 are support and can be compressed if time is short.
-
-Biggest schedule risk is **step 91** (arXiv endorsement) — start it early and in
-parallel.
-
-## Division of labour
-
-- **Delegable**: figures, LaTeX, prose drafting and polish, tables, captions,
-  the claim ledger, arXiv package assembly, all analysis scripts.
-- **👤 Only you**: reading the related work, judging stylistic calls, the
-  read-aloud and fresh-eyes passes, authorship decisions, endorsement outreach,
-  holding the arXiv account.
+The pragmatic play is to run steps 83–89 (endorsement) and step 90 (workshop
+submission) **at the same time**. Whichever lands first, you have a result; if
+both land, better still.
