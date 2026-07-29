@@ -113,8 +113,12 @@ Estimated total: **3–5 working days**, plus endorsement waiting time.
 ### B. Confirm the current build (11–18) — ~30 min 👤
 
 11. Recompile on Overleaf three times (LaTeX, BibTeX, LaTeX again).
-12. Record the true page count. Target is 8 including references.
-13. If over 9 pages, the cut pass (51–60) must be aggressive.
+12. Record the true page count. **arXiv has no page limit** — there is no
+    target to hit. Currently ~13 pages, which is fine.
+13. Page count only becomes a constraint if you submit to a venue that sets
+    one (most workshops: 4–8 pages + unlimited references). If so, switch
+    `main.tex` to that venue's style file rather than cutting content —
+    a two-column 10pt template roughly halves the page count on its own.
 14. Search the PDF for `??` — should be zero.
 15. Search for `[?]` — should be zero.
 16. Confirm the affiliation line renders under your name.
@@ -166,14 +170,16 @@ Estimated total: **3–5 working days**, plus endorsement waiting time.
 
 ### F. Polish pass 4 — cut (51–60)
 
-51. Target: remove 10% of words. It always improves the paper.
+51. Remove ~10% of words. Do this for **quality, not length** — tightening
+    sharpens argument. Do not cut to hit a page number.
 52. Cut any sentence that restates the previous one.
 53. Cut hedges that duplicate the threats-to-validity section.
 54. Cut method detail a reader does not need to reimplement.
 55. Cut any related-work sentence not tied to your delta.
 56. Collapse any two-sentence pair that could be one.
-57. Re-check the page count after cutting.
-58. If still over 8 pages, move the per-category appendix table out.
+57. Re-read the cut sections; confirm the argument still lands.
+58. If a venue page limit applies, move the per-category breakdown to an
+    appendix (appendices usually sit outside the limit).
 59. Confirm nothing load-bearing was cut (re-run the number audit).
 60. Commit.
 
