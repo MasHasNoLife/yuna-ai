@@ -28,12 +28,19 @@ temporal reasoning; full-history wins overall on in-window single-hop copy.}
 \label{tab:strategies}
 \end{table}
 
-Agentic memory gives the best temporal reasoning of any strategy (0.37 vs.\ 0.24
-for full\_history), by grounding absolute dates at write time
-(\S\ref{sec:results-temporal}). full\_history wins overall accuracy, driven by
-single-hop (0.66) and multi-hop (0.39) questions whose answer is present verbatim
-in the window---an advantage that is contingent on the answer surviving
-truncation (\S\ref{sec:results-length}).
+\textbf{Context-stuffing wins on aggregate accuracy} (0.544 vs.\ 0.457 for
+agentic memory), driven by single-hop (0.66) and multi-hop (0.39) questions.
+When the literal answer sits verbatim inside the window, supplying the raw text
+beats supplying a distilled version of it, and we make no attempt to argue
+otherwise.
+
+Two findings qualify that result, and the rest of this section develops them.
+First, agentic memory gives the \emph{best temporal reasoning of any strategy}
+(0.37 vs.\ 0.24), because dates are resolved to absolute form at write time
+rather than inferred at read time (\S\ref{sec:results-temporal}). Second,
+full\_history's lead depends entirely on the answer surviving truncation---a
+condition that holds on this benchmark but weakens as conversations grow
+(\S\ref{sec:results-length}).
 
 \subsection{Temporal grounding ablation}
 \label{sec:results-temporal}

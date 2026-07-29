@@ -48,11 +48,15 @@ first thing lost.
   protocol against no-memory, full-history, and raw-retrieval baselines, judged
   and released with raw outputs.
   \item The \textbf{length-invariance} result: context-stuffing's accuracy advantage
-  expires as conversations grow, while retrieval-based memory does not---with a
-  direct measurement of the crossover.
+  expires as conversations grow, while retrieval-based memory does not---measured
+  directly by splitting the benchmark at the point where evidence leaves the window.
+  \item \textbf{Temporal grounding} as an isolable mechanism: resolving dates to
+  absolute form at write time is responsible for the entire temporal advantage,
+  which a matched ablation shows is a 4.5$\times$ effect.
   \item An answer to \textbf{how small the memory manager can be} ($\approx$7--14B),
   identifying temporal grounding as the capability that breaks first under
-  compression.
+  compression, and attributing the low floor to the narrowness of the typed
+  interface rather than to raw model capability.
   \item An open-source system running the full recall--generate--extract loop in real
   time on a single 12\,GB consumer GPU.
 \end{enumerate}
