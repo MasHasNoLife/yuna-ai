@@ -32,7 +32,8 @@ regime our central result depends on (\S\ref{sec:disc-threats}).
   raw\_rag / agentic.
   \item \textbf{Extractor model} (RQ1): qwen2.5 at 3B, 7B, and 14B, to test how small the
   memory manager can be.
-  \item \textbf{Chat/answerer model held fixed:} Gemma4-12B-QAT (Q4\_K\_M) throughout, so all
+  \item \textbf{Chat/answerer model held fixed:} Gemma4-12B-QAT (quantisation-aware
+  trained, Q4\_K\_M) throughout, so all
   differences are attributable to the memory pathway rather than the responder.
   In the strategy experiment the same model also performs extraction; in the
   ladder experiment the extractor is varied while the answerer stays fixed,
@@ -77,7 +78,9 @@ independent and reproducible.
   per turn by the system's own instrumentation.
 \end{itemize}
 
-Judge prompts, seeds, and raw per-question outputs are published with the repo.
+The judge prompt, the benchmark harness, and the analysis script that regenerates
+every confidence interval in \S\ref{sec:results-robustness} are released with the
+repository.
 
 \subsection{Implementation and hardware}
 \label{sec:setup-hardware}
@@ -92,8 +95,9 @@ stuffed transcript.
 
 All experiments run on a \textbf{single NVIDIA RTX 4070 (12\,GB)}. The chat model is
 7.6\,GB under 4-bit weight-only quantisation of the kind established by
-\citet{lin2023awq}, without which a 12B model would not fit alongside its KV
-cache on this card. That leaves headroom for the cache and the embedding model;
+\citet{lin2023awq}, without which a 12B model would not fit alongside its
+key/value (KV) cache on this card. That leaves headroom for the cache and the
+embedding model;
 TTS and other auxiliary components are kept off the GPU so the language models
 are not starved of VRAM. This hardware---a mid-range consumer card---is the point:
 the entire persistent-memory pipeline is designed to run on what an enthusiast

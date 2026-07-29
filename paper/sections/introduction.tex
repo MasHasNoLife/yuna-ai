@@ -26,7 +26,7 @@ which extracts typed facts (durable facts, dated events, the agent's own
 self-facts), absolutizes relative dates at write time, deduplicates on insert,
 and retrieves age-aware---against three baselines: no memory, stuffing the full
 transcript into the window, and retrieving raw dialogue turns without extraction.
-Our evaluation uses LoCoMo \citep{maharana2024locomo}, a benchmark of very long
+Our evaluation uses LoCoMo \citep{maharana2024locomo}, a benchmark of long
 multi-session conversations.
 
 Our findings reframe how these strategies should be compared. Judged on
@@ -45,8 +45,8 @@ first thing lost.
 \paragraph{Contributions.}
 \begin{enumerate}
   \item A reproducible benchmark of an agentic FACT/EVENT/SELF/UPDATE/FORGET memory
-  protocol against no-memory, full-history, and raw-retrieval baselines, judged
-  and released with raw outputs.
+  protocol against no-memory, full-history, and raw-retrieval baselines, scored by
+  an independent LLM judge.
   \item The \textbf{length-invariance} result: context-stuffing's accuracy advantage
   expires as conversations grow, while retrieval-based memory does not---measured
   directly by splitting the benchmark at the point where evidence leaves the window.
