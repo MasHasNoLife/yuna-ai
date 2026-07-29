@@ -91,8 +91,10 @@ improving these tasks). full\_history uses a 16k-token window to accommodate the
 stuffed transcript.
 
 All experiments run on a \textbf{single NVIDIA RTX 4070 (12\,GB)}. The chat model is
-7.6\,GB quantised, leaving headroom for the KV cache and the embedding model; TTS
-and other auxiliary components are kept off the GPU so the language models are
-not starved of VRAM. This hardware---a mid-range consumer card---is the point:
+7.6\,GB under 4-bit weight-only quantisation of the kind established by
+\citet{lin2023awq}, without which a 12B model would not fit alongside its KV
+cache on this card. That leaves headroom for the cache and the embedding model;
+TTS and other auxiliary components are kept off the GPU so the language models
+are not starved of VRAM. This hardware---a mid-range consumer card---is the point:
 the entire persistent-memory pipeline is designed to run on what an enthusiast
 already owns, with no cloud dependency.
