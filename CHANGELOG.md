@@ -27,7 +27,7 @@ The web interface release: everything comes together in the browser.
 - The old read-only dashboard is replaced by the web interface
   (`yuna dashboard` remains as an alias for `yuna web`)
 - Research plan pivoted from INT4 TTS quantization to agentic RAG memory with
-  small local models (see RESEARCH_PLAN.md)
+  small local models
 - `.env` is now loaded by the CLI for every command
 
 ## v0.1.0 — 2026-07

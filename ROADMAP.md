@@ -128,7 +128,7 @@ performance.
 
 ---
 
-## Phase 4 — Research instrumentation (see RESEARCH_PLAN.md)
+## Phase 4 — Research instrumentation
 
 Shared foundation with the paper: latency metrics (TTFT, time-to-first-audio,
 RTF), VRAM sampling, the benchmark harness in `fish-speech-int4-patch/`, INT8
