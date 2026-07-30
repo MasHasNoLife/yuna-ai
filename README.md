@@ -202,7 +202,7 @@ scripts/       Fish Speech launchers, VTS diagnostics
 The agentic memory system in this repo is the artifact behind a paper on
 long-term memory for local LLMs, *Memory That Doesn't Expire*. The paper source
 lives in a companion repository:
-**[yuna-memory-paper](https://github.com/MasHasNoLife/yuna-memory-paper)**.
+**[memory-that-doesnt-expire](https://github.com/MasHasNoLife/memory-that-doesnt-expire)**.
 
 The benchmark that produces every number in the paper is here, under
 `src/yuna/bench/` and `scripts/robustness_ci.py`, and drives the same memory code
