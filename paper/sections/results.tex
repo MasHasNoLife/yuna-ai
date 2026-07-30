@@ -39,7 +39,7 @@ Two findings qualify that result, and the rest of this section develops them.
 First, agentic memory gives the \emph{best temporal reasoning of any strategy}
 (0.37 vs.\ 0.24), because dates are resolved to absolute form at write time
 rather than inferred at read time (\S\ref{sec:results-temporal}). Second,
-full\_history's lead depends entirely on the answer surviving truncation---a
+full\_history's lead depends entirely on the answer surviving truncation, a
 condition that holds on this benchmark but weakens as conversations grow
 (\S\ref{sec:results-length}).
 
@@ -60,8 +60,8 @@ temporal advantage.}
 \label{fig:temporal}
 \end{figure}
 
-Disabling grounding drops temporal accuracy from 0.364 to 0.081---a
-4.5$\times$ reduction---while other categories remain comparable (overall
+Disabling grounding drops temporal accuracy from 0.364 to 0.081, a
+4.5$\times$ reduction, while other categories remain comparable (overall
 0.453 vs.\ 0.392). The mechanism is responsible for the entire temporal
 advantage at negligible cost: the work is done once at ingest, adding no
 latency at answer time.
@@ -95,14 +95,14 @@ raw\_rag & 0.306 & 0.329 (flat) \\
 \end{tabular}
 \caption{Judged accuracy split by whether a question's evidence survives the
 context window. full\_history collapses once the evidence is truncated, while
-both retrieval methods are unchanged---the length-invariance result. The split
+both retrieval methods are unchanged: the length-invariance result. The split
 is reconstructed from LoCoMo evidence turns against the 60k-character truncation
 point; see \S\ref{sec:results-robustness} for confidence intervals.}
 \label{tab:length}
 \end{table}
 
 full\_history's entire advantage comes from questions still inside its window;
-beyond it, accuracy collapses 76\%---below either retrieval method. Agentic memory
+beyond it, accuracy collapses 76\%, below either retrieval method. Agentic memory
 is length-invariant (0.330 vs.\ 0.343), and outperforms context-stuffing
 2.0$\times$ on truncated-evidence questions (Figure~\ref{fig:length}). As a
 conversation grows, the truncated fraction approaches 100\%: the regime where
@@ -111,7 +111,7 @@ stuffing wins is the one a persistent companion grows out of.
 \subsection{Context efficiency}
 \label{sec:results-efficiency}
 Agentic memory feeds 889 characters of memory per question vs.\ 59{,}585 for
-full\_history---\textbf{67$\times$ less context} for competitive accuracy,
+full\_history: \textbf{67$\times$ less context} for competitive accuracy,
 fitting a 4k-token window on a 12\,GB GPU.
 
 \subsection{How small can the memory manager be?}
@@ -174,7 +174,7 @@ so the temporal advantage is not sampling noise.
 
 \emph{Length-invariance is real.} full\_history's in-window accuracy
 ($0.702$, CI $[0.67, 0.73]$) and truncated accuracy ($0.170$, CI
-$[0.14, 0.20]$) have non-overlapping intervals---the $-76\%$ collapse is
+$[0.14, 0.20]$) have non-overlapping intervals, so the $-76\%$ collapse is
 significant. Agentic memory's in-window ($0.330$, CI $[0.30, 0.36]$) and
 truncated ($0.343$, CI $[0.30, 0.38]$) intervals overlap almost entirely: it
 is \emph{statistically flat} across the window boundary, as
@@ -188,5 +188,5 @@ frozen judged verdicts via the released \path{robustness_ci.py} script.
 \subsection{Cost and interactivity}
 Because extraction is off the interactive path (\S\ref{sec:method-async}), it
 adds no user-visible latency. On the RTX~4070: TTFT $\approx$0.9\,s, generation
-$\approx$40+ tok/s, extraction adds $\approx$2\,GB VRAM. The full recall--generate--extract
+$\approx$40+ tok/s, extraction adds $\approx$2\,GB VRAM. The full recall-generate-extract
 loop runs in real time on a single consumer GPU.

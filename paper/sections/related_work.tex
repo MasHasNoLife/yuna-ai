@@ -1,8 +1,8 @@
 \section{Related Work}
 \label{sec:related}
 
-Our work sits between three lines of research---agent memory systems, long-term
-conversation benchmarks, and retrieval-augmented generation---and departs from
+Our work sits between three lines of research (agent memory systems, long-term
+conversation benchmarks, and retrieval-augmented generation) and departs from
 all three on one axis: we constrain the memory manager to a small \emph{local} model
 on consumer hardware and evaluate length-invariance directly.
 
@@ -18,14 +18,14 @@ memory functions, and even 70B Llama-2 variants finetuned for function calling
 produced incorrect calls or hallucinated. \textbf{Mem0}
 \citep{chhikara2025mem0} builds a memory layer that extracts, consolidates, and
 retrieves salient facts from ongoing conversations, reporting large token-cost
-and latency savings---the closest system in spirit to our typed extraction
+and latency savings, the closest system in spirit to our typed extraction
 protocol; it drives both extraction and update decisions with GPT-4o-mini and
 retrieves over OpenAI \texttt{text-embedding-3-small}, and (like us) scores
 LoCoMo with an LLM judge rather than token overlap. \textbf{Generative Agents}
 \citep{park2023generative} store a natural-language
 memory stream retrieved by a recency/importance/relevance score and periodically
 synthesised into higher-level reflections; the recency term is a time decay over
-a semantic index, which plays the same role as our age-aware retrieval---both
+a semantic index, which plays the same role as our age-aware retrieval; both
 exist because semantic similarity alone cannot tell a current state from a
 superseded one.
 
@@ -34,8 +34,8 @@ model, and MemGPT's negative result above is the sharpest statement of why. We
 revisit that finding with a narrower mechanism. MemGPT asks a small model to
 drive general-purpose function calling over a memory hierarchy; we ask it only
 to emit a fixed set of typed operations. Under that constraint the picture is
-more favourable than MemGPT's 70B failure suggests---competence appears at
-roughly 7--14B (\S\ref{sec:results-ladder})---but not unboundedly so, and
+more favourable than MemGPT's 70B failure suggests: competence appears at
+roughly 7--14B (\S\ref{sec:results-ladder}), though not unboundedly so, and
 temporal grounding is the first capability to go.
 
 \subsection{Long-term conversation benchmarks}
@@ -44,7 +44,7 @@ temporal grounding is the first capability to go.
 multi-session dialogues (hundreds of turns over many sessions) with QA spanning
 single-hop, multi-hop, temporal, open-domain, and adversarial categories; the
 original work shows that both long-context models and RAG lag human performance,
-especially on temporal reasoning---the gap our grounding mechanism targets. We
+especially on temporal reasoning, the gap our grounding mechanism targets. We
 add abstain-aware and LLM-judged scoring and, critically, a
 length-invariance split the original evaluation does not report.
 \textbf{Multi-Session Chat} \citep{xu2022msc} studies persona
@@ -58,7 +58,7 @@ central result, and we discuss it as complementary rather than confirmatory
 \textbf{RAG} \citep{lewis2020rag} established retrieve-then-generate over a dense index
 as a way to extend a model's effective knowledge; our raw-turn baseline is a
 direct instance. \textbf{Self-RAG} \citep{asai2023selfrag} adds self-reflective control
-over \emph{when} to retrieve and whether generations are supported---a decision our
+over \emph{when} to retrieve and whether generations are supported, a decision our
 agentic protocol makes at \emph{write} time (what is worth storing, whether a claim
 should update or delete an existing memory) rather than at read time.
 
@@ -71,12 +71,12 @@ card at limited accuracy cost, and are what put the setting we study within
 reach at all. A parallel line concerns how models act: \textbf{ReAct}
 \citep{yao2023react} established interleaving reasoning with tool actions, the
 paradigm the function-calling memory managers above inherit. Our typed protocol
-is a deliberately narrower instance of it---five operations into a fixed grammar
-rather than an open tool API---which \S\ref{sec:results-ladder} identifies as the
+is a deliberately narrower instance of it: five operations into a fixed grammar
+rather than an open tool API. \S\ref{sec:results-ladder} identifies this as the
 reason a small model can fill the role. Together these ground our framing
-question---\emph{can a 3B--14B model perform reliable memory
-management?}---answered there with a floor of roughly 7--14B, with temporal
-grounding the first capability to degrade under compression.
+question, \emph{can a 3B--14B model perform reliable memory management?}, which
+\S\ref{sec:results-ladder} answers with a floor of roughly 7--14B, temporal
+grounding being the first capability to degrade under compression.
 
 \subsection{Positioning}
 

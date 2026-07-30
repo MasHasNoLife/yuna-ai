@@ -3,7 +3,7 @@
 
 We describe the agentic memory system as implemented in the open-source
 reference application (Yuna). The design goal is a \emph{persistent} conversational
-agent---one that remembers across sessions and weeks---running entirely on a
+agent, one that remembers across sessions and weeks, running entirely on a
 single consumer GPU, with no cloud model in the loop. The same code path runs
 the live application and the benchmark; the evaluation drives it headlessly.
 
@@ -43,20 +43,20 @@ the recent context, and the currently recalled facts, the extractor model emits
 zero or more typed operations:
 
 \begin{itemize}
-  \item \textbf{[FACT]}---a durable truth about the user or world (``Mas's favourite dish is
+  \item \textbf{[FACT]}: a durable truth about the user or world (``Mas's favourite dish is
   carbonara'').
-  \item \textbf{[EVENT]}---a dated happening (``Mas started a new job'').
-  \item \textbf{[SELF]}---a durable fact the agent revealed about \emph{itself}, routed to a
+  \item \textbf{[EVENT]}: a dated happening (``Mas started a new job'').
+  \item \textbf{[SELF]}: a durable fact the agent revealed about \emph{itself}, routed to a
   separate self-partition so the agent maintains a stable autobiography rather
   than improvising a contradictory one each turn.
-  \item \textbf{[UPDATE]} old $\rightarrow$ new---a correction to an existing fact.
-  \item \textbf{[FORGET]}---deletion, triggered only when the user denies or retracts
+  \item \textbf{[UPDATE]} old $\rightarrow$ new: a correction to an existing fact.
+  \item \textbf{[FORGET]}: deletion, triggered only when the user denies or retracts
   something already stored.
 \end{itemize}
 
 Two safeguards keep the store clean. \textbf{Denial handling:} when the user negates
 something (``there is no such project''), the extractor issues a FORGET against a
-matching stored fact if one exists, and otherwise emits nothing---critically,
+matching stored fact if one exists, and otherwise emits nothing. Critically,
 the denial itself is never stored as a fact. \textbf{A junk filter:} a regex backstop
 rejects conversational meta-states (``the user is asking about X'', ``is in a good
 mood'') that the model occasionally emits despite instructions, so no caller can
@@ -113,12 +113,12 @@ The same harness supports four memory pathways, which form the independent
 variable in \S\ref{sec:results-strategies}:
 
 \begin{itemize}
-  \item \textbf{none}---no memory; the model answers from the current turn only.
-  \item \textbf{full\_history}---the entire transcript is placed in the context window
+  \item \textbf{none}: no memory; the model answers from the current turn only.
+  \item \textbf{full\_history}: the entire transcript is placed in the context window
   (capped at the most recent 60k characters, $\approx$15k tokens).
-  \item \textbf{raw\_rag}---every dialogue turn is stored verbatim and retrieved by
+  \item \textbf{raw\_rag}: every dialogue turn is stored verbatim and retrieved by
   embedding similarity; no extraction.
-  \item \textbf{agentic} (ours)---the typed protocol above: only distilled, dated,
+  \item \textbf{agentic} (ours): the typed protocol above; only distilled, dated,
   deduplicated memories are stored and retrieved.
 \end{itemize}
 

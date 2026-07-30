@@ -34,12 +34,12 @@ out of.
 
 full\_history's advantage is concentrated in single-hop (0.66 vs.\ 0.35) and
 multi-hop (0.39 vs.\ 0.31) questions whose evidence remains in-window. Two causes:
-(i) extraction is lossy---a distilled fact can omit a detail the raw turn
+(i) extraction is lossy, since a distilled fact can omit a detail the raw turn
 preserved; (ii) multi-hop questions may require facts the extractor stored
 separately but that were never retrieved together. This motivates a
 \textbf{consolidation pass} (\S\ref{sec:disc-future}) that periodically merges related
 memories and surfaces facts implied across several stored items but never stated
-as one---a gap we observed qualitatively in the extraction output.
+as one, a gap we observed qualitatively in the extraction output.
 
 \subsection{Threats to validity}
 \label{sec:disc-threats}
@@ -59,7 +59,7 @@ as one---a gap we observed qualitatively in the extraction output.
   chat model. We considered MSC \citep{xu2022msc} as a replication target but did
   not run it: its sessions are short enough to fit inside a modern context
   window, so full\_history would never truncate and the length-invariance
-  contrast---the effect we most want to test---could not appear. A second
+  contrast, the effect we most want to test, could not appear. A second
   benchmark that genuinely exceeds the window, and additional answerer models,
   would strengthen generality; MSC would instead test persona consistency, a
   different question.
@@ -69,7 +69,7 @@ as one---a gap we observed qualitatively in the extraction output.
   report the specific failure (one speaker misattribution) rather than only a
   summary rate so the claim is auditable.
   \item \textbf{Extraction cost at ingest.} Building agentic memory is a per-exchange model
-  call---offline and one-time, and asynchronous at chat time
+  call: offline and one-time, and asynchronous at chat time
   (\S\ref{sec:method-async}), but not free. The extractor ladder
   (\S\ref{sec:results-ladder}) quantifies the quality one buys per parameter.
 \end{itemize}
@@ -79,7 +79,7 @@ as one---a gap we observed qualitatively in the extraction output.
 
 \begin{itemize}
   \item \textbf{Consolidation / maintenance.} A periodic pass to merge near-duplicates and
-  materialise implied facts---the natural remedy for the single-hop and
+  materialise implied facts, the natural remedy for the single-hop and
   multi-hop gaps, and a further ``agentic maintenance'' contribution. We observe
   duplicate-family growth in long-running live use, which this would also fix.
   \item \textbf{A second truncation-regime benchmark.} Generalising the
@@ -90,6 +90,6 @@ as one---a gap we observed qualitatively in the extraction output.
   quality from downstream QA.
   \item \textbf{Persona distillation.} Fine-tuning the chat model on curated in-character
   dialogue to reduce assistant-like behaviour that prompting only partly
-  suppresses---orthogonal to the memory contribution, and a candidate for
+  suppresses; orthogonal to the memory contribution, and a candidate for
   separate work.
 \end{itemize}

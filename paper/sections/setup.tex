@@ -11,8 +11,8 @@ weeks to months), each with a QA set probing recall over the full history. The
 1{,}986 questions are labelled into five categories: \textbf{multi-hop} (reasoning over
 several facts), \textbf{temporal} (dates, ordering, durations), \textbf{open-domain}
 (conversation combined with external world knowledge),
-\textbf{single-hop} (one fact, often verbatim), and \textbf{adversarial} (unanswerable---%
-the correct response is to decline). We use the officially released benchmark
+\textbf{single-hop} (one fact, often verbatim), and \textbf{adversarial}
+(unanswerable, so the correct response is to decline). We use the officially released benchmark
 subset (10 conversations, 1{,}986 questions); the original preprint additionally
 describes a larger unreleased pool, so figures in the literature vary.
 
@@ -64,8 +64,8 @@ independent and reproducible.
   \item \textbf{Extraction precision} (\S\ref{sec:results-precision}): a hand-verified gold
   set of 200 sampled stored memories, stratified across all conversations, each
   traced to its source turn and checked for faithfulness and correct speaker
-  attribution. This measures \emph{precision}---of what is stored, how much is
-  correct---directly; \emph{recall} (whether the extractor missed facts) is proxied by
+  attribution. This measures \emph{precision} (of what is stored, how much is
+  correct) directly; \emph{recall} (whether the extractor missed facts) is proxied by
   end-to-end QA accuracy (\S\ref{sec:results-strategies}), since a missed fact
   surfaces as a wrong answer. \S\ref{sec:disc-threats} discusses the limitation.
   \item \textbf{Cost:} time-to-first-token, generation throughput, and peak VRAM, emitted
@@ -93,6 +93,6 @@ All experiments run on a \textbf{single NVIDIA RTX 4070 (12\,GB)}. The chat mode
 key/value (KV) cache on this card. That leaves headroom for the cache and the
 embedding model;
 TTS and other auxiliary components are kept off the GPU so the language models
-are not starved of VRAM. This hardware---a mid-range consumer card---is the point:
+are not starved of VRAM. This hardware, a mid-range consumer card, is the point:
 the entire persistent-memory pipeline is designed to run on what an enthusiast
 already owns, with no cloud dependency.

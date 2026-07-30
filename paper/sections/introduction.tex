@@ -4,40 +4,40 @@
 A conversational agent that cannot remember is not a companion; it is a
 sequence of strangers. Yet remembering is bounded by the context window: a model
 can only attend to what fits, and a relationship that spans weeks does not fit.
-The standard response is retrieval-augmented memory---extract what matters, store
-it, retrieve it on demand---and a growing line of work
+The standard response is retrieval-augmented memory (extract what matters, store
+it, retrieve it on demand), and a growing line of work
 \citep{packer2023memgpt,chhikara2025mem0,park2023generative} has shown this can
 give agents durable, useful memory.
 
 That work shares an assumption we want to remove: \textbf{the memory manager is a
-large, capable model}, usually reached through an API---GPT-4 for MemGPT,
-GPT-4o-mini for Mem0. The assumption is not incidental: MemGPT reports that
+large, capable model}, usually reached through an API (GPT-4 for MemGPT,
+GPT-4o-mini for Mem0). The assumption is not incidental: MemGPT reports that
 smaller managers fail outright, with even function-calling-finetuned 70B models
 issuing malformed calls or hallucinating \citep{packer2023memgpt}. For a
-companion that runs on a user's own machine---private, offline,
-always-available---this is exactly the wrong dependency. The open question is not
-whether memory helps (it does), but whether the \emph{management} of
-memory---deciding what to store, how to date it, when to update or forget---can
-be done by a small model on consumer hardware, and if so, how small.
+companion that runs on a user's own machine, private and offline, this is exactly
+the wrong dependency. The open question is not whether memory helps (it does), but
+whether the \emph{management} of memory (deciding what to store, how to date it,
+when to update or forget) can be done by a small model on consumer hardware, and
+if so, how small.
 
 We study this concretely on a single 12\,GB GPU, with the chat model held fixed
-and only the memory pathway varied. We compare an \textbf{agentic} memory protocol---%
-which extracts typed facts (durable facts, dated events, the agent's own
-self-facts), absolutizes relative dates at write time, deduplicates on insert,
-and retrieves age-aware---against three baselines: no memory, stuffing the full
-transcript into the window, and retrieving raw dialogue turns without extraction.
-Our evaluation uses LoCoMo \citep{maharana2024locomo}, a benchmark of long
-multi-session conversations.
+and only the memory pathway varied. We compare an \textbf{agentic} memory protocol
+against three baselines: no memory, stuffing the full transcript into the window,
+and retrieving raw dialogue turns without extraction. The agentic protocol
+extracts typed facts (durable facts, dated events, the agent's own self-facts),
+absolutizes relative dates at write time, deduplicates on insert, and retrieves
+age-aware. Our evaluation uses LoCoMo \citep{maharana2024locomo}, a benchmark of
+long multi-session conversations.
 
 Our findings reframe how these strategies should be compared. Judged on
-aggregate accuracy, full-history stuffing wins---but we show this win is
+aggregate accuracy, full-history stuffing wins, but we show this win is
 \textbf{contingent on conversation length}. Splitting questions by whether their
 evidence still fits in the window, stuffing's accuracy collapses 76\% once the
-evidence is truncated, while retrieval-based memory is \textbf{length-invariant},
+evidence is truncated, while retrieval-based memory is \textbf{length-invariant}
 and overtakes stuffing 2.0$\times$ in exactly the long-conversation regime a
 persistent companion lives in. Separately, extracting and \emph{dating} memories at
 write time yields the best temporal reasoning of any strategy, at
-$\sim$67$\times$ less context---the result that makes local deployment practical.
+$\sim$67$\times$ less context, the result that makes local deployment practical.
 Finally, sweeping the extractor from 3B to 14B, we find a \textbf{minimum viable
 size}: below $\sim$7B the typed protocol fails, and temporal grounding is the
 first thing lost.
@@ -48,8 +48,8 @@ first thing lost.
   protocol against no-memory, full-history, and raw-retrieval baselines, scored by
   an independent LLM judge.
   \item The \textbf{length-invariance} result: context-stuffing's accuracy advantage
-  expires as conversations grow, while retrieval-based memory does not---measured
-  directly by splitting the benchmark at the point where evidence leaves the window.
+  expires as conversations grow, while retrieval-based memory does not. We measure
+  this directly by splitting the benchmark at the point where evidence leaves the window.
   \item \textbf{Temporal grounding} as an isolable mechanism: resolving dates to
   absolute form at write time is responsible for the entire temporal advantage,
   which a matched ablation shows is a 4.5$\times$ effect.
@@ -57,6 +57,6 @@ first thing lost.
   identifying temporal grounding as the capability that breaks first under
   compression, and attributing the low floor to the narrowness of the typed
   interface rather than to raw model capability.
-  \item An open-source system running the full recall--generate--extract loop in real
+  \item An open-source system running the full recall-generate-extract loop in real
   time on a single 12\,GB consumer GPU.
 \end{enumerate}

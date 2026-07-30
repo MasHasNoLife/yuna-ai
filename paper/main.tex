@@ -33,12 +33,12 @@ Independent Researcher\\
 Conversational agents forget: once a dialogue outgrows the context window, a
 model must either be reminded through retrieval or have its history truncated.
 Recent memory systems address this with extraction and retrieval, but they
-assume a large, often API-hosted model as the memory manager---an assumption
+assume a large, often API-hosted model as the memory manager, an assumption
 that rules out private, local deployment. We ask whether a \emph{small local}
 model, on a single consumer GPU, can manage long-term memory well, and how the
-answer depends on model size. We evaluate four memory strategies---no memory,
+answer depends on model size. We evaluate four memory strategies (no memory,
 full-history stuffing, raw-turn retrieval, and an agentic protocol that extracts
-typed, dated, deduplicated facts---on LoCoMo (1{,}986 questions over 10 long
+typed, dated, deduplicated facts) on LoCoMo (1{,}986 questions over 10 long
 multi-session conversations), scored by an independent LLM judge. Full-context
 stuffing wins aggregate accuracy when the answer still lies inside the window,
 but its advantage is an artifact of conversation length: split by whether a
@@ -49,7 +49,7 @@ temporal reasoning of any strategy (via absolute-date grounding at write time)
 using $\sim$67$\times$ less context. Varying the extractor from 3B to 14B, we
 find quality scales with size and that temporal grounding is the first capability
 to break under compression, setting a minimum viable memory-manager size of
-$\sim$7--14B---comfortably within a 12\,GB GPU. A hand-verified audit of 200
+$\sim$7--14B, comfortably within a 12\,GB GPU. A hand-verified audit of 200
 stored memories finds 199 faithful to their source turn, with no fabrications.
 We release the system and benchmark harness.
 \end{abstract}
@@ -63,7 +63,7 @@ We release the system and benchmark harness.
 
 \section{Conclusion}
 For a persistent conversational agent on consumer hardware, agentic memory beats
-context-stuffing where it counts---temporal reasoning and long conversations---at
+context-stuffing where it counts, on temporal reasoning and long conversations, at
 a fraction of the context cost, and the memory manager itself can be a small
 local model. Context-stuffing's aggregate lead is an artifact of short
 conversations that a real companion grows out of.
