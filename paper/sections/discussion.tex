@@ -4,12 +4,10 @@
 \subsection{What the results do and do not claim}
 \label{sec:disc-claims}
 
-We do \textbf{not} claim agentic memory is universally superior at recall. On our
-main benchmark, context-stuffing achieves the highest overall judged
-accuracy (\S\ref{sec:results-strategies}), because when the answer to a question
-sits verbatim inside the context window, providing the raw text beats providing a
-distilled summary of it. Our claims are narrower and, we argue, more consequential
-for real deployment:
+We do \textbf{not} claim agentic memory is universally superior at recall:
+context-stuffing wins overall judged accuracy on our benchmark
+(\S\ref{sec:results-strategies}). Our claims are narrower and, we argue, more
+consequential for real deployment:
 
 \begin{enumerate}
   \item \textbf{Temporal reasoning.} Distilling and \emph{dating} memories at write time beats

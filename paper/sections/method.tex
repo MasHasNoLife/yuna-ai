@@ -29,7 +29,7 @@ Each turn proceeds in three stages (Figure~\ref{fig:architecture}):
   \item \textbf{Generation.} The chat model produces the reply, streamed to the user.
   \item \textbf{Extraction.} \emph{After} the reply is sent, a background call to the extractor
   model converts the exchange into typed memory operations and applies them to
-  the store. Because this runs after streaming, it never delays the reply.
+  the store (\S\ref{sec:method-async}).
 \end{enumerate}
 
 Memory is a single vector store (ChromaDB) with typed metadata; there is no

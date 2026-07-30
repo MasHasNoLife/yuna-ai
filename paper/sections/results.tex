@@ -157,9 +157,8 @@ A hand-verified sample of 200 stored memories, traced to source turns across all
 conversations, yields \textbf{199/200 faithfulness precision}: zero
 hallucinations and one speaker misattribution (a fact-dense speaker's basketball
 history duplicated onto another participant). A stricter usefulness bar lowers
-this only to 198/200. We report precision directly and treat downstream QA
-accuracy as the recall proxy (missed facts surface as wrong answers); a dedicated
-recall annotation with inter-annotator agreement is future work.
+this only to 198/200. This is a precision measure only;
+\S\ref{sec:disc-threats} covers recall and the self-annotation caveat.
 
 \subsection{Statistical robustness}
 \label{sec:results-robustness}
@@ -187,7 +186,7 @@ three findings survive the bootstrap; the analysis is reproducible from the
 frozen judged verdicts via the released \path{robustness_ci.py} script.
 
 \subsection{Cost and interactivity}
-Extraction runs asynchronously after the reply streams, so it never delays
-time-to-first-token. On the RTX~4070: TTFT $\approx$0.9\,s, generation
+Because extraction is off the interactive path (\S\ref{sec:method-async}), it
+adds no user-visible latency. On the RTX~4070: TTFT $\approx$0.9\,s, generation
 $\approx$40+ tok/s, extraction adds $\approx$2\,GB VRAM. The full recall--generate--extract
 loop runs in real time on a single consumer GPU.
