@@ -28,6 +28,7 @@ temporal reasoning; full-history wins overall on in-window single-hop copy.}
 \label{tab:strategies}
 \end{table}
 
+Table~\ref{tab:strategies} compares the four memory strategies.
 \textbf{Context-stuffing wins on aggregate accuracy} (0.544 vs.\ 0.457 for
 agentic memory), driven by single-hop (0.66) and multi-hop (0.39) questions.
 When the literal answer sits verbatim inside the window, supplying the raw text
@@ -92,9 +93,11 @@ agentic (ours) & 0.330 & 0.343 (\textbf{flat}) \\
 raw\_rag & 0.306 & 0.329 (flat) \\
 \bottomrule
 \end{tabular}
-\caption{Judged accuracy by whether evidence survives the context window. The
-split is reconstructed from LoCoMo evidence turns against the 60k-character
-truncation point; see \S\ref{sec:results-robustness} for confidence intervals.}
+\caption{Judged accuracy split by whether a question's evidence survives the
+context window. full\_history collapses once the evidence is truncated, while
+both retrieval methods are unchanged---the length-invariance result. The split
+is reconstructed from LoCoMo evidence turns against the 60k-character truncation
+point; see \S\ref{sec:results-robustness} for confidence intervals.}
 \label{tab:length}
 \end{table}
 
@@ -114,6 +117,9 @@ fitting a 4k-token window on a 12\,GB GPU.
 \subsection{How small can the memory manager be?}
 \label{sec:results-ladder}
 
+We hold the answerer fixed and vary only the extractor, sweeping the qwen2.5
+family from 3B to 14B (Table~\ref{tab:ladder}).
+
 \begin{table}[t]
 \centering\small
 \begin{tabular}{lccccc}
@@ -130,9 +136,9 @@ size; temporal grounding breaks first under compression.}
 \label{tab:ladder}
 \end{table}
 
-Varying the extractor (answerer fixed), quality scales monotonically with size,
-and temporal grounding is the first capability to break: temporal accuracy is
-0.06 at 3B, 0.19 at 7B, 0.34 at 14B. A 3B extractor cannot reliably run the typed
+Quality scales monotonically with extractor size, and temporal grounding is the
+first capability to break: temporal accuracy is 0.06 at 3B, 0.19 at 7B, 0.34 at
+14B. A 3B extractor cannot reliably run the typed
 protocol on dated information; competence emerges at $\sim$7--14B, setting a
 concrete minimum viable size for the memory manager.
 
