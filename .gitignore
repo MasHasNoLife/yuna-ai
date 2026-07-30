@@ -44,3 +44,6 @@ assets/
 .DS_Store
 /.claude/
 
+
+# internal research/career planning notes (local only)
+RESEARCH_PLAN.md

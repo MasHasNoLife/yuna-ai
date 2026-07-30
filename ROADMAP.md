@@ -147,7 +147,7 @@ The paper (arXiv by mid-Oct) outranks features. Recommended order:
 | August | Phase 4 paper harness + experiments (critical path), Phase 1 items in gaps |
 | September | Paper writing; 2.2 streaming TTS if time (it feeds the paper's latency numbers) |
 | October | Preprint out → then Phase 2 features (2.1 voice input first) |
-| Nov–Dec | Phase 3 picks + demo video for applications/portfolio |
+| Nov–Dec | Phase 3 picks + demo video |
 
 ## Non-goals (scope control)
 

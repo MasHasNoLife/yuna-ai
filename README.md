@@ -211,7 +211,7 @@ are in the paper repo's `REPRODUCE.md` (its commands run against this repo).
 
 ## Roadmap
 
-See [ROADMAP.md](ROADMAP.md). Next up: the agentic-memory research benchmarks in [RESEARCH_PLAN.md](RESEARCH_PLAN.md), streaming sentence-level TTS, and live chat ingestion.
+See [ROADMAP.md](ROADMAP.md). Next up: streaming sentence-level TTS, live chat ingestion, and a memory consolidation pass (merging near-duplicate memories and materialising facts implied across several stored items).
 
 ## Acknowledgements
 
