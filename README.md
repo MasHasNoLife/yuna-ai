@@ -199,10 +199,15 @@ scripts/       Fish Speech launchers, VTS diagnostics
 
 ## Research paper
 
-The agentic memory system is the artifact behind a paper on long-term memory for
-local LLMs (*Memory That Doesn't Expire*). To regenerate every table and figure
-from this repo, see [paper/REPRODUCE.md](paper/REPRODUCE.md); the paper source is
-under [paper/](paper/).
+The agentic memory system in this repo is the artifact behind a paper on
+long-term memory for local LLMs, *Memory That Doesn't Expire*. The paper source
+lives in a companion repository:
+**[yuna-memory-paper](https://github.com/MasHasNoLife/yuna-memory-paper)**.
+
+The benchmark that produces every number in the paper is here, under
+`src/yuna/bench/` and `scripts/robustness_ci.py`, and drives the same memory code
+the live app uses. Step-by-step instructions to regenerate every table and figure
+are in the paper repo's `REPRODUCE.md` (its commands run against this repo).
 
 ## Roadmap
 

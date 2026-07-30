@@ -44,5 +44,3 @@ assets/
 .DS_Store
 /.claude/
 
-# Overleaf upload bundle (regenerate: cd paper && zip -r paper.zip .)
-paper/paper.zip
