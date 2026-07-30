@@ -24,9 +24,12 @@ Steps marked 👤 need a human; the rest can be delegated.
 | Authorship + repo link set | ✅ done |
 | Reading pass — author lists verified, MemGPT result folded in | ✅ done |
 | Number audit — all tables cross-checked against sources | ✅ done |
-| **Add 2–3 secondary refs (quantisation, Reflexion)** | ⬜ **next** |
-| Polish passes (6 of them) | ⬜ |
-| arXiv submission | ⬜ 👤 |
+| Secondary refs (AWQ, ReAct) | ✅ done |
+| Polish passes 1–4 (structure, language, captions, cut) | ✅ done |
+| Reproducibility guide (`paper/REPRODUCE.md`) | ✅ done |
+| **Fresh-eyes / read-aloud pass** | ⬜ **next, 👤** |
+| Publish raw judged outputs (release/Zenodo) | ⬜ 👤 |
+| arXiv or workshop submission | ⬜ 👤 |
 
 **No GPU runs remain.** Every number in the paper is frozen.
 

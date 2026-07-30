@@ -197,6 +197,13 @@ config.yaml    models, endpoints, thresholds, paths
 scripts/       Fish Speech launchers, VTS diagnostics
 ```
 
+## Research paper
+
+The agentic memory system is the artifact behind a paper on long-term memory for
+local LLMs (*Memory That Doesn't Expire*). To regenerate every table and figure
+from this repo, see [paper/REPRODUCE.md](paper/REPRODUCE.md); the paper source is
+under [paper/](paper/).
+
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md). Next up: the agentic-memory research benchmarks in [RESEARCH_PLAN.md](RESEARCH_PLAN.md), streaming sentence-level TTS, and live chat ingestion.
