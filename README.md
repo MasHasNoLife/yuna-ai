@@ -209,6 +209,11 @@ The benchmark that produces every number in the paper is here, under
 the live app uses. Step-by-step instructions to regenerate every table and figure
 are in the paper repo's `REPRODUCE.md` (its commands run against this repo).
 
+The raw judged run outputs and the 200-item extraction-precision audit are
+archived at [doi:10.5281/zenodo.21702651](https://doi.org/10.5281/zenodo.21702651)
+(CC BY 4.0). Unzip that deposit at the root of this repo to reproduce every table
+without re-running any model.
+
 ## Roadmap
 
 See [ROADMAP.md](ROADMAP.md). Next up: streaming sentence-level TTS, live chat ingestion, and a memory consolidation pass (merging near-duplicate memories and materialising facts implied across several stored items).
