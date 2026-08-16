@@ -200,8 +200,13 @@ scripts/       Fish Speech launchers, VTS diagnostics
 ## Research paper
 
 The agentic memory system in this repo is the artifact behind a paper on
-long-term memory for local LLMs, *Memory That Doesn't Expire*. The paper source
-lives in a companion repository:
+long-term memory for local LLMs:
+
+> **Memory That Doesn't Expire: Agentic Long-Term Memory for Conversational
+> Agents on a Single Consumer GPU**
+> [doi:10.5281/zenodo.21964738](https://doi.org/10.5281/zenodo.21964738)
+
+The paper source lives in a companion repository:
 **[memory-that-doesnt-expire](https://github.com/MasHasNoLife/memory-that-doesnt-expire)**.
 
 The benchmark that produces every number in the paper is here, under
